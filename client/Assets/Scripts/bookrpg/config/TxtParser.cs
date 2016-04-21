@@ -13,7 +13,7 @@ namespace bookrpg.config
     /// <summary>
     /// Parse tab delimited string, much like csv
     /// </summary>
-    public class TxtParser : IParser, ICollection, IEnumerable, IEnumerator
+    public class TxtParser : IConfigParser, ICollection, IEnumerable, IEnumerator
     {
         private string[] title;
         private List<string[]> body;
@@ -32,6 +32,11 @@ namespace bookrpg.config
 
         public bool parseString(string content)
         {
+            if (string.IsNullOrEmpty(content))
+            {
+                return false;
+            }
+
             string[] arr = content.Split(new char[]{ '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
             title = arr [0].Split(new char[]{ '\t' });
 
@@ -50,6 +55,17 @@ namespace bookrpg.config
         {
             arrayDelimiter = delimi;
             innerArrayDelimiter = innerDelimi;
+        }
+
+        public bool has(string columnName)
+        {
+            return this.has(Array.IndexOf(title, columnName));
+        }
+
+        public bool has(int columnIndex)
+        {
+            var row = body [currentRow];
+            return columnIndex >= 0 && columnIndex < row.Length;
         }
 
         public T getValue<T>(string columnName)

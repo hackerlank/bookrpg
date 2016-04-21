@@ -13,22 +13,13 @@ using bookrpg.log;
 
 namespace bookrpg.config
 {
-    public abstract class ConfigMgrDoubleKey<TKey1, TKey2, TItem>
+    public abstract class ConfigMgrDoubleKey<TKey1, TKey2, TItem>  : ConfigMgrBase<TItem>
             where TItem : ConfigItemBase, new()
     {
         protected SortedList<TKey1, SortedList<TKey2, TItem>> itemSortList = 
             new SortedList<TKey1, SortedList<TKey2, TItem>>();
-        
-        protected IList<TItem> itemList = new List<TItem>();
 
-        protected IParser parser;
-
-        public virtual bool init(string text)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual bool init(string text, string format)
+        public override bool init(string text, string format = null)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -58,10 +49,10 @@ namespace bookrpg.config
 
             int i = 0;
 
-            foreach(var tp in parser)
+            foreach (var tp in parser)
             {
                 TItem item = new TItem();
-                if (!item.parseFrom(tp as IParser))
+                if (!item.parseFrom(tp as IConfigParser))
                 {
                     Debug.LogErrorFormat("Failed to init:{0}, error at row({1})", 
                         this.ToString(), i);
@@ -74,11 +65,12 @@ namespace bookrpg.config
                 if (getItemGroup(key) == null)
                 {
                     itemSortList.Add(key, new SortedList<TKey2, TItem>());
-                } else if (itemSortList [key].ContainsKey(key2))
+                    itemSortList[key].Add(key2, item);
+                } else if (itemSortList[key].ContainsKey(key2))
                 {
-                    Debug.LogWarningFormat("Failed to init:{0}, multi key1:({1}) key2(2) at row({3})", 
+                    Debug.LogWarningFormat("init:{0}, multi key1:({1}) key2(2) at row({3})", 
                         this.ToString(), key, key2, i);
-                    itemSortList [key][key2] = item;
+                    itemSortList[key][key2] = item;
                 } else
                 {
                     itemSortList[key].Add(key2, item);
@@ -88,32 +80,6 @@ namespace bookrpg.config
                 i++;
             }
             return true;
-        }
-
-        protected IParser getParser(string format)
-        {
-            switch(format){
-                case "txt":
-                    this.parser = new TxtParser();
-                    break;
-                case "json":
-                    this.parser = new JsonParser();
-                    break;
-                default:
-                    break;
-            }
-
-            return this.parser;
-        }
-
-        public void setParser(IParser parser)
-        {
-            this.parser = parser;
-        }
-
-        public virtual IList<TItem> getAllItems()
-        {
-            return new List<TItem>(itemList);
         }
 
         public virtual IDictionary<TKey1, SortedList<TKey2, TItem>> getAllSortedItems()
@@ -141,7 +107,7 @@ namespace bookrpg.config
 
         public virtual bool hasItem(TKey1 key1, TKey2 key2)
         {
-            return itemSortList.ContainsKey(key1) && itemSortList [key1].ContainsKey(key2);
+            return itemSortList.ContainsKey(key1) && itemSortList[key1].ContainsKey(key2);
         }
 
         public virtual bool hasItemGroup(TKey1 key1)
@@ -149,12 +115,12 @@ namespace bookrpg.config
             return itemSortList.ContainsKey(key1);
         }
 
-        public virtual IDictionary<TKey2, TItem> this[TKey1 key1]
+        public virtual IDictionary<TKey2, TItem> this [TKey1 key1]
         {
             get { return getItemGroup(key1); }
         }
 
-        public virtual TItem this[TKey1 key1, TKey2 key2]
+        public virtual TItem this [TKey1 key1, TKey2 key2]
         {
             get { return getItem(key1, key2); }
         }

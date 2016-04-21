@@ -8,13 +8,17 @@ using System.Collections;
 
 namespace bookrpg.config
 {
-    public interface IParser : ICollection, IEnumerable
+    public interface IConfigParser : ICollection, IEnumerable
     {
         int currentRow { get; }
 
         void setArrayDelemiter(char delimi, char innerDelimi);
 
         bool parseString(string content);
+
+        bool has(string columnName);
+
+        bool has(int columnIndex);
 
         T getValue<T>(string columnName);
 

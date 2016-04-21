@@ -14,7 +14,7 @@ namespace bookrpg.config
     /// <summary>
     /// Parse json string
     /// </summary>
-    public class JsonParser : IParser, ICollection, IEnumerable, IEnumerator
+    public class JsonParser : IConfigParser, ICollection, IEnumerable, IEnumerator
     {
         public JsonData data;
 
@@ -35,7 +35,7 @@ namespace bookrpg.config
             {
                 data = JsonMapper.ToObject(content);
                 return true;
-            } catch (Exception e)
+            } catch (Exception)
             {
 //                throw new ConfigException("JsonParser: json format error", e);
                 return false;
@@ -46,6 +46,23 @@ namespace bookrpg.config
         {
             arrayDelimiter = delimi;
             innerArrayDelimiter = innerDelimi;
+        }
+
+        public bool has(string columnName)
+        {
+            try
+            {
+                return data[currentRow][columnName] != null;
+            } catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public bool has(int columnIndex)
+        {
+            var row = data [currentRow];
+            return columnIndex >= 0 && columnIndex < row.Count;
         }
 
         public T getValue<T>(string columnName)
