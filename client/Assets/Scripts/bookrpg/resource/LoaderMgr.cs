@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class LoaderItem : MonoBehaviour {
+public class LoaderMgr : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

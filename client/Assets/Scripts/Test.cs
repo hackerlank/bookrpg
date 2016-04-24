@@ -3,42 +3,29 @@ using System.Collections;
 using System;
 using System.IO;
 using book.rpg;
+using bookrpg.log;
 
 public class Test : MonoBehaviour {
+
+    public string Str;
 
 	// Use this for initialization
 	void Start () {
 
-        var txt = File.ReadAllText("Assets/config.json");
 
-        ConfigCfgMgr cc = new ConfigCfgMgr();
-        cc.init(txt);
 
-        var c1 = cc.getItem("pos");
+        Log.debug("tag", "this is {0}", 5);
+        Log.debug("this is {0}", "6");
 
-        var s = File.ReadAllText("Assets/Sheet.json");
-        SheetCfgMgr sc = new SheetCfgMgr();
-        sc.init(s, "json");
-
-        var a1 = sc.getItem(1, "武器商");
-        var a2 = sc.getItemGroup(1);
-
-        var a3 = sc.getItemByDesc("武器商");
-        var a4 = sc.getItemsByDesc("武器商");
-        var a5 = sc.getAllItems();
-
-        this.onSuccess += (arg1, arg2, arg3) =>
-        {
-            Debug.Log(arg2 + ":onSuccess->" + arg3.ToString());
-        };
-
-        this.onSuccess(this, "good", 333);
-
-        load();
-
-        Debug.Log(sc);
 	
 	}
+
+    void log(string a, string b, params object[] args)
+    {
+        Debug.Log(args.Length);
+        Debug.Log("a:" + a);
+        Debug.Log(string.Format(b, args));
+    }
 	
 	// Update is called once per frame
 	void Update () {
