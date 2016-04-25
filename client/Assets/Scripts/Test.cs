@@ -7,46 +7,35 @@ using bookrpg.log;
 
 public class Test : MonoBehaviour {
 
-    public string Str;
+    WeakReference weak;
 
 	// Use this for initialization
-	void Start () {
+    void Start () {
 
+        var ab = load();
 
+        GC.Collect();
 
-        Log.debug("tag", "this is {0}", 5);
-        Log.debug("this is {0}", "6");
-
+        Debug.Log(ab.GetInstanceID());
 	
 	}
 
-    void log(string a, string b, params object[] args)
-    {
-        Debug.Log(args.Length);
-        Debug.Log("a:" + a);
-        Debug.Log(string.Format(b, args));
-    }
-	
+
 	// Update is called once per frame
 	void Update () {
 	
 	}
 
-    void load()
-    {
-        var form = new WWWForm();
-        form.AddField("dd", "vv");
-        WWW www = new WWW("http://127.0.0.1/1.php", form);
+    AssetBundle load () {
+
+        WWW www = new WWW("file://" + Application.dataPath + "/abs/abs");
+
         while (!www.isDone)
         {
         }
 
-        Debug.Log(www.error);
-        Debug.Log(www.text);
-    }
+        weak = new WeakReference(www);
 
-    /// <summary>
-    /// Test sender, string Msg, int money
-    /// </summary>
-    public event Action<Test, string, int> onSuccess; 
+        return www.assetBundle;
+    }
 }

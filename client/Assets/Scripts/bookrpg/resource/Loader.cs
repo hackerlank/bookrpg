@@ -1,90 +1,117 @@
-﻿namespace bookrpg.resource
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using bookrpg.core;
+using bookrpg.log;
+
+#if  UNITY_EDITOR
+using UnityEditor;
+#endif
+
+namespace bookrpg.resource
 {
-    using System;
-    using System.Collections.Generic;
-    using UnityEngine;
-    using bookrpg.log;
-
-    #if  RES_DEBUG
-    using UnityEditor;
-    #endif
-
-    public class Loader : IDisposable
+    public class Loader : IDispose
     {
-        private string logTag = "Loader";
+        public static float defaultTimeout = 7f;
+
+        public BKEvent<Loader> onComplete = new BKEvent<Loader>();
 
         ///e.g. cdn server
         public string baseUrl = "http://localhost/WebPlayer/";
         ///e.g. cdn source server
         public string backupBaseUrl = "http://localhost/WebPlayer/";
 
-        private float startTime;
-        private float lastLoadingTime;
-        private bool useCache;
-        public AssetBundle ab;
-        public string actualUrl = string.Empty;
-        public object data;
-        public string error;
-        public bool hasError;
-        public bool isDone;
-        public int priority;
-        public int retryCount;
-        public int maxRetryCount;
-        private static bool ServerRejectPostRequest = true;
-        public int size;
-        public string url;
-        public int version;
-        public WWW www;
-        public UnityEngine.Object go;
+        public string actualUrl { get; protected set; }
+
+        public string url { get; protected set; }
+
+        public int version { get; protected set; }
+
+        public int size { get; protected set; }
+
+        public int priority { get; protected set; }
+
+        public int maxRetryCount { get; protected set; }
+
+        public int retryCount { get; protected set; }
 
         ///check ISP redirect or DNS error ...
         public bool checkErrorWebPage = true;
+        public float timeout;
 
+        public string error { get; protected set; }
 
-        public float timeout = 7f;
-        private int lastBytesLoaded;
+        public bool isCompete { get; protected set; }
 
-        public event Action<Loader> onComplete;
+        protected  WWW www;
 
-        public bool IsAddDelegate = false;
+        public AssetBundle ab;
+        ///user's data
+        public object data;
+        public UnityEngine.Object go;
 
-        public Loader(string url, int version, int maxRetryCount, int priority, int size)
+        protected string logTag = "Loader";
+        protected bool useCache;
+        protected float startTime = 0f;
+        protected float lastLoadingTime;
+        protected int lastBytesLoaded;
+        protected bool _hasDisposed;
+        private ThreadPriority _threadPriority = ThreadPriority.Normal;
+
+        /// <summary>
+        /// Why does it has't Loader(void) construction? To prevent reuse Loader instance.
+        /// </summary>
+        public Loader(string url, int version = 0, int size = 0, int priority = 0, int maxRetryCount = 3)
         {
+            this.error = string.Empty;
+            this.timeout = defaultTimeout;
+            this.actualUrl = string.Empty;
             this.url = url;
             this.version = version;
             this.size = size;
             this.priority = priority;
-            this.isDone = false;
+            this.isCompete = false;
             this.maxRetryCount = maxRetryCount;
         }
 
         ~Loader()
         {
-            this.Dispose(false);
+            this.Dispose();
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
+            if (_hasDisposed)
+            {
+                return;
+            }
+
+            _hasDisposed = true;
+            LoaderMgr.tryUnload(actualUrl, version);
         }
 
-        protected virtual void Dispose(bool disposing)
+        /// <summary>
+        /// Use by LoaderMgr, usual user need't use it
+        /// </summary>
+        public void disposeImmediate()
         {
             if (www != null)
             {
-                if (disposing)
-                {
-                }
-                AssetBundleDestroyer.Add(ab);
                 www.Dispose();
                 www = null;
             }
+            _hasDisposed = true;
+            GC.SuppressFinalize(this);
         }
 
-        public void load(bool useCache, bool useBackupUrl = false)
+        public bool hasDisposed()
         {
-            #if RES_DEBUG
+            return _hasDisposed;
+        }
+
+        public virtual void load(bool useCache = true, bool useBackupUrl = false)
+        {
+            #if UNITY_EDITOR
             go = AssetDatabase.LoadMainAssetAtPath("Assets/" + url);
             #else
             if (www != null)
@@ -92,7 +119,7 @@
                 throw new InvalidOperationException("Don't reuse Loader");
             }
 
-            useCache = useCache;
+            this.useCache = useCache;
             string strUrl;
 
             if (useBackupUrl)
@@ -118,45 +145,29 @@
                 useCache
             );
             www = useCache ? WWW.LoadFromCacheOrDownload(strUrl, version) : new WWW(strUrl);
+            www.threadPriority = _threadPriority;
 
-            startTime = Time.time;
+            if (startTime == 0f)
+            {
+                startTime = Time.time;
+            }
             lastLoadingTime = Time.time;
             lastBytesLoaded = 0f;
+            isCompete = false;
             #endif
         }
 
-        private void loadFromBackupUrl(bool useCache = true)
+        protected string getActualUrl(string url, string baseUrl)
         {
-            string strUrl = getActualUrl(url, backupBaseUrl);
-            if (strUrl.Contains(baseUrl))
-            {
-                strUrl = strUrl.Replace(baseUrl, backupBaseUrl);
-            }
-            actualUrl = strUrl;
-            if (useCache)
-            {
-                www = WWW.LoadFromCacheOrDownload(strUrl);
-            } else
-            {
-                www = new WWW(strUrl);
-            }
-        }
-
-        private string getActualUrl(string url, string baseUrl)
-        {
-            string actualUrl;
+            string actualUrl = url;
             //http:// https:// ftp:// file://
-            if (url.Contains("://") || string.IsNullOrEmpty(baseUrl))
+            if (!url.Contains("://") && !string.IsNullOrEmpty(baseUrl))
             {
-                actualUrl = url;
-            } else
-            {
-                baseUrl.TrimEnd(new char{ '\\', '/' });
-                actualUrl = baseUrl + '/' + url;
+                actualUrl = baseUrl.TrimEnd(new char[]{ '\\', '/' }) + '/' + actualUrl;
             }
 
             //http or https
-            if (actualUrl.StartsWith("http://") || actualUrl.StartsWith("https://"))
+            if (version > 0 && (actualUrl.StartsWith("http://") || actualUrl.StartsWith("https://")))
             {
                 actualUrl += (actualUrl.Contains("?") ? "&loadVer=" : "?loadVer=") + version.ToString();
             }
@@ -164,37 +175,37 @@
             return actualUrl;
         }
 
-        public void doCompleted()
+        public virtual void doCompleted()
         {
             if (onComplete != null)
             {
-                onComplete(this);
-                onComplete = null;
+                onComplete.invokeAndRemove(this);
             }
         }
 
         /// <summary>
         /// check the load is completed, include load success or failure
         /// </summary>
-        public bool checkCompleted()
+        public virtual bool checkCompleted()
         {
             if (www == null)
             {
-                return true;
+                return (isCompete = false);
             }
 
             if (www.isDone)
             {
                 if (!string.IsNullOrEmpty(www.error))
                 {
-                    string error = www.error;
                     if (retry())
                     {
-                        return false;
+                        isCompete = false;
+                    } else
+                    {
+                        error = www.error;
+                        isCompete = true;
                     }
-                    hasError = true;
-                    error = error;
-                    return true;
+                    return isCompete;
                 }
 
                 if (checkErrorWebPage &&
@@ -207,15 +218,19 @@
                     {
                         if (retry())
                         {
-                            return false;
+                            isCompete = false;
+                        } else
+                        {
+                            str = www.text.Substring(0, Mathf.Min(www.text.Length, 3000));
+                            error = "Load error: " + www.url + "\r\n" + str;
+                            isCompete = true;
                         }
-                        hasError = true;
-                        str = www.text.Substring(0, Mathf.Min(www.text.Length, 3000));
-                        error = "Load error: " + www.url + "\r\n" + str;
-                        return true;
+
+                        return isCompete;
                     }
                 }
-                return true;
+                error = string.Empty;
+                return (isCompete = true);
             }
 
             //is loading
@@ -223,31 +238,31 @@
             {
                 lastBytesLoaded = www.bytesDownloaded;
                 lastLoadingTime = Time.time;
-                return false;
+                return (isCompete = false);
             }
 
             //waiting or timeout and retry
             if (Time.time - lastLoadingTime <= timeout || retry())
             {
+                return (isCompete = false);
+            }
+
+            error = string.Format("Timeout, start: {0}, now: {1}, pass: {2}", 
+                startTime, Time.time, Time.time - startTime);
+            return (isCompete = true);
+        }
+
+        protected virtual bool retry()
+        {
+            if (retryCount >= maxRetryCount)
+            {
                 return false;
             }
 
-            hasError = true;
-            error = string.Format("Timeout, start: {0}, now: {1}, pass: {2}", 
-                startTime, Time.time, Time.time - startTime);
-            return true;
-        }
-
-        private bool retry()
-        {
             if (www != null)
             {
                 www.Dispose();
                 www = null;
-            }
-            if (retryCount >= maxRetryCount)
-            {
-                return false;
             }
 
             retryCount++;
@@ -256,125 +271,170 @@
             return true;
         }
 
-        /// <summary>
-        /// return 0 ... 1
-        /// </summary>
+
+        #region WWW API
+
+        public ResourceBundle assetBundle { get; protected set; }
+
+        public AudioClip audioClip
+        { 
+            get
+            {
+                return www == null ? null : www.audioClip;
+            }
+        }
+
+        public byte[] bytes
+        { 
+            get
+            {
+                return www == null ? null : www.bytes;
+            }
+        }
+
+        public MovieTexture movie
+        { 
+            get
+            {
+                return www == null ? null : www.movie;
+            }
+        }
+
+        public Dictionary<string,string> responseHeaders
+        { 
+            get
+            {
+                return www == null ? null : www.responseHeaders;
+            }
+        }
+
+        public string text
+        { 
+            get
+            {
+                return www == null ? null : www.text;
+            }
+        }
+
+        public Texture2D texture
+        { 
+            get
+            {
+                return www == null ? null : www.texture;
+            }
+        }
+
+        public Texture2D textureNonReadable
+        { 
+            get
+            {
+                return www == null ? null : www.textureNonReadable;
+            }
+        }
+
+        public ThreadPriority threadPriority
+        { 
+            get
+            {
+                return _threadPriority;
+            }
+            set
+            {
+                _threadPriority = value;
+                if (www != null)
+                {
+                    www.threadPriority = value;
+                }
+            }
+        }
+
         public float progress
         {
-            get {
+            get
+            {
                 //error or not started
-                if (hasError || www == null)
+                if (!string.IsNullOrEmpty(error) || www == null)
                 {
                     return 0f;
                 }
-
                 //sucess
-                if (isDone)
+                if (isCompete)
                 {
                     return 1f;
                 }
-
-                return size > 0 ? Math.Min(1f, www.bytesDownloaded / size) : www.progress;
+//                return size > 0 ? Math.Min(1f, (float)www.bytesDownloaded / (float)size) : www.progress;
+                return www.size > 0 ? www.progress : Math.Min(1f, (float)www.bytesDownloaded / (float)size);
             }
         }
 
         public int bytesLoaded
         {
-            get {
+            get
+            {
                 //error or not started
-                if (hasError || www == null)
+                if (!string.IsNullOrEmpty(error) || www == null)
                 {
-                    return 0f;
+                    return 0;
                 }
-
                 //sucess
-                if (isDone)
+                if (isCompete)
                 {
                     return size > 0 ? size : www.bytesDownloaded;
                 }
-                
                 return www.bytesDownloaded;
             }
         }
 
         public int bytesTotal
         {
-            get {
+            get
+            {
                 if (size > 0)
                 {
                     return size;
                 }
-
-                return www != null ? www.bytesDownloaded / www.progress : 0f;
+                return www != null ? www.size : 0;
             }
         }
 
-        public static float getLoadingProgress(IEnumerable<Loader> list)
+        public AudioClip getAudioClip(bool threeD)
         {
-            int num;
-            int num2;
-            float num3;
-            getLoadingProgress(list, out num, out num2, out num3);
-            return num3;
+            return www == null ? null : www.GetAudioClip(threeD);
         }
 
-        public static void getLoadingProgress(
-            IEnumerable<Loader> list, 
-            out int bytesLoaded, 
-            out int bytesTotal, 
-            out float progess)
+        public AudioClip getAudioClip(bool threeD, bool stream)
         {
-            int loaded = 0;
-            int total = 0;
-            bool flag = true;
-            IEnumerator<Loader> enumerator = list.GetEnumerator();
-            try
-            {
-                while (enumerator.MoveNext())
-                {
-                    Loader current = enumerator.Current;
-                    //只计算提前知道大小的，便于统计总百分比
-                    if (current.size > 0)
-                    {
-                        total += current.size;
-                        loaded += current.bytesLoaded;
-                    }
-                    flag = flag && current.isDone;
-                }
-            } finally
-            {
-                if (enumerator == null)
-                {
-                }
-                enumerator.Dispose();
-            }
-            bytesLoaded = loaded;
-            bytesTotal = total;
-            progess = !flag ? ((total != 0) ? (((float)bytesLoaded) / ((float)bytesTotal)) : 0f) : 1f;
+            return www == null ? null : www.GetAudioClip(threeD, stream);
         }
 
-        public static bool IsAllDone(IEnumerable<Loader> list)
+        public AudioClip getAudioClip(bool threeD, bool stream, AudioType audioType)
         {
-            IEnumerator<Loader> enumerator = list.GetEnumerator();
-            try
-            {
-                while (enumerator.MoveNext())
-                {
-                    Loader current = enumerator.Current;
-                    if (!current.isDone)
-                    {
-                        return false;
-                    }
-                }
-            } finally
-            {
-                if (enumerator == null)
-                {
-                }
-                enumerator.Dispose();
-            }
-            return true;
+            return www == null ? null : www.GetAudioClip(threeD, stream, audioType);
         }
+
+        public AudioClip getAudioClipCompressed()
+        {
+            return www == null ? null : www.GetAudioClipCompressed();
+        }
+
+        public AudioClip getAudioClipCompressed(bool threeD)
+        {
+            return www == null ? null : www.GetAudioClipCompressed(threeD);
+        }
+
+        public AudioClip getAudioClipCompressed(bool threeD, AudioType audioType)
+        {
+            return www == null ? null : www.GetAudioClipCompressed(threeD, audioType);
+        }
+
+        public void LoadImageIntoTexture(Texture2D tex)
+        {
+            if (www != null)
+            {
+                www.LoadImageIntoTexture(tex);
+            }
+        }
+
+        #endregion
     }
 }
-

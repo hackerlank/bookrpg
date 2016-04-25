@@ -28,6 +28,8 @@ namespace bookrpg.log
         public static bool showTagLogInConsole = false;
         public static int maxTagLogCount = 4096;
 
+        public static bool isDebug = true;
+
         public static void error(string format, params object[] args)
         {
             doLog(LogLevel.ERROR, String.Format(format, args));
@@ -45,7 +47,9 @@ namespace bookrpg.log
 
         public static void debug(string format, params object[] args)
         {
-            doLog(LogLevel.DEBUG, String.Format(format, args));
+            if (isDebug){
+                doLog(LogLevel.DEBUG, String.Format(format, args));
+            }
         }
 
         /// <summary>
@@ -53,6 +57,11 @@ namespace bookrpg.log
         /// </summary>
         public static void addTagLog(string tag, string format, params object[] args)
         {
+            if (!isDebug)
+            {
+                return;
+            }
+
             string str = String.Format(format, args);
             str = DateTime.Now.ToLongTimeString() + " " + str;
             if (showTagLogInConsole)
@@ -80,6 +89,11 @@ namespace bookrpg.log
 
         public static void clearTagLog(string tag)
         {
+            if (!isDebug)
+            {
+                return;
+            }
+
             lock (tagLogs)
             {
                 if (tagLogs.ContainsKey(tag))
@@ -92,6 +106,11 @@ namespace bookrpg.log
 
         public static string getTagLog(string tag)
         {
+            if (!isDebug)
+            {
+                return string.Empty;
+            }
+
             string[] strArr = null;
 
             lock (tagLogs)
@@ -132,8 +151,6 @@ namespace bookrpg.log
 
         private static void doLog(LogLevel level, object message)
         {
-            //if(!Application.isEditor)
-            //  return;
             switch (level)
             {
                 case LogLevel.ERROR:
@@ -147,8 +164,10 @@ namespace bookrpg.log
                     Debug.Log(message);
                     break;
                 case LogLevel.DEBUG:
-                //--4>TODO: 以后需要改成判断是否为调试版本
-                    Debug.Log(message);
+                    if (isDebug)
+                    {
+                        Debug.Log(message);
+                    }
                     break;
                 default:
                     break;
