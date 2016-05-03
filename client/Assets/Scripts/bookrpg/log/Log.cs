@@ -25,7 +25,7 @@ namespace bookrpg.log
     {
         private static Dictionary<string, List<string>> tagLogs = new Dictionary<string, List<string>>();
 
-        public static bool showTagLogInConsole = false;
+        public static bool showTagLogInConsole = true;
         public static int maxTagLogCount = 4096;
 
         public static bool isDebug = true;

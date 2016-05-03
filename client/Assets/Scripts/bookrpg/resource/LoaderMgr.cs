@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using System.Net;
 using bookrpg.log;
+using bookrpg.core;
 using bookrpg.utils;
 using UnityEngine.Events;
 
@@ -12,87 +13,122 @@ namespace bookrpg.resource
 {
     public static class LoaderMgr
     {
-        ///e.g. cdn server
-        public static string baseUrl {get; private set;}
-        ///e.g. cdn source server
-        public static string backupBaseUrl {get; private set;}
+        ///decide using cache or not, 
+        ///BKFunc<string url, bool return>
+        public static BKFunc<string, bool> decideUseCache;
 
-        private static string decodedBaseUrl;
-        private static string decodedBackupBaseUrl;
+        private static string _baseUrl;
+
+        private static string _backupBaseUrl;
+
+        /// <summary>
+        /// The max loading count, default 5.
+        /// </summary>
+        public static int maxLoadingCount = 5;
+        /// <summary>
+        /// The timeout, default 7s.
+        /// </summary>
+        public static float timeout = 7f;
+        public static string lastError = null;
+        public static string lastErrorUrl = null;
+        public static int totalLoadedSize = 0;
+        public static int totalLoadedCount = 0;
+
+        private static bool needSort;
 
         private static Dictionary<string, WeakReference> cache = new Dictionary<string, WeakReference>();
+        private static List<BatchLoader> batchLoaders = new List<BatchLoader>();
         private static List<Loader> waiting = new List<Loader>();
         private static List<Loader> loading = new List<Loader>();
         private static Dictionary<string, int> refList = new Dictionary<string, int>();
 
-        private static int CompareLoader(Loader left, Loader right)
-        {
-            return left.priority - right.priority;
-        }
-
-        public static bool isCacheAuthorized = false;
-        public static bool hasError = false;
-        public static bool hasItemDone = false;
-        public static string LastErrorMsg = null;
-        public static string LastErrorUrl = null;
-        public static int maxLoading = 5;
-        private static bool needSort;
-        public static int sizeLoaded = 0;
-        public static int totalLoaded = 0;
 
         public static Loader load(
             string url, 
             int version = 0, 
-            int size = 0, 
+            int size = 0,
             int priority = 0, 
             int maxRetryCount = 3)
         {
             return newOrGetLoad(url, version, size, priority, maxRetryCount);
+        }
 
-            UnityAction a;
-        } 
+        private static int compareLoader(Loader left, Loader right)
+        {
+            return right.priority - left.priority;
+        }
 
         public static BatchLoader batchLoad()
         {
-            return new BatchLoader();
+            var bl = new BatchLoader();
+            batchLoaders.Add(bl);
+            return bl;
         }
 
         public static BatchLoader batchLoad(string[] urls, int maxRetryCount = 3)
         {
-            return new BatchLoader(urls, maxRetryCount);
+            var bl = new BatchLoader(urls, maxRetryCount);
+            batchLoaders.Add(bl);
+            return bl;
         }
 
-        public static void setBaseUrl(string baseUrl, string backupBaseUrl = "")
+
+        ///like html's baseUrl, e.g. cdn server
+        public static string baseUrl
         {
-            LoaderMgr.baseUrl = baseUrl;
-            decodedBaseUrl = WWW.UnEscapeURL(baseUrl);
-            LoaderMgr.backupBaseUrl = backupBaseUrl;
-            decodedBackupBaseUrl = WWW.UnEscapeURL(backupBaseUrl);
+            get{ return _baseUrl; } 
+            set{ _baseUrl = WWW.UnEscapeURL(value); }
+        }
+
+        ///when baseUrl load error, try this, e.g. cdn source server
+        public static string backupBaseUrl
+        {
+            get{ return _backupBaseUrl; } 
+            set{ _backupBaseUrl = WWW.UnEscapeURL(value); }
         }
 
         public static bool hasLoaded(string url, int version = 0)
         {
-            string key = url + '_' + version.ToString();
-            return cache.ContainsKey(key) && cache[key].Target != null;
+            string key = getKey(url, version);
+            var item = getCache(key);
+            return item.isComplete;
         }
 
         public static Loader getLoaded(string url, int version = 0)
         {
-            string key = url + '_' + version.ToString();
-            return cache.ContainsKey(key) ? cache[key].Target as Loader : null;
+            string key = getKey(url, version);
+            var item = getCache(key);
+            return item.isComplete ? item : null;
         }
 
+        public static void stopLoad(string url, int version = 0)
+        {
+            string key = getKey(url, version);
+            Loader item = null;
 
+            if (!refList.ContainsKey(key) || refList[key] <= 1)
+            {
+                item = findLoader(key, loading);
+                if (item != null)
+                {
+                    loading.Remove(item);
+                    item.disposeImmediate();
+                }
+
+                item = findLoader(key, waiting);
+                if (item != null)
+                {
+                    waiting.Remove(item);
+                    item.disposeImmediate();
+                }
+            }
+        }
 
         public static bool tryUnload(string url, int version = 0)
         {
-            Loader item = null;
             string key = getKey(url, version);
-
-            if (cache.ContainsKey(key) && cache[key].Target != null)
-            {
-                item = cache[key].Target as Loader;
-            }
+            Loader item = getCache(key);
+            releaseRef(key);
 
             if (item == null || !refList.ContainsKey(key) || refList[key] <= 0)
             {
@@ -103,10 +139,10 @@ namespace bookrpg.resource
             return false;
         }
 
-//        public static void unload(string url, int version = 0)
-//        {
-//            unload(getKey(url, version));
-//        }
+        //        public static void unload(string url, int version = 0)
+        //        {
+        //            unload(getKey(url, version));
+        //        }
 
         private static void unload(string key)
         {
@@ -126,9 +162,9 @@ namespace bookrpg.resource
                 item.disposeImmediate();
             }
 
-            if (cache.ContainsKey(key) && cache[key].Target != null)
+            item = getCache(key);
+            if (item != null)
             {
-                item = cache[key].Target as Loader;
                 cache.Remove(key);
                 item.disposeImmediate();
             }
@@ -168,7 +204,7 @@ namespace bookrpg.resource
 
         public static bool cachingAuthorize(string name, string domain, long size, int expiration, string singature)
         {
-            isCacheAuthorized = Caching.Authorize(name, domain, size, expiration, singature);
+            var isCacheAuthorized = Caching.Authorize(name, domain, size, expiration, singature);
             if (!isCacheAuthorized)
             {
                 Debug.LogWarningFormat("Caching.Authorize Failed. name:{0}, domain:{1}, absoluteURL:{2}", name, domain, Application.absoluteURL);
@@ -187,26 +223,64 @@ namespace bookrpg.resource
             int maxRetryCount = 3)
         {
             string key = getKey(url, version);
-            Loader target = null;
+            Loader target = getCache(key);
+            if (target != null)
+            {
+                if ((!target.isComplete && !loading.Contains(target)) && !waiting.Contains(target))
+                {
+                    waiting.Add(target);
+                    if (priority > target.priority)
+                    {
+                        target.priority = priority;
+                        needSort = true;
+                    }
+                    if (maxRetryCount > target.maxRetryCount)
+                    {
+                        target.maxRetryCount = maxRetryCount;
+                    }
+                }
+            } else
+            {
+                target = new Loader(url, version, size, priority, maxRetryCount);
+                waiting.Insert(0, target);
+                cache[key] = new WeakReference(target);
+                needSort = true;
+            }
+
+            addRef(key);
+            return target;
+        }
+
+        private static Loader getCache(string key)
+        {
             if (cache.ContainsKey(key))
             {
                 WeakReference reference = cache[key];
-                target = reference.Target as Loader;
-                if (target != null)
+                if (reference.Target != null)
                 {
-                    if ((!target.isCompete && !loading.Contains(target)) && !waiting.Contains(target))
-                    {
-                        waiting.Add(target);
-                        needSort = true;
-                    }
-                    return target;
+                    return reference.Target as Loader;
                 }
             }
-            target = new Loader(url, version, size, priority, maxRetryCount);
-            waiting.Insert(0, target);
-            needSort = true;
-            cache[key] = new WeakReference(target);
-            return target;
+            return null;
+        }
+
+        private static void addRef(string key)
+        {
+            if (refList.ContainsKey(key))
+            {
+                refList[key]++;
+            } else
+            {
+                refList.Add(key, 1);
+            }
+        }
+
+        private static void releaseRef(string key)
+        {
+            if (refList.ContainsKey(key))
+            {
+                refList[key]--;
+            }
         }
 
         private static Loader findLoader(string key, IList<Loader> list)
@@ -214,7 +288,8 @@ namespace bookrpg.resource
             foreach (var item in list)
             {
                 var ikey = getKey(item.actualUrl != null ? item.actualUrl : item.url, item.version);
-                if (ikey == key){
+                if (ikey == key)
+                {
                     return item;
                 }
             }
@@ -222,7 +297,7 @@ namespace bookrpg.resource
             return null;
         }
 
-        public static List<Loader> DebugGetAllDownloads()
+        public static List<Loader> debugGetAllDownloads()
         {
             List<Loader> list = new List<Loader>();
             foreach (KeyValuePair<string, WeakReference> pair in cache)
@@ -236,7 +311,7 @@ namespace bookrpg.resource
             return list;
         }
 
-        public static void DebugGetDownloadInfo(out int numItems, out int numLoading, out int numWaiting)
+        public static void debugGetDownloadInfo(out int numItems, out int numLoading, out int numWaiting)
         {
             int num = 0;
             foreach (KeyValuePair<string, WeakReference> pair in cache)
@@ -251,9 +326,13 @@ namespace bookrpg.resource
             numWaiting = waiting.Count;
         }
 
-        public static string GetLoadErrorDetail()
+        public static string getLoadErrorDetail()
         {
-            return (!hasError ? string.Empty : string.Format("Load Error, url:{0}\nmsg:{1}", LastErrorUrl, LastErrorMsg));
+            if (string.IsNullOrEmpty(lastError))
+            {
+                return string.Empty;
+            }
+            return string.Format("Load Error, url:{0}\r\nerror:{1}", lastErrorUrl, lastError);
         }
 
         public static void init(bool autoUpdate = true)
@@ -273,53 +352,49 @@ namespace bookrpg.resource
             }
         }
 
-        public static void OnPriorityChanged()
+        public static void onPriorityChanged()
         {
             needSort = true;
         }
 
         public static void update()
         {
-
             for (int i = 0; i < loading.Count; i++)
             {
                 var loader = loading[i];
-                if (!loader.checkCompleted())
+                loader.update();
+                if (!loader.isComplete)
                 {
                     continue;
                 }
 
-                loading.Remove(loader);
-                i--;
-                totalLoaded++;
+                loading.RemoveAt(i--);
+                totalLoadedCount++;
 
-                #if UNITY_EDITOR1
+                #if RES_EDITOR
                 #else
-                if (!string.IsNullOrEmpty(loader.error))
+                if (!loader.hasError)
                 {
 //                   TODO Log.addTagLog
-                    sizeLoaded += loader.size;
+                    totalLoadedSize += loader.size;
                 } else
                 {
-                    hasError = true;
-                    LastErrorUrl = loader.url;
-                    LastErrorMsg = loader.error;
+                    lastErrorUrl = loader.url;
+                    lastError = loader.error;
                     Debug.LogErrorFormat("Load Error: {0}, url: {1}, version: {2}, actualUrl:{3}", 
                         loader.error, loader.url, loader.version, loader.actualUrl);
                 }
                 #endif
-
-                loader.doCompleted();
             }
 
-            int count = maxLoading - loading.Count;
+            int count = maxLoadingCount - loading.Count;
             if (count > 0 && waiting.Count > 0)
             {
                 if (needSort)
                 {
                     needSort = false;
-//                    waiting.Sort(CompareLoader);
-                    Util.insertionSort<Loader>(waiting, CompareLoader);
+                    waiting.Sort(compareLoader);
+//                    Util.insertionSort<Loader>(waiting, compareLoader);
                 }
                 if (count > waiting.Count)
                 {
@@ -330,8 +405,18 @@ namespace bookrpg.resource
                     Loader item = waiting[0];
                     waiting.Remove(item);
                     loading.Add(item);
-//                    bool useCache = CacheAuthorized && IsAssetBundle(item3.url);
-                    item.load(true);
+                    bool useCache = decideUseCache != null ? decideUseCache(item.url) : false;
+                    item.load(useCache);
+                }
+            }
+
+            for (int i = 0; i < batchLoaders.Count; i++)
+            {
+                var bl = batchLoaders[i];
+                bl.update();
+                if (bl.isComplete)
+                {
+                    batchLoaders.RemoveAt(i--);
                 }
             }
         }
@@ -345,17 +430,17 @@ namespace bookrpg.resource
 
             string key = WWW.UnEscapeURL(url);
 
-            if (string.IsNullOrEmpty(decodedBaseUrl) && key.Contains(decodedBaseUrl))
+            if (!string.IsNullOrEmpty(_baseUrl) && key.Contains(_baseUrl))
             {
-                key = key.Replace(decodedBaseUrl, "");
-            } else if (string.IsNullOrEmpty(decodedBackupBaseUrl) && 
-                key.Contains(decodedBackupBaseUrl))
+                key = key.Replace(_baseUrl, "");
+            } else if (!string.IsNullOrEmpty(_backupBaseUrl) &&
+                       key.Contains(_backupBaseUrl))
             {
-                key = key.Replace(decodedBackupBaseUrl, "");
+                key = key.Replace(_backupBaseUrl, "");
             }
 
             key = key.Replace('\\', '/');
-            key = key.TrimStart(new char[]{'/'});
+            key = key.TrimStart(new char[]{ '/' });
 
             return WWW.UnEscapeURL(key) + '_' + version.ToString();
         }

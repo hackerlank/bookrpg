@@ -4,6 +4,6 @@ namespace bookrpg.core
 {
     public interface IDispose : IDisposable
     {
-        bool hasDisposed();
+        bool hasDisposed { get;}
     }
 }

@@ -76,7 +76,7 @@ public static class CoroutineMgr
     public static Coroutine startCoroutine(IEnumerator routine, bool bDestroyWhenLoadLevel)
     {
         //use main MonoBehaviour exe coroutine
-        if (!bDestroyWhenLoadLevel)
+        if (!bDestroyWhenLoadLevel && mMain != null)
         {
             return mMain.StartCoroutine(routine);
         }
@@ -86,5 +86,30 @@ public static class CoroutineMgr
             mPrivate = new GameObject("CoroutineManager").AddComponent<CoroutineBehaviour>();
         }
         return mPrivate.StartCoroutine(routine);
+    }
+
+
+    public static void stopCoroutine(string routine)
+    {
+        if (mMain != null)
+        {
+            mMain.StopCoroutine(routine);
+        }
+        if (mPrivate != null)
+        {
+            mPrivate.StopCoroutine(routine);
+        }
+    }
+
+    public static void stopCoroutine(IEnumerator routine)
+    {
+        if (mMain != null)
+        {
+            mMain.StopCoroutine(routine);
+        }
+        if (mPrivate != null)
+        {
+            mPrivate.StopCoroutine(routine);
+        }
     }
 }

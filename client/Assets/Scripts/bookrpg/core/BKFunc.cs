@@ -2,6 +2,7 @@
 
 namespace bookrpg.core
 {
+    public delegate TReturn BKFunc<TReturn>();
     public delegate TReturn BKFunc<T, TReturn>(T arg);
     public delegate TReturn BKFunc<T1,T2,TReturn>(T1 arg1,T2 arg2);
     public delegate TReturn BKFunc<T1,T2,T3,TReturn>(T1 arg1,T2 arg2,T3 arg3);

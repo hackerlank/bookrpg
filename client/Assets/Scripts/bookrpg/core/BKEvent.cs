@@ -63,7 +63,7 @@ namespace bookrpg.core
             this.onceAction -= action;
         }
 
-        public virtual void RemoveAllListeners()
+        public override void RemoveAllListeners()
         {
             this.action = null;
             this.onceAction = null;
@@ -141,7 +141,7 @@ namespace bookrpg.core
             this.onceAction -= action;
         }
 
-        public virtual void RemoveAllListeners()
+        public override void RemoveAllListeners()
         {
             this.action = null;
             this.onceAction = null;
@@ -182,7 +182,7 @@ namespace bookrpg.core
             this.onceAction -= action;
         }
 
-        public virtual void RemoveAllListeners()
+        public override void RemoveAllListeners()
         {
             this.action = null;
             this.onceAction = null;
@@ -298,7 +298,7 @@ namespace bookrpg.core
             this.onceAction -= action;
         }
 
-        public virtual void RemoveAllListeners()
+        public override void RemoveAllListeners()
         {
             this.action = null;
             this.onceAction = null;
@@ -376,7 +376,7 @@ namespace bookrpg.core
             this.onceAction -= action;
         }
 
-        public virtual void RemoveAllListeners()
+        public override void RemoveAllListeners()
         {
             this.action = null;
             this.onceAction = null;
@@ -454,7 +454,7 @@ namespace bookrpg.core
             this.onceAction -= action;
         }
 
-        public virtual void RemoveAllListeners()
+        public override void RemoveAllListeners()
         {
             this.action = null;
             this.onceAction = null;

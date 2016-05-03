@@ -2,46 +2,70 @@
 using System.Collections.Generic;
 using UnityEngine;
 using bookrpg.log;
+using bookrpg.core;
 
 namespace bookrpg.resource
 {
-    public class BatchLoader : IDisposable
+    public class BatchLoader : IDispose
     {
-        public static int defaultMaxLoadingCount = 3;
         public event Action<BatchLoader> onComplete;
 
+        public event Action<Loader> onOneComplete;
+
+        public bool onlyRetainAssetBundle = false;
+
         ///e.g. cdn server
-        public string baseUrl = "http://localhost/WebPlayer/";
+        private static string _baseUrl;
+
         ///e.g. cdn source server
-        public string backupBaseUrl = "http://localhost/WebPlayer/";
+        private static string _backupBaseUrl;
 
         public int maxRetryCount { get; protected set; }
 
-        public int maxLoadingCount;
+        public bool isCheckRedirectError = false;
 
-        ///check ISP redirect or DNS error ...
-        public bool checkErrorWebPage = true;
+        /// <summary>
+        /// default value is LoaderMgr.timeout
+        /// </summary>
         public float timeout;
 
-        public string error { get; protected set; }
-
-        public bool isCompete { get; protected set; }
+        public bool isComplete { get; protected set; }
 
         ///user's data
-        public object data;
+        public object customData = null;
 
-        protected bool useCache;
+        public string lastError  { get; protected set; }
+
+        public string lastErrorUrl  { get; protected set; }
+
+        public float timeElapsed  { get; protected set; }
+
+        /// <summary>
+        /// when reach it, stop all load
+        /// </summary>
+        public int maxErrorCount = 0;
+
+        public int errorCount  { get; protected set; }
+
         protected float startTime;
 
         protected Dictionary<string, Loader> loaders = new Dictionary<string, Loader>();
+        protected List<Loader> completedLoaders = new List<Loader>();
+
+        protected bool hasInit = false;
 
         public BatchLoader()
         {
-            
+            startTime = Time.time;
+            timeout = LoaderMgr.timeout;
+            _baseUrl = LoaderMgr.baseUrl;
+            _backupBaseUrl = LoaderMgr.backupBaseUrl;
         }
 
         public BatchLoader(string[] urls, int maxRetryCount = 3)
         {
+            startTime = Time.time;
+
             foreach (var url in urls)
             {
                 addLoader(url, 0, 0, 0, maxRetryCount);
@@ -56,7 +80,7 @@ namespace bookrpg.resource
             {
                 //for repeated url ignore diff of version
                 loader = loaders[key];
-                Debug.LogFormat("%s has already in load queue", url);
+                Debug.LogFormat("{0} has already in load queue", url);
             } else
             {
                 loader = LoaderMgr.newOrGetLoad(url, version, size, priority, maxRetryCount);
@@ -66,40 +90,154 @@ namespace bookrpg.resource
             return loader;
         }
 
+        public bool hasDisposed
+        {
+            get;
+            private set;
+        }
+
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
+            if (hasDisposed)
+            {
+                return;
+            }
+            hasDisposed = true;
+
+            onComplete = null;
+            onOneComplete = null;
+            foreach (var loader in loaders.Values)
+            {
+                loader.Dispose();
+            }
+            loaders.Clear();
+            completedLoaders.Clear();
+            customData = null;
         }
 
-        public virtual void load(bool useCache = true, bool useBackupUrl = false)
+        /// <summary>
+        /// Use by LoaderMgr, usually user need't use it
+        /// </summary>
+        public virtual void disposeImmediate()
         {
-            
+            if (hasDisposed)
+            {
+                return;
+            }
+            hasDisposed = true;
+
+            onComplete = null;
+            onOneComplete = null;
+            foreach (var loader in loaders.Values)
+            {
+                loader.disposeImmediate();
+            }
+            loaders.Clear();
+            completedLoaders.Clear();
+            customData = null;
         }
 
-       
-        public virtual void doCompleted()
+        protected void init()
         {
+            foreach (var loader in loaders.Values)
+            {
+                loader.baseUrl = baseUrl;
+                loader.backupBaseUrl = backupBaseUrl;
+                loader.onlyRetainAssetBundle = onlyRetainAssetBundle;
+                loader.timeout = timeout;
+                loader.isCheckRedirectError = isCheckRedirectError;
+            }
+            hasInit = true;
+        }
+
+        ///e.g. cdn server
+        public string baseUrl
+        { 
+            get{ return _baseUrl; } 
+            set{ _baseUrl = WWW.UnEscapeURL(value); }
+        }
+
+        ///e.g. cdn source server
+        public string backupBaseUrl
+        {
+            get{ return _backupBaseUrl; } 
+            set{ _backupBaseUrl = WWW.UnEscapeURL(value); }
+        }
+
+        public Loader getLoader(string url)
+        {
+            return loaders.ContainsKey(url) ? loaders[url] : null;
+        }
+
+        public virtual void update()
+        {
+            if (isComplete)
+            {
+                return;
+            }
+
+            if (!hasInit)
+            {
+                init();
+            }
+
+            bool isCpt = true;
+
+            foreach (var loader in loaders.Values)
+            {
+                if (loader.isComplete)
+                {
+                    if (!completedLoaders.Contains(loader))
+                    {
+                        if (loader.hasError)
+                        {
+                            lastError = loader.error;
+                            lastErrorUrl = loader.url;
+                            errorCount++;
+                        }
+                        completedLoaders.Add(loader);
+                        if (onOneComplete != null)
+                        {
+                            onOneComplete(loader);
+                        }
+                    }
+                } else
+                {
+                    isCpt = false;
+                }
+
+                if (maxErrorCount > 0 && errorCount > maxErrorCount)
+                {
+                    LoaderMgr.stopLoad(loader.url, loader.version);
+                    isCpt = true;
+                }
+            }
+
+            if (errorCount > maxErrorCount)
+            {
+                Debug.LogWarningFormat("BatchLoader stopped, because load error is over maxErrorCount: {0}", 
+                    maxErrorCount);
+            }
+
+            isComplete = isCpt;
+
+            if (isCpt)
+            {
+                doCompleted();
+            }
+        }
+
+        protected void doCompleted()
+        {
+            timeElapsed = Time.time - startTime;
+
             if (onComplete != null)
             {
                 onComplete(this);
                 onComplete = null;
             }
-        }
 
-        /// <summary>
-        /// check the load is completed, include load success or failure
-        /// </summary>
-        public virtual bool checkCompleted()
-        {
-            foreach (var loader in loaders.Values)
-            {
-                if (!loader.isCompete)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            onOneComplete = null;
         }
 
         /// <summary>
@@ -141,29 +279,26 @@ namespace bookrpg.resource
             }
         }
 
-        protected void getLoadingProgress(
+        public void getLoadingProgress(
             out int bytesLoaded, 
             out int bytesTotal, 
             out float progress)
         {
             int loaded = 0;
             int total = 0;
-            bool isCompete = true;
+            bool isComplete = true;
 
             foreach (var loader in loaders.Values)
             {
                 //只计算提前知道大小的，便于统计总百分比
-                if (loader.size > 0)
-                {
-                    total += loader.size;
-                    loaded += loader.bytesLoaded;
-                }
-                isCompete = isCompete && loader.isCompete;
+                total += loader.bytesTotal;
+                loaded += loader.bytesLoaded;
+                isComplete = isComplete && loader.isComplete;
             }
 
             bytesLoaded = loaded;
             bytesTotal = total;
-            progress = !isCompete ? (total > 0 ? (float)bytesLoaded / (float)bytesTotal : 0f) : 1f;
+            progress = !isComplete ? (total > 0 ? (float)bytesLoaded / (float)bytesTotal : 0f) : 1f;
         }
     }
 }

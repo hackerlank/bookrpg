@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using bookrpg.core;
 using bookrpg.log;
 
-#if  UNITY_EDITOR
+#if  RES_EDITOR
 using UnityEditor;
 #endif
 
@@ -12,14 +13,17 @@ namespace bookrpg.resource
 {
     public class Loader : IDispose
     {
-        public static float defaultTimeout = 7f;
-
         public BKEvent<Loader> onComplete = new BKEvent<Loader>();
 
+        /// <summary>
+        /// if the asset is AssetBundle, release the origin bytes
+        /// </summary>
+        public bool onlyRetainAssetBundle = false;
+
         ///e.g. cdn server
-        public string baseUrl = "http://localhost/WebPlayer/";
+        public string baseUrl;
         ///e.g. cdn source server
-        public string backupBaseUrl = "http://localhost/WebPlayer/";
+        public string backupBaseUrl;
 
         public string actualUrl { get; protected set; }
 
@@ -29,49 +33,68 @@ namespace bookrpg.resource
 
         public int size { get; protected set; }
 
-        public int priority { get; protected set; }
+        public int priority { get; set; }
 
-        public int maxRetryCount { get; protected set; }
+        public int maxRetryCount { get; set; }
 
         public int retryCount { get; protected set; }
 
-        ///check ISP redirect or DNS error ...
-        public bool checkErrorWebPage = true;
+        /// <summary>
+        /// Gets the time elapsed of seconds
+        /// </summary>
+        public float timeElapsed  { get; protected set; }
+
+        ///your resource is not html page, but
+        ///ISP redirect or fail DNS was hijacked ...
+        public bool isCheckRedirectError = false;
+
+        /// <summary>
+        /// default value is LoaderMgr.timeout
+        /// </summary>
         public float timeout;
 
         public string error { get; protected set; }
 
-        public bool isCompete { get; protected set; }
+        public bool isComplete { get; protected set; }
+
+        ///user's data
+        public object customData = null;
+
+        #if RES_EDITOR
+        public GameObject gameObject = null;
+        #endif
 
         protected  WWW www;
-
-        public AssetBundle ab;
-        ///user's data
-        public object data;
-        public UnityEngine.Object go;
-
         protected string logTag = "Loader";
         protected bool useCache;
+        protected bool isCacheHit;
         protected float startTime = 0f;
-        protected float lastLoadingTime;
-        protected int lastBytesLoaded;
-        protected bool _hasDisposed;
-        private ThreadPriority _threadPriority = ThreadPriority.Normal;
+        private float lastProgressTime = 0f;
+        private float lastProgress = 0;
+        private ThreadPriority _threadPriority;
+
+        private int _bytesLoaded;
+
+        protected AssetBundle orgAssetBundle;
 
         /// <summary>
         /// Why does it has't Loader(void) construction? To prevent reuse Loader instance.
         /// </summary>
         public Loader(string url, int version = 0, int size = 0, int priority = 0, int maxRetryCount = 3)
         {
-            this.error = string.Empty;
-            this.timeout = defaultTimeout;
-            this.actualUrl = string.Empty;
             this.url = url;
             this.version = version;
             this.size = size;
             this.priority = priority;
-            this.isCompete = false;
             this.maxRetryCount = maxRetryCount;
+
+            this.baseUrl = LoaderMgr.baseUrl;
+            this.backupBaseUrl = LoaderMgr.backupBaseUrl;
+            this.actualUrl = string.Empty;
+            this.timeout = LoaderMgr.timeout;
+            this.error = string.Empty;
+            this.isComplete = false;
+            _threadPriority = ThreadPriority.Normal;
         }
 
         ~Loader()
@@ -81,51 +104,74 @@ namespace bookrpg.resource
 
         public void Dispose()
         {
-            if (_hasDisposed)
+            if (hasDisposed)
             {
                 return;
             }
-
-            _hasDisposed = true;
+            customData = null;
+            hasDisposed = true;
             LoaderMgr.tryUnload(actualUrl, version);
         }
 
         /// <summary>
-        /// Use by LoaderMgr, usual user need't use it
+        /// Use by LoaderMgr, usually user need't use it
         /// </summary>
-        public void disposeImmediate()
+        public virtual void disposeImmediate()
         {
             if (www != null)
             {
+                if (orgAssetBundle != null)
+                {
+                    orgAssetBundle.Unload(false);
+                    orgAssetBundle = null;
+                    assetBundle = null;
+                }
                 www.Dispose();
                 www = null;
             }
-            _hasDisposed = true;
+            customData = null;
+            CoroutineMgr.stopCoroutine("doLoad");
+            hasDisposed = true;
             GC.SuppressFinalize(this);
         }
 
-        public bool hasDisposed()
+        public bool hasDisposed
         {
-            return _hasDisposed;
+            get;
+            private set;
+        }
+
+        public bool hasError
+        {
+            get { return !string.IsNullOrEmpty(error); }
         }
 
         public virtual void load(bool useCache = true, bool useBackupUrl = false)
         {
-            #if UNITY_EDITOR
-            go = AssetDatabase.LoadMainAssetAtPath("Assets/" + url);
+            #if RES_EDITOR
+            gameObject = AssetDatabase.LoadMainAssetAtPath("Assets/" + url) as GameObject;
             #else
-            if (www != null)
+            if (isComplete || www != null || assetBundle != null)
             {
                 throw new InvalidOperationException("Don't reuse Loader");
             }
 
             this.useCache = useCache;
+            if (startTime == 0f)
+            {
+                startTime = Time.time;
+            }
+            lastProgressTime = Time.time;
+            lastProgress = 0f;
+            isComplete = false;
             string strUrl;
 
             if (useBackupUrl)
             {
                 strUrl = getActualUrl(url, backupBaseUrl);
-                if (strUrl.Contains(baseUrl))
+                if (!string.IsNullOrEmpty(baseUrl) &&
+                    !string.IsNullOrEmpty(backupBaseUrl) &&
+                    strUrl.Contains(baseUrl))
                 {
                     strUrl = strUrl.Replace(baseUrl, backupBaseUrl);
                 }
@@ -136,25 +182,101 @@ namespace bookrpg.resource
 
             actualUrl = strUrl;
 
-            Log.addTagLog(
-                logTag, 
-                "Load from {0}url: {1}, version: {2}, useCache: {3}", 
-                useBackupUrl ? "backup" : "",
-                strUrl, 
-                version,
-                useCache
-            );
+            Log.addTagLog(logTag, "{4} load from {0}: {1}, version: {2}, useCache: {3}", 
+                useBackupUrl ? "backup url" : "url", strUrl, version, useCache, 
+                retryCount > 0 ? retryCount.ToString() + "st retry" : "Start");
+
+            CoroutineMgr.startCoroutine(doLoad(strUrl));
+            #endif
+        }
+
+        IEnumerator doLoad(string strUrl)
+        {
             www = useCache ? WWW.LoadFromCacheOrDownload(strUrl, version) : new WWW(strUrl);
             www.threadPriority = _threadPriority;
+//            isCacheHit = www.isDone && www.assetBundle != null;
+//            if (isCacheHit)
+//            {
+//                Log.addTagLog(logTag, "Cache hit, url: {0}, version: {1}", strUrl, version);
+//            }
+            yield return www;
 
-            if (startTime == 0f)
+            update();
+        }
+
+        /// <summary>
+        /// check the load is completed, include load success or failure
+        /// </summary>
+        public virtual void update()
+        {
+            //not started
+            if (www == null || isComplete)
             {
-                startTime = Time.time;
+                return;
             }
-            lastLoadingTime = Time.time;
-            lastBytesLoaded = 0f;
-            isCompete = false;
-            #endif
+
+            //www is done
+            if (www.isDone)
+            {
+                string err = null;
+                if (!string.IsNullOrEmpty(www.error))
+                {
+                    err = www.error;
+                } else if (isCheckRedirectError)
+                {
+                    err = checkRedirectError();
+                }
+
+                if (string.IsNullOrEmpty(err) || !retry())
+                {
+                    this.error = err;
+                    doCompleted();
+                }
+                return;
+            } 
+
+            //www is loading
+            if (www.progress != lastProgress)
+            {
+                lastProgress = www.progress;
+                lastProgressTime = Time.time;
+                return;
+            }
+           
+            //always waiting || waiting for timeout || timeout and retry
+            if (timeout <= 0 || Time.time - lastProgressTime <= timeout || retry())
+            {
+                return;
+            }
+
+            //timeout
+            error = string.Format("Timeout, start: {0}, now: {1}", startTime, Time.time);
+            doCompleted();
+        }
+
+        ///your resource is not html page, but
+        ///ISP redirect or fail DNS was hijacked ...
+        protected string checkRedirectError()
+        {
+            if (www != null && (!useCache || www.assetBundle == null) &&
+                !string.IsNullOrEmpty(www.text))
+            {
+                var text = www.text;
+                if (www.responseHeaders.ContainsKey("CONTENT-TYPE") &&
+                    www.responseHeaders["CONTENT-TYPE"].Contains("text/html"))
+                {
+                    int pos = text.IndexOf("</title>");
+                    pos = pos < 0 ? Mathf.Min(text.Length, 2000) : pos + 400;
+                    return "resource was illegal redirect: " + text.Substring(0, pos);
+                }
+//                int pos = www.text.IndexOf("<html");
+//                if (pos >= 0 && pos < 300)
+//                {
+//                    return "resource was illegal redirect: " + www.text.Substring(0, Mathf.Min(www.text.Length, 3000));
+//                }
+            }
+
+            return string.Empty;
         }
 
         protected string getActualUrl(string url, string baseUrl)
@@ -175,89 +297,52 @@ namespace bookrpg.resource
             return actualUrl;
         }
 
-        public virtual void doCompleted()
+        protected virtual void doCompleted()
         {
-            if (onComplete != null)
+            isComplete = true;
+
+            CoroutineMgr.stopCoroutine("doLoad");
+
+            timeElapsed = Time.time - startTime;
+
+            isCacheHit = www != null && www.size == 0 && www.assetBundle != null;
+            if (isCacheHit)
             {
-                onComplete.invokeAndRemove(this);
+                Log.addTagLog(logTag, "Cache hit, url: {0}, version: {1}", actualUrl, version);
+            } else
+            {
+                Log.addTagLog(logTag, 
+                    "Load complete, url: {3}, version: {2}, time: {0}s, bytesLoaded: {1}, retryCount: {5}, error: {4}", 
+                    timeElapsed, bytesLoaded, version, url, !hasError ? "no" : error, retryCount);
             }
-        }
 
-        /// <summary>
-        /// check the load is completed, include load success or failure
-        /// </summary>
-        public virtual bool checkCompleted()
-        {
-            if (www == null)
+            if (!hasError && www != null)
             {
-                return (isCompete = false);
-            }
+                _bytesLoaded = isCacheHit ? size : www.bytesDownloaded;
 
-            if (www.isDone)
-            {
-                if (!string.IsNullOrEmpty(www.error))
+                if (www.assetBundle != null)
                 {
-                    if (retry())
+                    orgAssetBundle = www.assetBundle;
+                    assetBundle = new ResourceBundle(orgAssetBundle);
+                    //only retain assetBundle, to save memery
+                    if (onlyRetainAssetBundle)
                     {
-                        isCompete = false;
-                    } else
-                    {
-                        error = www.error;
-                        isCompete = true;
-                    }
-                    return isCompete;
-                }
-
-                if (checkErrorWebPage &&
-                    (!useCache || (www.assetBundle == null)) &&
-                    !string.IsNullOrEmpty(www.text))
-                {
-                    //ISP redirect to html page, or dns error
-                    string str = www.text.Substring(0, Mathf.Min(www.text.Length, 300));
-                    if (str.ToLower().Contains("<html"))
-                    {
-                        if (retry())
-                        {
-                            isCompete = false;
-                        } else
-                        {
-                            str = www.text.Substring(0, Mathf.Min(www.text.Length, 3000));
-                            error = "Load error: " + www.url + "\r\n" + str;
-                            isCompete = true;
-                        }
-
-                        return isCompete;
+                        www.Dispose();
+                        www = null;
                     }
                 }
-                error = string.Empty;
-                return (isCompete = true);
-            }
 
-            //is loading
-            if (www.bytesDownloaded != lastBytesLoaded)
+            } else
             {
-                lastBytesLoaded = www.bytesDownloaded;
-                lastLoadingTime = Time.time;
-                return (isCompete = false);
+                _bytesLoaded = 0;
             }
 
-            //waiting or timeout and retry
-            if (Time.time - lastLoadingTime <= timeout || retry())
-            {
-                return (isCompete = false);
-            }
-
-            error = string.Format("Timeout, start: {0}, now: {1}, pass: {2}", 
-                startTime, Time.time, Time.time - startTime);
-            return (isCompete = true);
+            onComplete.invokeAndRemove(this);
         }
 
         protected virtual bool retry()
         {
-            if (retryCount >= maxRetryCount)
-            {
-                return false;
-            }
+            CoroutineMgr.stopCoroutine("doLoad");
 
             if (www != null)
             {
@@ -265,21 +350,68 @@ namespace bookrpg.resource
                 www = null;
             }
 
+            if (retryCount >= maxRetryCount)
+            {
+                return false;
+            }
+
             retryCount++;
-            Debug.LogWarning(string.Format("retry load, retryCount: {0}, url: {1}", retryCount, url));
-            load(useCache, maxRetryCount - retryCount <= 2);
+//            Debug.LogWarningFormat("Retry load, retryCount: {0}, url: {1}", retryCount, url);
+            load(useCache, maxRetryCount - retryCount < 2);
             return true;
         }
 
+
+        public AssetBundle getOrgAssetBundle()
+        {
+            return orgAssetBundle;
+        }
 
         #region WWW API
 
         public ResourceBundle assetBundle { get; protected set; }
 
+        public float progress
+        {
+            get
+            {
+                return isComplete ? (hasError ? 0f : 1f) : (www != null ? www.progress : 0f);
+            }
+        }
+
+        public int bytesLoaded
+        {
+            get
+            {
+                //when www is loading and access www.bytesDownloaed, it will block thread
+                return isComplete ? _bytesLoaded : (int)(www != null ? www.progress * (float)size : 0);
+            }
+        }
+
+        /// <summary>
+        /// when not completed or www.LoadFromCacheOrDownload success, it is 0;
+        /// </summary>
+        public int bytesTotal
+        {
+            get
+            {
+                if (!isComplete || isCacheHit)
+                {
+                    return size;
+                }
+
+                return _bytesLoaded;
+            }
+        }
+
         public AudioClip audioClip
         { 
             get
             {
+                if (!isComplete || isCacheHit)
+                {
+                    return null;
+                }
                 return www == null ? null : www.audioClip;
             }
         }
@@ -288,6 +420,10 @@ namespace bookrpg.resource
         { 
             get
             {
+                if (!isComplete || isCacheHit)
+                {
+                    return null;
+                }
                 return www == null ? null : www.bytes;
             }
         }
@@ -296,6 +432,10 @@ namespace bookrpg.resource
         { 
             get
             {
+                if (!isComplete || isCacheHit)
+                {
+                    return null;
+                }
                 return www == null ? null : www.movie;
             }
         }
@@ -304,6 +444,10 @@ namespace bookrpg.resource
         { 
             get
             {
+                if (!isComplete || isCacheHit)
+                {
+                    return null;
+                }
                 return www == null ? null : www.responseHeaders;
             }
         }
@@ -312,6 +456,10 @@ namespace bookrpg.resource
         { 
             get
             {
+                if (!isComplete || isCacheHit)
+                {
+                    return null;
+                }
                 return www == null ? null : www.text;
             }
         }
@@ -320,6 +468,10 @@ namespace bookrpg.resource
         { 
             get
             {
+                if (!isComplete || isCacheHit)
+                {
+                    return null;
+                }
                 return www == null ? null : www.texture;
             }
         }
@@ -328,6 +480,10 @@ namespace bookrpg.resource
         { 
             get
             {
+                if (!isComplete || isCacheHit)
+                {
+                    return null;
+                }
                 return www == null ? null : www.textureNonReadable;
             }
         }
@@ -348,87 +504,66 @@ namespace bookrpg.resource
             }
         }
 
-        public float progress
-        {
-            get
-            {
-                //error or not started
-                if (!string.IsNullOrEmpty(error) || www == null)
-                {
-                    return 0f;
-                }
-                //sucess
-                if (isCompete)
-                {
-                    return 1f;
-                }
-//                return size > 0 ? Math.Min(1f, (float)www.bytesDownloaded / (float)size) : www.progress;
-                return www.size > 0 ? www.progress : Math.Min(1f, (float)www.bytesDownloaded / (float)size);
-            }
-        }
-
-        public int bytesLoaded
-        {
-            get
-            {
-                //error or not started
-                if (!string.IsNullOrEmpty(error) || www == null)
-                {
-                    return 0;
-                }
-                //sucess
-                if (isCompete)
-                {
-                    return size > 0 ? size : www.bytesDownloaded;
-                }
-                return www.bytesDownloaded;
-            }
-        }
-
-        public int bytesTotal
-        {
-            get
-            {
-                if (size > 0)
-                {
-                    return size;
-                }
-                return www != null ? www.size : 0;
-            }
-        }
-
         public AudioClip getAudioClip(bool threeD)
         {
+            if (!isComplete || isCacheHit)
+            {
+                return null;
+            }
             return www == null ? null : www.GetAudioClip(threeD);
         }
 
         public AudioClip getAudioClip(bool threeD, bool stream)
         {
+            if (!isComplete || isCacheHit)
+            {
+                return null;
+            }
             return www == null ? null : www.GetAudioClip(threeD, stream);
         }
 
         public AudioClip getAudioClip(bool threeD, bool stream, AudioType audioType)
         {
+            if (isCacheHit)
+            {
+                return null;
+            }
             return www == null ? null : www.GetAudioClip(threeD, stream, audioType);
         }
 
         public AudioClip getAudioClipCompressed()
         {
+            if (!isComplete || isCacheHit)
+            {
+                return null;
+            }
             return www == null ? null : www.GetAudioClipCompressed();
         }
 
         public AudioClip getAudioClipCompressed(bool threeD)
         {
+            if (!isComplete || isCacheHit)
+            {
+                return null;
+            }
             return www == null ? null : www.GetAudioClipCompressed(threeD);
         }
 
         public AudioClip getAudioClipCompressed(bool threeD, AudioType audioType)
         {
+            if (!isComplete || isCacheHit)
+            {
+                return null;
+            }
             return www == null ? null : www.GetAudioClipCompressed(threeD, audioType);
         }
 
         public void LoadImageIntoTexture(Texture2D tex)
         {
+            if (!isComplete || isCacheHit)
+            {
+                return;
+            }
             if (www != null)
             {
                 www.LoadImageIntoTexture(tex);

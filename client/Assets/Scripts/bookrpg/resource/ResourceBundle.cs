@@ -12,8 +12,9 @@ namespace bookrpg.resource
     {
         protected AssetBundle assetBundle;
 
-        public ResourceBundle()
+        public ResourceBundle(AssetBundle assetBundle)
         {
+            this.assetBundle = assetBundle;
         }
 
         public object mainAsset
