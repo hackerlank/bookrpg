@@ -3,18 +3,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using bookrpg.log;
+using bookrpg.core;
 using bookrpg.utils;
 
 namespace bookrpg.resource
 {
 
-    public class ResourceBundle
+    public class ResourceBundle : IDispose
     {
         protected AssetBundle assetBundle;
 
         public ResourceBundle(AssetBundle assetBundle)
         {
             this.assetBundle = assetBundle;
+        }
+
+        public void Dispose()
+        {
+            assetBundle = null;
+            hasDisposed = true;
+        }
+
+        public bool hasDisposed
+        {
+            get;
+            private set;
         }
 
         public object mainAsset

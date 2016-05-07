@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using bookrpg.log;
@@ -62,7 +63,7 @@ namespace bookrpg.resource
             _backupBaseUrl = LoaderMgr.backupBaseUrl;
         }
 
-        public BatchLoader(string[] urls, int maxRetryCount = 3)
+        public BatchLoader(ICollection<string> urls, int maxRetryCount = 3)
         {
             startTime = Time.time;
 
@@ -162,6 +163,11 @@ namespace bookrpg.resource
         {
             get{ return _backupBaseUrl; } 
             set{ _backupBaseUrl = WWW.UnEscapeURL(value); }
+        }
+
+        public IDictionary<string, Loader> getLoaders()
+        {
+            return loaders;
         }
 
         public Loader getLoader(string url)

@@ -40,6 +40,7 @@ namespace bookrpg.resource
         private static List<BatchLoader> batchLoaders = new List<BatchLoader>();
         private static List<Loader> waiting = new List<Loader>();
         private static List<Loader> loading = new List<Loader>();
+        private static List<Loader> dispatchComplete = new List<Loader>();
         private static Dictionary<string, int> refList = new Dictionary<string, int>();
 
 
@@ -58,14 +59,14 @@ namespace bookrpg.resource
             return right.priority - left.priority;
         }
 
-        public static BatchLoader batchLoad()
+        public static BatchLoader loadBatch()
         {
             var bl = new BatchLoader();
             batchLoaders.Add(bl);
             return bl;
         }
 
-        public static BatchLoader batchLoad(string[] urls, int maxRetryCount = 3)
+        public static BatchLoader loadBatch(ICollection<string> urls, int maxRetryCount = 3)
         {
             var bl = new BatchLoader(urls, maxRetryCount);
             batchLoaders.Add(bl);
@@ -238,6 +239,9 @@ namespace bookrpg.resource
                     {
                         target.maxRetryCount = maxRetryCount;
                     }
+                } else
+                {
+                    dispatchComplete.Add(target);
                 }
             } else
             {
@@ -359,9 +363,17 @@ namespace bookrpg.resource
 
         public static void update()
         {
+            Loader loader;
+
+            foreach(var item in dispatchComplete)
+            {
+                item.dispatchComplete();
+            }
+            dispatchComplete.Clear();
+
             for (int i = 0; i < loading.Count; i++)
             {
-                var loader = loading[i];
+                loader = loading[i];
                 loader.update();
                 if (!loader.isComplete)
                 {
@@ -375,7 +387,6 @@ namespace bookrpg.resource
                 #else
                 if (!loader.hasError)
                 {
-//                   TODO Log.addTagLog
                     totalLoadedSize += loader.size;
                 } else
                 {
@@ -384,6 +395,8 @@ namespace bookrpg.resource
                     Debug.LogErrorFormat("Load Error: {0}, url: {1}, version: {2}, actualUrl:{3}", 
                         loader.error, loader.url, loader.version, loader.actualUrl);
                 }
+
+                loader.dispatchComplete();
                 #endif
             }
 
@@ -402,11 +415,11 @@ namespace bookrpg.resource
                 }
                 for (int i = 0; i < count; i++)
                 {
-                    Loader item = waiting[0];
-                    waiting.Remove(item);
-                    loading.Add(item);
-                    bool useCache = decideUseCache != null ? decideUseCache(item.url) : false;
-                    item.load(useCache);
+                    loader = waiting[0];
+                    waiting.Remove(loader);
+                    loading.Add(loader);
+                    bool useCache = decideUseCache != null ? decideUseCache(loader.url) : false;
+                    loader.load(useCache);
                 }
             }
 
@@ -414,7 +427,7 @@ namespace bookrpg.resource
             {
                 var bl = batchLoaders[i];
                 bl.update();
-                if (bl.isComplete)
+                if (bl.isComplete || bl.hasDisposed)
                 {
                     batchLoaders.RemoveAt(i--);
                 }

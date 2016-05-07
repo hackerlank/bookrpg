@@ -122,8 +122,9 @@ namespace bookrpg.resource
             {
                 if (orgAssetBundle != null)
                 {
-                    orgAssetBundle.Unload(false);
+//                    orgAssetBundle.Unload(false);
                     orgAssetBundle = null;
+                    assetBundle.Dispose();
                     assetBundle = null;
                 }
                 www.Dispose();
@@ -297,6 +298,11 @@ namespace bookrpg.resource
             return actualUrl;
         }
 
+        public void dispatchComplete()
+        {
+            onComplete.invokeAndRemove(this);
+        }
+
         protected virtual void doCompleted()
         {
             isComplete = true;
@@ -337,7 +343,7 @@ namespace bookrpg.resource
                 _bytesLoaded = 0;
             }
 
-            onComplete.invokeAndRemove(this);
+//            onComplete.invokeAndRemove(this);
         }
 
         protected virtual bool retry()

@@ -3,8 +3,8 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 using System.IO;
-using book.rpg;
 using bookrpg.log;
+using bookrpg.core;
 using bookrpg.resource;
 using ICSharpCode.SharpZipLib.Zip;
 
@@ -17,17 +17,34 @@ public class Test : MonoBehaviour
     WWW www;
 
     AssetBundle ab;
+    AssetBundle ab2;
 
     UnityEngine.Object[] textureArr;
+
+    LocalResMgr mgr;
 
 
     public void  loadAssetBundle()
     {
-        string uncompress = baseUrlFile + "map";
-        string compress = baseUrlFile + "map";
+        string uncompress = baseUrlFile + "scene";
+        string compress = baseUrlFile + "scenec";
+        string compress2 = baseUrlFile + "p2";
 
 //        StartCoroutine(doLoadAssetBundle(uncompress));
 //        StartCoroutine(doLoadAssetBundle(compress));
+
+
+        mgr = new LocalResMgr();
+        mgr.init(new rest());
+
+        ResourceMgr.init(mgr);
+
+
+        ResourceMgr.load(uncompress, url => {
+            var ab = ResourceMgr.getResource(url);
+            Debug.Log(ResourceMgr.hasResource(uncompress));
+        });
+
 
 //        decompressZLIB();
 //        StartCoroutine(decompressUnity());
@@ -42,23 +59,29 @@ public class Test : MonoBehaviour
 
     IEnumerator load(string url)
     {
-        www = new WWW(url);
+        WWW www = new WWW(url);
         yield return www;
-
-        Debug.Log(www.bytes.Length);
+        ab2 = www.assetBundle;
+        Debug.Log(www.url);
     }
 
     private IEnumerator doLoadAssetBundle(string url)
     {
+        var t1 = Time.time;
         www = new WWW(url);
 
         yield return www;
 
-        Debug.LogFormat("loadAssetBundle: {0}", url);
+        Debug.LogFormat("loadAssetBundle: {0}, time: {1}", url, Time.time - t1);
 
         ab = www.assetBundle;
+
+//        ab.Unload(true);
+
         www.Dispose();
         www = null;
+
+       
     }
 
     public void loadTexture()
@@ -77,7 +100,36 @@ public class Test : MonoBehaviour
 //        File.WriteAllBytes(Application.dataPath + "/txt-decode.txt", bytes);
 
 //        ab.Unload(false);
+//        ab = null;
         Debug.LogFormat("loadTexture: {0}", textureArr.Length.ToString());
+
+        foreach (var obj in textureArr)
+        {
+//            Instantiate(obj);
+        }
+
+//        if (ab != null)
+//        {
+//            ab.Unload(false);
+//            ab = null;
+//        }
+//        if (ab2 != null)
+//        {
+//            ab2.Unload(false);
+//            ab2 = null;
+//        }
+
+        GC.Collect();
+    }
+
+    public void disposeTexture()
+    {
+        for (int i = 0; i < textureArr.Length; i++)
+        {
+            textureArr[i] = null;
+        }
+
+        Resources.UnloadUnusedAssets();
 
         GC.Collect();
     }
@@ -151,6 +203,8 @@ public class Test : MonoBehaviour
     void Start()
     {
 
+        LoaderMgr.init();
+
 //        LoaderMgr.behaviour = this;
 //        LoaderMgr.timeout = 3f;
 //        LoaderMgr.baseUrl = "http://127.0.0.1/";
@@ -223,6 +277,19 @@ public class Test : MonoBehaviour
 
         return bytes;
 
+    }
+
+    class rest : IResourceTable
+    {
+        public IResourceFile getResourceFile(string resourcePath)
+        {
+            return null;
+        }
+
+        public IResourceFile getResourceFile(int resourceNumber)
+        {
+            return null;
+        }
     }
 
 }

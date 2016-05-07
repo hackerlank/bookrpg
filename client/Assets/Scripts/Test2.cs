@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 using System.IO;
-using book.rpg;
 using bookrpg.log;
 using bookrpg.resource;
 
@@ -36,7 +35,7 @@ public class Test2 : MonoBehaviour {
             "mapc",
         };
 
-        bl = LoaderMgr.batchLoad();
+        bl = LoaderMgr.loadBatch();
 
         bl.addLoader("map", 0, (int)(11.2 * 1024 * 1024));
         bl.addLoader("1.php", 0, 500, 100);
