@@ -15,7 +15,12 @@ namespace bookrpg.resource
         private Dictionary<string, CountableRef> assetList = new Dictionary<string, CountableRef>();
         private Dictionary<string, CountableRef> assetBundleList = new Dictionary<string, CountableRef>();
 
-        public void init(IResourceTable table)
+        public LocalResMgr()
+        {
+            resourceTable = new EmptyResourceTable();
+        }
+
+        public LocalResMgr(IResourceTable table)
         {
             resourceTable = table;
         }
@@ -80,8 +85,9 @@ namespace bookrpg.resource
             {
                 if (file.dependencies != null)
                 {
-                    foreach (var file2 in file.dependencies)
+                    foreach (var filestr in file.dependencies)
                     {
+                        var file2 = resourceTable.getResourceFile(filestr);
                         if (!hasResource(file2))
                         {
                             batch.addLoader(file2.targetFile, file2.version, file2.size);
@@ -142,8 +148,9 @@ namespace bookrpg.resource
                 {
                     if (file.dependencies != null)
                     {
-                        foreach (var file2 in file.dependencies)
+                        foreach (var filestr in file.dependencies)
                         {
+                            var file2 = resourceTable.getResourceFile(filestr);
                             if (!hasResource(file2))
                             {
                                 batch.addLoader(file2.targetFile, file2.version, file2.size);
@@ -312,7 +319,7 @@ namespace bookrpg.resource
         public UnityEngine.Object[] getAllResources(string path)
         {
             IResourceFile file = resourceTable.getResourceFile(path);
-            if (file != null && file.singleInPack && assetList.ContainsKey(file.srcFile))
+            if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
                 return new UnityEngine.Object[]{ assetList[file.srcFile].refTarget() as UnityEngine.Object };
             }
@@ -324,7 +331,7 @@ namespace bookrpg.resource
         public void getAllResourcesAsync(string path, BKAction<UnityEngine.Object[]> onComplete)
         {
             IResourceFile file = resourceTable.getResourceFile(path);
-            if (file != null && file.singleInPack && assetList.ContainsKey(file.srcFile))
+            if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
                 onComplete(new UnityEngine.Object[]{ assetList[file.srcFile].refTarget() as UnityEngine.Object });
                 return;
@@ -342,7 +349,7 @@ namespace bookrpg.resource
         public T[] getAllResources<T>(string path) where T : UnityEngine.Object
         {
             IResourceFile file = resourceTable.getResourceFile(path);
-            if (file != null && file.singleInPack && assetList.ContainsKey(file.srcFile))
+            if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
                 return new T[]{ (T)assetList[file.srcFile].refTarget() };
             }
@@ -355,7 +362,7 @@ namespace bookrpg.resource
         {
 
             IResourceFile file = resourceTable.getResourceFile(path);
-            if (file != null && file.singleInPack && assetList.ContainsKey(file.srcFile))
+            if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
                 onComplete(new T[]{ (T)assetList[file.srcFile].refTarget() });
                 return;
@@ -591,7 +598,7 @@ namespace bookrpg.resource
             {
                 foreach (var file in dependencies)
                 {
-                    getResourceFiles(file, results);
+                    getResourceFiles(resourceTable.getResourceFile(file), results);
                 }
             }
         }
@@ -725,7 +732,7 @@ namespace bookrpg.resource
 
         private void bundleToAsset(string path, IResourceFile file, AssetBundle ab, UnityEngine.Object asset)
         {
-            if (file != null && file.singleInPack && !file.beDependent && asset != null &&
+            if (file != null && file.singleDirectResource && !file.beDependent && asset != null &&
                 (!assetBundleList.ContainsKey(file.targetFile) ||
                 !assetBundleList[file.targetFile].cache))
             {
@@ -752,6 +759,19 @@ namespace bookrpg.resource
             {
                 assetBundleList[url] = new CountableRef(ab, cache);
             }
+        }
+    }
+
+    internal class EmptyResourceTable : IResourceTable
+    {
+        public IResourceFile getResourceFile(string resourcePath)
+        {
+            return null;
+        }
+
+        public IResourceFile getResourceFile(int resourceNumber)
+        {
+            return null;
         }
     }
 }

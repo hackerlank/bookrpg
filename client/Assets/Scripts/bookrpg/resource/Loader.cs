@@ -434,17 +434,18 @@ namespace bookrpg.resource
             }
         }
 
-        public MovieTexture movie
-        { 
-            get
-            {
-                if (!isComplete || isCacheHit)
-                {
-                    return null;
-                }
-                return www == null ? null : www.movie;
-            }
-        }
+//        not work for mobile
+//        public MovieTexture movie
+//        { 
+//            get
+//            {
+//                if (!isComplete || isCacheHit)
+//                {
+//                    return null;
+//                }
+//                return www == null ? null : www.movie;
+//            }
+//        }
 
         public Dictionary<string,string> responseHeaders
         { 

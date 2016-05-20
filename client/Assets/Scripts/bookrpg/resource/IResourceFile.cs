@@ -44,7 +44,7 @@ namespace bookrpg.resource
         /// <summary>
         /// 依赖的其它资源
         /// </summary>
-        IList<IResourceFile> dependencies{ get; }
+        IList<string> dependencies{ get; }
 
         /// <summary>
         /// 是否被其它资源依赖
@@ -59,7 +59,7 @@ namespace bookrpg.resource
         /// <summary>
         /// 目标文件的crc32
         /// </summary>
-        int crc{ get; }
+        uint crc{ get; }
 
         /// <summary>
         /// 打包类型：zip、7z、AssetBundle...
@@ -75,7 +75,7 @@ namespace bookrpg.resource
         /// 包中是否只有一个直接使用的资源，也就是使用的时候只会用AssetBundle.LoadAsset()
         /// 加载其中的一个资源，其它的资源都是间接被加载的。
         /// </summary>
-        bool singleInPack{ get; }
+        bool singleDirectResource{ get; }
 
         /// <summary>
         /// 加密器

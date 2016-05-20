@@ -5,13 +5,31 @@ using SevenZip.Compression.LZMA;
 using System.IO;
 using System;
 using ICSharpCode.SharpZipLib.Zip;
+using bookrpg.Editor;
 
 public class Build : ScriptableObject
 {
 
     private static string baseUrl = Application.dataPath + "/abs/";
 
-    [MenuItem("Build/Build Compressed Asset Bundles")]
+    [MenuItem("Build/selected is sub asset?")]
+    static void BuildSub()
+    {
+        PackProject pp = new PackProject();
+        pp.pack.Add("test/*.prefab");
+
+        var ap = new ResourcePacker();
+        ap.namePattern = PackNamePattern.Hash;
+
+        ap.pack(pp, "Assets/abs", 
+            BuildAssetBundleOptions.UncompressedAssetBundle
+        );
+
+        ap.generateResourceTable("Assets/abs/res.json");
+
+    }
+
+    [MenuItem("Build/Build LZMA Compressed Asset Bundles")]
     static void BuildCompressedABS()
     {
         var buildMap = new AssetBundleBuild[1];
@@ -24,6 +42,15 @@ public class Build : ScriptableObject
 
         BuildPipeline.BuildAssetBundles("Assets/abs", 
             BuildAssetBundleOptions.ForceRebuildAssetBundle);
+        AssetDatabase.Refresh();
+    }
+
+    [MenuItem("Build/Build LZ4 Compressed Asset Bundles")]
+    static void BuildCompressedABS2()
+    {
+        BuildPipeline.BuildAssetBundles("Assets/abs", 
+            BuildAssetBundleOptions.ForceRebuildAssetBundle |
+            BuildAssetBundleOptions.ChunkBasedCompression);
         AssetDatabase.Refresh();
     }
 
@@ -40,8 +67,8 @@ public class Build : ScriptableObject
     [MenuItem("Build/CompressFile")]
     static void CompressFile()
     {
-        CompressFileLZMA(baseUrl + "map", baseUrl + "map.7z");
-        CompressZlib(baseUrl + "map", baseUrl + "map.zip");
+        CompressFileLZMA(baseUrl + "topbottom", baseUrl + "topbottom.7z");
+        CompressZlib(baseUrl + "topbottom", baseUrl + "topbottom.zip");
         AssetDatabase.Refresh();
 
     }
@@ -49,8 +76,8 @@ public class Build : ScriptableObject
     [MenuItem("Build/DecompressFile")]
     static void DecompressFile()
     {
-        DecompressFileLZMA(baseUrl + "map.7z", baseUrl + "map.7z.d");
-        DeCompressZlib(baseUrl + "map.zip", baseUrl);
+        DecompressFileLZMA(baseUrl + "topbottom.7z", baseUrl + "topbottom.7z.d");
+        DeCompressZlib(baseUrl + "topbottom.zip", baseUrl);
         AssetDatabase.Refresh();
     }
 
@@ -62,7 +89,7 @@ public class Build : ScriptableObject
         using (ZipFile zip = ZipFile.Create(outFile))
         {
             zip.BeginUpdate();
-            zip.Add(inFile, "map.zip.d");
+            zip.Add(inFile, "topbottom.zip.d");
             zip.CommitUpdate();
         }
 

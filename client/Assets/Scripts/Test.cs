@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System;
 using System.IO;
@@ -19,6 +20,8 @@ public class Test : MonoBehaviour
     AssetBundle ab;
     AssetBundle ab2;
 
+    byte[] bytes;
+
     UnityEngine.Object[] textureArr;
 
     LocalResMgr mgr;
@@ -26,43 +29,33 @@ public class Test : MonoBehaviour
 
     public void  loadAssetBundle()
     {
-        string uncompress = baseUrlFile + "scene";
+
+        string uncompress = baseUrlFile + "ResourcePack_00000000000000000000000000000000";
         string compress = baseUrlFile + "scenec";
-        string compress2 = baseUrlFile + "p2";
+
+        StartCoroutine(load(uncompress));
 
 //        StartCoroutine(doLoadAssetBundle(uncompress));
 //        StartCoroutine(doLoadAssetBundle(compress));
 
-
-        mgr = new LocalResMgr();
-        mgr.init(new rest());
-
-        ResourceMgr.init(mgr);
-
-
-        ResourceMgr.load(uncompress, url => {
-            var ab = ResourceMgr.getResource(url);
-            Debug.Log(ResourceMgr.hasResource(uncompress));
-        });
+//        mgr = new LocalResMgr();
+//        mgr.init(new rest());
+//
+//        ResourceMgr.init(mgr);
+//
+//
+//        ResourceMgr.load(uncompress, url => {
+//            var ab = ResourceMgr.getResource(url);
+//            Debug.Log(ResourceMgr.hasResource(uncompress));
+//        });
 
 
 //        decompressZLIB();
 //        StartCoroutine(decompressUnity());
-
-
 //        string u1 = "http://127.0.0.1/map";
 //        string u2 = "http://127.0.0.1/mapc";
 //        StartCoroutine(load(u2));
 
-    }
-
-
-    IEnumerator load(string url)
-    {
-        WWW www = new WWW(url);
-        yield return www;
-        ab2 = www.assetBundle;
-        Debug.Log(www.url);
     }
 
     private IEnumerator doLoadAssetBundle(string url)
@@ -76,12 +69,36 @@ public class Test : MonoBehaviour
 
         ab = www.assetBundle;
 
-//        ab.Unload(true);
+        var names = ab.GetAllAssetNames();
+
+        var cc = ab.LoadAssetWithSubAssets("assets/test/cube.prefab");
 
         www.Dispose();
         www = null;
+    }
 
-       
+
+    IEnumerator load(string url)
+    {
+        WWW www = new WWW(url);
+        yield return www;
+        ab2 = www.assetBundle;
+        Debug.Log(www.url);
+
+        var names = ab2.GetAllAssetNames();
+
+        var main = ab2.LoadAsset<AssetBundleManifest>(names[0]);
+
+        var abs = main.GetAllAssetBundles();
+
+        var absv = main.GetAllAssetBundlesWithVariant();
+
+        foreach (var item in abs)
+        {
+//            main.a
+        }
+
+        StartCoroutine(doLoadAssetBundle(baseUrlFile + "cube.cn"));
     }
 
     public void loadTexture()
@@ -101,12 +118,11 @@ public class Test : MonoBehaviour
 
 //        ab.Unload(false);
 //        ab = null;
+
+
+
         Debug.LogFormat("loadTexture: {0}", textureArr.Length.ToString());
 
-        foreach (var obj in textureArr)
-        {
-//            Instantiate(obj);
-        }
 
 //        if (ab != null)
 //        {
@@ -133,6 +149,7 @@ public class Test : MonoBehaviour
 
         GC.Collect();
     }
+
 
     public Text txt;
 
@@ -277,19 +294,6 @@ public class Test : MonoBehaviour
 
         return bytes;
 
-    }
-
-    class rest : IResourceTable
-    {
-        public IResourceFile getResourceFile(string resourcePath)
-        {
-            return null;
-        }
-
-        public IResourceFile getResourceFile(int resourceNumber)
-        {
-            return null;
-        }
     }
 
 }

@@ -1,0 +1,96 @@
+Manifest-Version: 1.0
+Created-By: 1.0 (Android)
+
+Name: assets/bin/Data/globalgamemanagers.assets
+SHA1-Digest: W1GIgYwW0sTx4Q3wgKV3ZwiXoKU=
+
+Name: assets/bin/Data/sharedassets1.assets
+SHA1-Digest: OhSkDE6k3kQXGtFyIh2XhQ/uk+Q=
+
+Name: assets/bin/Data/splash.png
+SHA1-Digest: VbCBKhcl/PN1XXa8wzpP2A97/5g=
+
+Name: resources.arsc
+SHA1-Digest: vfDnD8Eh/F8fjLIamu1PVgJm5XI=
+
+Name: AndroidManifest.xml
+SHA1-Digest: BnKGw+paKlTIl3Dtj6oCXUMpqko=
+
+Name: assets/bin/Data/level0
+SHA1-Digest: VQTkRrInBHSRhTw00XNJg5ObQUY=
+
+Name: assets/bin/Data/level1
+SHA1-Digest: fSJ5mj6DWfT5FUySKDx4prl+3qE=
+
+Name: lib/armeabi-v7a/libmain.so
+SHA1-Digest: x6Md7zEDdClXLFAy6O5KqLmeIXw=
+
+Name: assets/bin/Data/Managed/Metadata/global-metadata.dat
+SHA1-Digest: qwZmwUuJ3iqN0YdqwRpnxuAHGjk=
+
+Name: assets/bin/Data/unity default resources
+SHA1-Digest: ANwYJE9+q0hMNbEVdgGSm5zNFwc=
+
+Name: assets/bin/Data/sharedassets0.assets.split5
+SHA1-Digest: 1orUdlLFEn2BP1SQm1VOxbahkQo=
+
+Name: assets/bin/Data/sharedassets0.assets.split4
+SHA1-Digest: adeUTptG77nHhH4n6zznQHo75zo=
+
+Name: assets/bin/Data/sharedassets0.assets.split3
+SHA1-Digest: 7Cs8ZfB1w9kE//zCWz0RhTWQ9eU=
+
+Name: assets/bin/Data/sharedassets0.assets.split2
+SHA1-Digest: oYV+b+Tqnk8tnvRo/G8P22aQzjU=
+
+Name: assets/bin/Data/sharedassets0.assets.split1
+SHA1-Digest: DmShxeweXvVgjxeLwNN+QQnnUhw=
+
+Name: assets/bin/Data/sharedassets0.assets.split0
+SHA1-Digest: JBxP6ruAnxmGKLkq7Zp+n3Gr1fk=
+
+Name: res/drawable-xhdpi-v4/app_banner.png
+SHA1-Digest: aqv4ndS5je2XQWdMhG66+5fhv9I=
+
+Name: lib/armeabi-v7a/libil2cpp.so
+SHA1-Digest: 6w9Dif+eFiPbmbONAloJDDo3/Ug=
+
+Name: classes.dex
+SHA1-Digest: p7urYd4LyDjrjTkuunW+VEer/1w=
+
+Name: lib/armeabi-v7a/libunity.so
+SHA1-Digest: D5rhNCZtTNOMz4gDpSnqrbRnwGI=
+
+Name: assets/bin/Data/settings.xml
+SHA1-Digest: flAGBJZaNxkE+4I4Z4sCunTcnlk=
+
+Name: res/drawable/app_icon.png
+SHA1-Digest: XuNxr0+gnOTvykMrYIyJnX4StUY=
+
+Name: assets/bin/Data/globalgamemanagers
+SHA1-Digest: HRUZL6s6wOixzFK3CkLwjhbH84Q=
+
+Name: lib/x86/libil2cpp.so
+SHA1-Digest: NNUq1O2wl7mihjG1VHsCDdxR4ok=
+
+Name: assets/bin/Data/methods_pointedto_by_uievents.xml
+SHA1-Digest: GVm3f8eyenqjSrWQAgglB5bCE7M=
+
+Name: lib/x86/libunity.so
+SHA1-Digest: lywf5wTTB6ColjeUJqqCHjJ+o3A=
+
+Name: assets/bin/Data/Resources/unity_builtin_extra
+SHA1-Digest: mC85qQqbgo+X2jFxAuE+++h4i4w=
+
+Name: assets/bin/Data/Managed/Resources/mscorlib.dll-resources.dat
+SHA1-Digest: EaHA4qsvjAb+RQdTXtR+DdJ5pg0=
+
+Name: lib/x86/libmain.so
+SHA1-Digest: jpz0HFGCVyDpYVhaYo9US2Jf9RM=
+
+Name: assets/bin/Data/preserved_derived_types.xml
+SHA1-Digest: pVRP6qSxvHWDy4uWHvb9AmBpzvA=
+
+Name: assets/bin/Data/platform_native_link.xml
+SHA1-Digest: xxbaIleqyxtzy5B288+RbzzHTnY=
+

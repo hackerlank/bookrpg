@@ -7,8 +7,6 @@ namespace bookrpg.resource
 {
     public interface IResourceMgr
     {
-        void init(IResourceTable table);
-
         Loader load(string path, BKAction<string> onComplete = null, bool cache = false);
 
         BatchLoader loadWithDependencies(string path, BKAction<string> onComplete = null, bool cache = false);

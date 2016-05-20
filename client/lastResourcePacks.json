@@ -1,0 +1,150 @@
+
+[
+    {
+        "srcFile" : "ResourcePack",
+        "targetFile" : null,
+        "size"       : 4677,
+        "version"    : 1,
+        "resources"  : [
+            "ResourcePack"
+        ],
+        "dependencies" : [
+        ],
+        "beDependent"  : false,
+        "crc"          : 1933139371,
+        "hash"         : "00000000000000000000000000000000",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    },
+    {
+        "srcFile" : "scene",
+        "targetFile" : null,
+        "size"       : 27967143,
+        "version"    : 1,
+        "resources"  : [
+            "Assets/test/yoyo(1)-10.jpg",
+            "Assets/test/yoyo(1)-13.jpg",
+            "Assets/test/yoyo(1)-21.jpg",
+            "Assets/test/yoyo(1)-22.jpg",
+            "Assets/test/yoyo(1)-23.jpg"
+        ],
+        "dependencies" : [
+        ],
+        "beDependent"  : false,
+        "crc"          : 4182024330,
+        "hash"         : "fb0ce70099347d0b157ded1f470442e5",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    },
+    {
+        "srcFile" : "sphere",
+        "targetFile" : null,
+        "size"       : 2939990,
+        "version"    : 2,
+        "resources"  : [
+            "Assets/test/sphere.mat",
+            "Assets/test/sphere.prefab"
+        ],
+        "dependencies" : [
+            "test-topbottom_png"
+        ],
+        "beDependent"  : false,
+        "crc"          : 1612490008,
+        "hash"         : "1268e404a26fac39fb5c7f8b315a6ec4",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    },
+    {
+        "srcFile" : "test",
+        "targetFile" : null,
+        "size"       : 185758,
+        "version"    : 1,
+        "resources"  : [
+            "Assets/test2.unity"
+        ],
+        "dependencies" : [
+        ],
+        "beDependent"  : false,
+        "crc"          : 360254226,
+        "hash"         : "4e5315f1f505fa6bb7452fa5d2770051",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    },
+    {
+        "srcFile" : "test-cube_mat",
+        "targetFile" : null,
+        "size"       : 137026,
+        "version"    : 1,
+        "resources"  : [
+            "Assets/test/cube.mat"
+        ],
+        "dependencies" : [
+            "test-topbottom_png"
+        ],
+        "beDependent"  : true,
+        "crc"          : 3125234651,
+        "hash"         : "80cf5846256c96957fdb95a1e5963427",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    },
+    {
+        "srcFile" : "test-cube_prefab",
+        "targetFile" : null,
+        "size"       : 141805,
+        "version"    : 1,
+        "resources"  : [
+            "Assets/test/cube.prefab"
+        ],
+        "dependencies" : [
+            "test-cube_mat",
+            "test-topbottom_png"
+        ],
+        "beDependent"  : false,
+        "crc"          : 1632286204,
+        "hash"         : "c616f05bc23f55afbaaefa9b811edbde",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    },
+    {
+        "srcFile" : "test-cube2_prefab",
+        "targetFile" : null,
+        "size"       : 5705,
+        "version"    : 1,
+        "resources"  : [
+            "Assets/test/cube2.prefab"
+        ],
+        "dependencies" : [
+            "test-cube_mat",
+            "test-topbottom_png"
+        ],
+        "beDependent"  : false,
+        "crc"          : 3556062328,
+        "hash"         : "c6c4592088d671536737c730f9a6ab46",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    },
+    {
+        "srcFile" : "test-topbottom_png",
+        "targetFile" : null,
+        "size"       : 2800642,
+        "version"    : 1,
+        "resources"  : [
+            "Assets/test/topbottom.png"
+        ],
+        "dependencies" : [
+        ],
+        "beDependent"  : true,
+        "crc"          : 2672514043,
+        "hash"         : "12f36bcda2da49a05699b94631ee0354",
+        "packType"     : null,
+        "encryption"   : "",
+        "compression"  : ""
+    }
+]
