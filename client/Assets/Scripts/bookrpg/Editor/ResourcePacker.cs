@@ -48,7 +48,7 @@ namespace bookrpg.Editor
 
         public bool deleteManifest = true;
 
-        public string mainManifestName = "ResourcePack";
+        public string mainManifestName = "manifest";
 
         private string AssetsDir = "Assets";
 
@@ -57,7 +57,7 @@ namespace bookrpg.Editor
         public ResourcePacker()
         {
             appDir = Regex.Replace(Application.dataPath, AssetsDir + "$", "", RegexOptions.IgnoreCase);
-            tmpPackPath = appDir + mainManifestName + "/";
+            tmpPackPath = appDir + "ResourcePack/";
         }
 
         public void pack(
@@ -84,7 +84,8 @@ namespace bookrpg.Editor
         {
             this.project = project;
             this.outputPath = Util.getAbsolutePath(outputPath, appDir);
-
+            this.tmpPackPath += target.ToString() + "/" + mainManifestName + "/";
+            
             createPack();
 
             doPack(options, target);

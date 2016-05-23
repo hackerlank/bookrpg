@@ -54,6 +54,11 @@ namespace bookrpg.Editor
             set;
         }
 
+        public bool singleDirectResource
+        {
+            get{ return !beDependent && (resources == null || resources.Length < 2); }
+        }
+
         public uint crc
         {
             get;
@@ -79,6 +84,12 @@ namespace bookrpg.Editor
         }
 
         public string compression
+        {
+            get;
+            set;
+        }
+
+        public object customData
         {
             get;
             set;

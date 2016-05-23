@@ -1,27 +1,29 @@
 
 [
     {
-        "srcFile" : "ResourcePack",
+        "srcFile" : "manifest",
         "targetFile" : null,
         "size"       : 4677,
         "version"    : 1,
         "resources"  : [
-            "ResourcePack"
+            "manifest"
         ],
         "dependencies" : [
         ],
         "beDependent"  : false,
-        "crc"          : 1933139371,
-        "hash"         : "00000000000000000000000000000000",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : true,
+        "crc"                  : 1177540667,
+        "hash"                 : "00000000000000000000000000000000",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     },
     {
         "srcFile" : "scene",
         "targetFile" : null,
         "size"       : 27967143,
-        "version"    : 1,
+        "version"    : 2,
         "resources"  : [
             "Assets/test/yoyo(1)-10.jpg",
             "Assets/test/yoyo(1)-13.jpg",
@@ -32,17 +34,19 @@
         "dependencies" : [
         ],
         "beDependent"  : false,
-        "crc"          : 4182024330,
-        "hash"         : "fb0ce70099347d0b157ded1f470442e5",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : false,
+        "crc"                  : 1136807075,
+        "hash"                 : "264a91f6308ddca71236f3c90e63286b",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     },
     {
         "srcFile" : "sphere",
         "targetFile" : null,
-        "size"       : 2939990,
-        "version"    : 2,
+        "size"       : 2961006,
+        "version"    : 3,
         "resources"  : [
             "Assets/test/sphere.mat",
             "Assets/test/sphere.prefab"
@@ -51,34 +55,38 @@
             "test-topbottom_png"
         ],
         "beDependent"  : false,
-        "crc"          : 1612490008,
-        "hash"         : "1268e404a26fac39fb5c7f8b315a6ec4",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : false,
+        "crc"                  : 3671962434,
+        "hash"                 : "40c8a807728c1be590f942612a6c6622",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     },
     {
         "srcFile" : "test",
         "targetFile" : null,
-        "size"       : 185758,
-        "version"    : 1,
+        "size"       : 179653,
+        "version"    : 2,
         "resources"  : [
             "Assets/test2.unity"
         ],
         "dependencies" : [
         ],
         "beDependent"  : false,
-        "crc"          : 360254226,
-        "hash"         : "4e5315f1f505fa6bb7452fa5d2770051",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : true,
+        "crc"                  : 3059418318,
+        "hash"                 : "15e4291fb32e5be05017d95d7ab2d380",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     },
     {
         "srcFile" : "test-cube_mat",
         "targetFile" : null,
-        "size"       : 137026,
-        "version"    : 1,
+        "size"       : 140802,
+        "version"    : 2,
         "resources"  : [
             "Assets/test/cube.mat"
         ],
@@ -86,17 +94,19 @@
             "test-topbottom_png"
         ],
         "beDependent"  : true,
-        "crc"          : 3125234651,
-        "hash"         : "80cf5846256c96957fdb95a1e5963427",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : false,
+        "crc"                  : 2403109339,
+        "hash"                 : "9596d6dbc4f8a811eabfa7f0d41164e0",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     },
     {
         "srcFile" : "test-cube_prefab",
         "targetFile" : null,
-        "size"       : 141805,
-        "version"    : 1,
+        "size"       : 145581,
+        "version"    : 2,
         "resources"  : [
             "Assets/test/cube.prefab"
         ],
@@ -105,17 +115,19 @@
             "test-topbottom_png"
         ],
         "beDependent"  : false,
-        "crc"          : 1632286204,
-        "hash"         : "c616f05bc23f55afbaaefa9b811edbde",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : true,
+        "crc"                  : 2213889952,
+        "hash"                 : "64c1d789c3cd334209c43996ddd509c7",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     },
     {
         "srcFile" : "test-cube2_prefab",
         "targetFile" : null,
         "size"       : 5705,
-        "version"    : 1,
+        "version"    : 2,
         "resources"  : [
             "Assets/test/cube2.prefab"
         ],
@@ -124,27 +136,31 @@
             "test-topbottom_png"
         ],
         "beDependent"  : false,
-        "crc"          : 3556062328,
-        "hash"         : "c6c4592088d671536737c730f9a6ab46",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : true,
+        "crc"                  : 3394978099,
+        "hash"                 : "b8fde4725f5a8f3b760678103e40ab50",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     },
     {
         "srcFile" : "test-topbottom_png",
         "targetFile" : null,
         "size"       : 2800642,
-        "version"    : 1,
+        "version"    : 2,
         "resources"  : [
             "Assets/test/topbottom.png"
         ],
         "dependencies" : [
         ],
         "beDependent"  : true,
-        "crc"          : 2672514043,
-        "hash"         : "12f36bcda2da49a05699b94631ee0354",
-        "packType"     : null,
-        "encryption"   : "",
-        "compression"  : ""
+        "singleDirectResource" : false,
+        "crc"                  : 255680840,
+        "hash"                 : "8d4b26c395d6936e9cd6e34d9ef41511",
+        "packType"             : null,
+        "encryption"           : "",
+        "compression"          : "",
+        "customData"           : null
     }
 ]

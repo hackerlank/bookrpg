@@ -24,7 +24,7 @@ public class Test : MonoBehaviour
 
     UnityEngine.Object[] textureArr;
 
-    LocalResMgr mgr;
+    ResourceMgrImpl mgr;
 
 
     public void  loadAssetBundle()
@@ -33,7 +33,11 @@ public class Test : MonoBehaviour
         string uncompress = baseUrlFile + "ResourcePack_00000000000000000000000000000000";
         string compress = baseUrlFile + "scenec";
 
-        StartCoroutine(load(uncompress));
+//        StartCoroutine(load(uncompress));
+
+        WWW www = new WWW(uncompress);
+        ab2 = www.assetBundle;
+        ab2 = www.assetBundle;
 
 //        StartCoroutine(doLoadAssetBundle(uncompress));
 //        StartCoroutine(doLoadAssetBundle(compress));

@@ -37,7 +37,7 @@ namespace bookrpg.config
                 return false;
             }
 
-            string[] arr = content.Split(new char[]{ '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] arr = content.Split(new string[]{ "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
             title = arr [0].Split(new char[]{ '\t' });
 
             body = new List<string[]>();

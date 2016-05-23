@@ -91,6 +91,7 @@ namespace bookrpg.resource
             this.baseUrl = LoaderMgr.baseUrl;
             this.backupBaseUrl = LoaderMgr.backupBaseUrl;
             this.actualUrl = string.Empty;
+            this.isCheckRedirectError = LoaderMgr.isCheckRedirectError;
             this.timeout = LoaderMgr.timeout;
             this.error = string.Empty;
             this.isComplete = false;

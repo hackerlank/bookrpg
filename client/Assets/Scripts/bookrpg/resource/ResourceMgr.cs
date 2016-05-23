@@ -7,7 +7,7 @@ namespace bookrpg.resource
 {
     public class ResourceMgr
     {
-        private static IResourceMgr impl = new LocalResMgr();
+        private static IResourceMgr impl = new ResourceMgrImpl();
 
         public static void init(IResourceMgr instance)
         {

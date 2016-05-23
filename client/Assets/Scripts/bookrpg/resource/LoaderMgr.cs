@@ -25,6 +25,9 @@ namespace bookrpg.resource
         /// The max loading count, default 5.
         /// </summary>
         public static int maxLoadingCount = 5;
+
+        public static bool isCheckRedirectError = false;
+
         /// <summary>
         /// The timeout, default 7s.
         /// </summary>

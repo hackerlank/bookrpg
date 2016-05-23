@@ -44,17 +44,12 @@ namespace bookrpg.resource
         /// <summary>
         /// 依赖的其它资源
         /// </summary>
-        IList<string> dependencies{ get; }
+        string[] dependencies{ get; }
 
         /// <summary>
         /// 是否被其它资源依赖
         /// </summary>
         bool beDependent{ get; }
-
-        /// <summary>
-        /// 包括依赖在内的总大小
-        /// </summary>
-//        int totalSize{ get; }
 
         /// <summary>
         /// 目标文件的crc32

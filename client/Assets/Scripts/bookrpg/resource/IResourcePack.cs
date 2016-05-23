@@ -55,7 +55,7 @@ namespace bookrpg.resource
         /// 包中是否只有一个直接使用的资源包，也就是使用的时候只会用AssetBundle.LoadAsset()
         /// 加载其中的一个资源包，其它的资源包都是间接被加载的。看资源数量即可。
         /// </summary>
-//        bool singleDirectResource{ get; }
+        bool singleDirectResource{ get; }
 
         /// <summary>
         /// 加密器
@@ -66,5 +66,8 @@ namespace bookrpg.resource
         /// 压缩器
         /// </summary>
         string compression{ get; }
+
+
+        object customData{ get; set; }
     }
 }

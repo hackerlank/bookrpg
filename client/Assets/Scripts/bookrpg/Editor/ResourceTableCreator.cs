@@ -31,7 +31,7 @@ namespace bookrpg.Editor
             this.manifest = manifest;
             this.resourcePacks = resourcePacks;
 
-            historyPath = Application.dataPath + "/../lastResourcePacks.json";
+            historyPath = packOutputPath + "resourceTable.json";
             loadHistory();
         }
 
