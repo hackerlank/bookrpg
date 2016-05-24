@@ -7,45 +7,50 @@ namespace bookrpg
     public class AppUpdate
     {
         private string localVersionUrl;
+        private string localResourceTableUrl;
+
+        private IResourceTable resourceTable;
+        private IResourceTable localResourceTable;
 
         private VersionCfgMgr version;
         private VersionCfgMgr localVersion;
 
         public AppUpdate()
         {
+            this.localVersionUrl = AppConfig.localVersionUrl;
+            this.localResourceTableUrl = AppConfig.localResourceTableUrl;
         }
 
-        public void update(string localVersionUrl)
+        public void Update()
         {
-            this.localVersionUrl = localVersionUrl;
-            var loader = LoaderMgr.load(localVersionUrl);
+            var loader = LoaderMgr.Load(localVersionUrl);
 
             loader.onComplete += ld =>
             {
                 localVersion = new VersionCfgMgr();
-                if(localVersion.init(ld.text))
+                if(localVersion.Init(ld.text))
                 {
-                    loadVersion(localVersion.versionAddr);
+                    LoadVersion(localVersion.versionAddr);
                 }
             };
         }
 
-        private void loadVersion(string url)
+        private void LoadVersion(string url)
         {
-            var loader = LoaderMgr.load(url);
+            var loader = LoaderMgr.Load(url);
             loader.isCheckRedirectError = true;
 
             loader.onComplete += ld =>
             {
                 version = VersionCfgMgr.IT;
-                if(version.init(ld.text))
+                if(version.Init(ld.text))
                 {
-                    doUpdate();
+                    DoUpdate();
                 }
             };
         }
 
-        private void doUpdate()
+        private void DoUpdate()
         {
             if (version.closed)
             {
@@ -56,28 +61,34 @@ namespace bookrpg
 
             if (!localVersion.baseVersion.Equals(version.baseVersion))
             {
-                reinstall();
+                Reinstall();
                 return;
             }
 
             //TODO 更新资源
             if (!localVersion.lastVersion.Equals(version.lastVersion))
             {
-                var loader = LoaderMgr.load(version.resourceTableAddr);
-                loader.isCheckRedirectError = true;
+                var bl = LoaderMgr.LoadBatch();
+                bl.AddLoader(localResourceTableUrl);
+                bl.AddLoader(version.resourceTableAddr);
+                bl.isCheckRedirectError = true;
 
-                loader.onComplete += ld =>
+                bl.onComplete += ld =>
                 {
-                    version = VersionCfgMgr.IT;
-                    if(version.init(ld.text))
+                    var localTxt = bl.GetLoader(localResourceTableUrl).text;
+                    var txt = bl.GetLoader(version.resourceTableAddr).text;
+                    localResourceTable = new ResourceTableImpl();
+                    resourceTable = new ResourceTableImpl();
+                    if(localResourceTable.Deserialize(localTxt) && 
+                        resourceTable.Deserialize(txt))
                     {
-                        updateResource();
+                        UpdateResource();
                     }
                 };
             }
         }
 
-        private void reinstall()
+        private void Reinstall()
         {
             if (version == null)
             {
@@ -95,7 +106,7 @@ namespace bookrpg
             }
         }
 
-        private void updateResource()
+        private void UpdateResource()
         {
 
         }

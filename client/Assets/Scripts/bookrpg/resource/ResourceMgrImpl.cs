@@ -17,7 +17,7 @@ namespace bookrpg.resource
 
         public ResourceMgrImpl()
         {
-            resourceTable = new EmptyResourceTable();
+            resourceTable = new ResourceTableImpl();
         }
 
         public ResourceMgrImpl(IResourceTable table)
@@ -25,7 +25,8 @@ namespace bookrpg.resource
             resourceTable = table;
         }
 
-        public Loader load(string path, BKAction<string> onComplete = null, bool cache = false)
+        public Loader Load(string path, BKAction<string> onComplete = null, 
+            bool cache = false)
         {
             var bReturn = false;
             if (string.IsNullOrEmpty(path))
@@ -33,10 +34,10 @@ namespace bookrpg.resource
                 bReturn = true;
                 Debug.LogWarning("LocalResMgr.load, path is empty");
             }
-            if (hasResource(path))
+            if (HasResource(path))
             {
                 bReturn = true;
-                updateCache(path, cache);
+                UpdateCache(path, cache);
             }
             if (bReturn)
             {
@@ -47,15 +48,15 @@ namespace bookrpg.resource
                 return null;
             }
 
-            var file = resourceTable.getResourceFile(path);
-            var loader = file == null ? LoaderMgr.load(path) : 
-                LoaderMgr.load(file.targetFile, file.version, file.size);
+            var file = resourceTable.GetResourceFile(path);
+            var loader = file == null ? LoaderMgr.Load(path) : 
+                LoaderMgr.Load(file.targetFile, file.version, file.size);
 
             loader.onComplete += ld =>
             {
                 if (!ld.hasError)
                 {
-                    addResource(path, ld.getOrgAssetBundle(), cache);
+                    AddResource(path, ld.GetOrgAssetBundle(), cache);
                 }
 
                 if (onComplete != null)
@@ -69,38 +70,38 @@ namespace bookrpg.resource
             return loader;
         }
 
-        public BatchLoader loadWithDependencies(string path, BKAction<string> onComplete = null, bool cache = false)
+        public BatchLoader LoadWithDependencies(string path, BKAction<string> onComplete = null, bool cache = false)
         {
-            if (hasResource(path))
+            if (HasResource(path))
             {
                 return null;
             }
 
-            var batch = LoaderMgr.loadBatch();
-            var file = resourceTable.getResourceFile(path);
+            var batch = LoaderMgr.LoadBatch();
+            var file = resourceTable.GetResourceFile(path);
             if (file == null)
             {
-                batch.addLoader(path);
+                batch.AddLoader(path);
             } else
             {
                 if (file.dependencies != null)
                 {
                     foreach (var filestr in file.dependencies)
                     {
-                        var file2 = resourceTable.getResourceFile(filestr);
-                        if (!hasResource(file2))
+                        var file2 = resourceTable.GetResourceFile(filestr);
+                        if (!HasResource(file2))
                         {
-                            batch.addLoader(file2.targetFile, file2.version, file2.size);
+                            batch.AddLoader(file2.targetFile, file2.version, file2.size);
                         }
                     }
                 }
 
-                batch.addLoader(file.targetFile, file.version, file.size);
+                batch.AddLoader(file.targetFile, file.version, file.size);
             }
 
-            if (batch.getLoaders().Count == 0)
+            if (batch.GetLoaders().Count == 0)
             {
-                batch.disposeImmediate();
+                batch.DisposeImmediate();
                 if (onComplete != null)
                 {
                     onComplete(path);
@@ -110,11 +111,11 @@ namespace bookrpg.resource
 
             batch.onComplete += bt =>
             {
-                foreach (var item in bt.getLoaders())
+                foreach (var item in bt.GetLoaders())
                 {
                     if (!item.Value.hasError)
                     {
-                        addResource(item.Key, item.Value.getOrgAssetBundle(), cache);
+                        AddResource(item.Key, item.Value.GetOrgAssetBundle(), cache);
                     }
                 }
 
@@ -129,42 +130,42 @@ namespace bookrpg.resource
             return batch;
         }
 
-        public BatchLoader loadBatch(ICollection<string> pathes, BKAction<ICollection<string>> onComplete = null, bool cache = false)
+        public BatchLoader LoadBatch(ICollection<string> pathes, BKAction<ICollection<string>> onComplete = null, bool cache = false)
         {
-            var batch = LoaderMgr.loadBatch();
+            var batch = LoaderMgr.LoadBatch();
             
             foreach (var path in pathes)
             {
-                if (hasResource(path))
+                if (HasResource(path))
                 {
                     continue;
                 }
 
-                var file = resourceTable.getResourceFile(path);
+                var file = resourceTable.GetResourceFile(path);
                 if (file == null)
                 {
-                    batch.addLoader(path);
+                    batch.AddLoader(path);
                 } else
                 {
                     if (file.dependencies != null)
                     {
                         foreach (var filestr in file.dependencies)
                         {
-                            var file2 = resourceTable.getResourceFile(filestr);
-                            if (!hasResource(file2))
+                            var file2 = resourceTable.GetResourceFile(filestr);
+                            if (!HasResource(file2))
                             {
-                                batch.addLoader(file2.targetFile, file2.version, file2.size);
+                                batch.AddLoader(file2.targetFile, file2.version, file2.size);
                             }
                         }
                     }
 
-                    batch.addLoader(file.targetFile, file.version, file.size);
+                    batch.AddLoader(file.targetFile, file.version, file.size);
                 }
             }
 
-            if (batch.getLoaders().Count == 0)
+            if (batch.GetLoaders().Count == 0)
             {
-                batch.disposeImmediate();
+                batch.DisposeImmediate();
                 if (onComplete != null)
                 {
                     onComplete(pathes);
@@ -174,11 +175,11 @@ namespace bookrpg.resource
 
             batch.onComplete += bt =>
             {
-                foreach (var item in bt.getLoaders())
+                foreach (var item in bt.GetLoaders())
                 {
                     if (!item.Value.hasError)
                     {
-                        addResource(item.Key, item.Value.getOrgAssetBundle(), cache);
+                        AddResource(item.Key, item.Value.GetOrgAssetBundle(), cache);
                     }
                 }
 
@@ -193,7 +194,7 @@ namespace bookrpg.resource
             return batch;
         }
 
-        public bool hasResource(string path)
+        public bool HasResource(string path)
         {
             //后者表示资源就是AssetBundle包本身，而不是包中的文件
             if (assetList.ContainsKey(path) ||
@@ -203,178 +204,178 @@ namespace bookrpg.resource
                 return true;
             }
 
-            var file = resourceTable.getResourceFile(path);
-            return file != null && hasResource(file);
+            var file = resourceTable.GetResourceFile(path);
+            return file != null && HasResource(file);
         }
 
-        public bool hasResource(int number)
+        public bool HasResource(int number)
         {
-            var file = resourceTable.getResourceFile(number);
-            return file != null && hasResource(file);
+            var file = resourceTable.GetResourceFile(number);
+            return file != null && HasResource(file);
         }
 
         #region getResource by path
 
-        public UnityEngine.Object getResource(string path)
+        public UnityEngine.Object GetResource(string path)
         {
             if (assetList.ContainsKey(path))
             {
-                return assetList[path].refTarget() as UnityEngine.Object;
+                return assetList[path].RefTarget() as UnityEngine.Object;
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             if (ab == null)
             {
                 return null;
             }
 
-            IResourceFile file = resourceTable.getResourceFile(path);
-            var obj = file == null ? ab : ab.LoadAsset(file.idInPack, getResourceType(file.type));
-            bundleToAsset(path, file, ab, obj);
+            IResourceFile file = resourceTable.GetResourceFile(path);
+            var obj = file == null ? ab : ab.LoadAsset(file.idInPack, GetResourceType(file.type));
+            BundleToAsset(path, file, ab, obj);
             return obj;
         }
 
-        public void getResourceAsync(string path, BKAction<UnityEngine.Object> onComplete)
+        public void GetResourceAsync(string path, BKAction<UnityEngine.Object> onComplete)
         {
             if (assetList.ContainsKey(path))
             {
-                onComplete((assetList[path].refTarget() as UnityEngine.Object));
+                onComplete((assetList[path].RefTarget() as UnityEngine.Object));
                 return;
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             if (ab == null)
             {
                 onComplete(null);
                 return;
             }
 
-            IResourceFile file = resourceTable.getResourceFile(path);
+            IResourceFile file = resourceTable.GetResourceFile(path);
             if (file == null)
             {
-                bundleToAsset(path, file, ab, ab);
+                BundleToAsset(path, file, ab, ab);
                 onComplete(ab);
                 return;
             }
 
-            CoroutineMgr.startCoroutine(doGetResourceAsync(file, ab, onComplete));
+            CoroutineMgr.StartCoroutine(DoGetResourceAsync(file, ab, onComplete));
         }
 
-        public T getResource<T>(string path) where T : UnityEngine.Object
+        public T GetResource<T>(string path) where T : UnityEngine.Object
         {
             if (assetList.ContainsKey(path))
             {
-                return (T)(assetList[path].refTarget());
+                return (T)(assetList[path].RefTarget());
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             if (ab == null)
             {
                 return default(T);
             }
 
-            IResourceFile file = resourceTable.getResourceFile(path);
+            IResourceFile file = resourceTable.GetResourceFile(path);
             if (file == null)
             {
-                bundleToAsset(path, file, ab, ab);
+                BundleToAsset(path, file, ab, ab);
                 return (T)Convert.ChangeType(ab, typeof(T));
             } else
             {
                 var obj = ab.LoadAsset<T>(file.idInPack);
-                bundleToAsset(path, file, ab, obj);
+                BundleToAsset(path, file, ab, obj);
                 return obj;
             }
         }
 
-        public void getResourceAsync<T>(string path, BKAction<T> onComplete) where T : UnityEngine.Object
+        public void GetResourceAsync<T>(string path, BKAction<T> onComplete) where T : UnityEngine.Object
         {
             if (assetList.ContainsKey(path))
             {
-                onComplete((T)(assetList[path].refTarget()));
+                onComplete((T)(assetList[path].RefTarget()));
                 return;
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             if (ab == null)
             {
                 onComplete(default(T));
                 return;
             }
 
-            IResourceFile file = resourceTable.getResourceFile(path);
+            IResourceFile file = resourceTable.GetResourceFile(path);
             if (file == null)
             {
-                bundleToAsset(path, file, ab, ab);
+                BundleToAsset(path, file, ab, ab);
                 onComplete((T)Convert.ChangeType(ab, typeof(T)));
                 return;
             }
 
-            CoroutineMgr.startCoroutine(doGetResourceAsync<T>(file, ab, onComplete));
+            CoroutineMgr.StartCoroutine(DoGetResourceAsync<T>(file, ab, onComplete));
         }
 
         #endregion
 
         #region getAllResources
 
-        public UnityEngine.Object[] getAllResources(string path)
+        public UnityEngine.Object[] GetAllResources(string path)
         {
-            IResourceFile file = resourceTable.getResourceFile(path);
+            IResourceFile file = resourceTable.GetResourceFile(path);
             if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
-                return new UnityEngine.Object[]{ assetList[file.srcFile].refTarget() as UnityEngine.Object };
+                return new UnityEngine.Object[]{ assetList[file.srcFile].RefTarget() as UnityEngine.Object };
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             return ab == null ? null : ab.LoadAllAssets();
         }
 
-        public void getAllResourcesAsync(string path, BKAction<UnityEngine.Object[]> onComplete)
+        public void GetAllResourcesAsync(string path, BKAction<UnityEngine.Object[]> onComplete)
         {
-            IResourceFile file = resourceTable.getResourceFile(path);
+            IResourceFile file = resourceTable.GetResourceFile(path);
             if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
-                onComplete(new UnityEngine.Object[]{ assetList[file.srcFile].refTarget() as UnityEngine.Object });
+                onComplete(new UnityEngine.Object[]{ assetList[file.srcFile].RefTarget() as UnityEngine.Object });
                 return;
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             if (ab == null)
             {
                 return;
             }
 
-            CoroutineMgr.startCoroutine(doGetAllResourcesAsync<UnityEngine.Object>(ab, onComplete));
+            CoroutineMgr.StartCoroutine(DoGetAllResourcesAsync<UnityEngine.Object>(ab, onComplete));
         }
 
-        public T[] getAllResources<T>(string path) where T : UnityEngine.Object
+        public T[] GetAllResources<T>(string path) where T : UnityEngine.Object
         {
-            IResourceFile file = resourceTable.getResourceFile(path);
+            IResourceFile file = resourceTable.GetResourceFile(path);
             if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
-                return new T[]{ (T)assetList[file.srcFile].refTarget() };
+                return new T[]{ (T)assetList[file.srcFile].RefTarget() };
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             return ab == null ? null : (T[])ab.LoadAllAssets();
         }
 
-        public void getAllResourcesAsync<T>(string path, BKAction<T[]> onComplete) where T : UnityEngine.Object
+        public void GetAllResourcesAsync<T>(string path, BKAction<T[]> onComplete) where T : UnityEngine.Object
         {
 
-            IResourceFile file = resourceTable.getResourceFile(path);
+            IResourceFile file = resourceTable.GetResourceFile(path);
             if (file != null && file.singleDirectResource && assetList.ContainsKey(file.srcFile))
             {
-                onComplete(new T[]{ (T)assetList[file.srcFile].refTarget() });
+                onComplete(new T[]{ (T)assetList[file.srcFile].RefTarget() });
                 return;
             }
 
-            var ab = getAssetBundle(path);
+            var ab = GetAssetBundle(path);
             if (ab == null)
             {
                 return;
             }
 
-            CoroutineMgr.startCoroutine(doGetAllResourcesAsync<T>(ab, onComplete));
+            CoroutineMgr.StartCoroutine(DoGetAllResourcesAsync<T>(ab, onComplete));
         }
 
         #endregion
@@ -382,72 +383,72 @@ namespace bookrpg.resource
 
         #region getResource by number
 
-        public UnityEngine.Object getResource(int number)
+        public UnityEngine.Object GetResource(int number)
         {
-            var file = resourceTable.getResourceFile(number);
-            return file != null ? getResource(file.srcFile) : null;
+            var file = resourceTable.GetResourceFile(number);
+            return file != null ? GetResource(file.srcFile) : null;
         }
 
-        public void getResourceAsync(int number, BKAction<UnityEngine.Object> onComplete)
+        public void GetResourceAsync(int number, BKAction<UnityEngine.Object> onComplete)
         {
-            var file = resourceTable.getResourceFile(number);
+            var file = resourceTable.GetResourceFile(number);
             if (file != null)
             {
-                getResourceAsync(file.srcFile, onComplete);
+                GetResourceAsync(file.srcFile, onComplete);
             } else
             {
                 onComplete(null);
             }
         }
 
-        public T getResource<T>(int number) where T : UnityEngine.Object
+        public T GetResource<T>(int number) where T : UnityEngine.Object
         {
-            var file = resourceTable.getResourceFile(number);
-            return file != null ? getResource<T>(file.srcFile) : null;
+            var file = resourceTable.GetResourceFile(number);
+            return file != null ? GetResource<T>(file.srcFile) : null;
         }
 
-        public void getResourceAsync<T>(int number, BKAction<T> onComplete) where T : UnityEngine.Object
+        public void GetResourceAsync<T>(int number, BKAction<T> onComplete) where T : UnityEngine.Object
         {
-            var file = resourceTable.getResourceFile(number);
+            var file = resourceTable.GetResourceFile(number);
             if (file != null)
             {
-                getResourceAsync<T>(file.srcFile, onComplete);
+                GetResourceAsync<T>(file.srcFile, onComplete);
             } else
             {
                 onComplete(null);
             }
         }
 
-        public UnityEngine.Object[] getAllResources(int number)
+        public UnityEngine.Object[] GetAllResources(int number)
         {
-            var file = resourceTable.getResourceFile(number);
-            return file != null ? getAllResources(file.srcFile) : null;
+            var file = resourceTable.GetResourceFile(number);
+            return file != null ? GetAllResources(file.srcFile) : null;
         }
 
-        public void getAllResourcesAsync(int number, BKAction<UnityEngine.Object[]> onComplete)
+        public void GetAllResourcesAsync(int number, BKAction<UnityEngine.Object[]> onComplete)
         {
-            var file = resourceTable.getResourceFile(number);
+            var file = resourceTable.GetResourceFile(number);
             if (file != null)
             {
-                getAllResourcesAsync(file.srcFile, onComplete);
+                GetAllResourcesAsync(file.srcFile, onComplete);
             } else
             {
                 onComplete(null);
             }
         }
 
-        public T[] getAllResources<T>(int number) where T : UnityEngine.Object
+        public T[] GetAllResources<T>(int number) where T : UnityEngine.Object
         {
-            var file = resourceTable.getResourceFile(number);
-            return file != null ? getAllResources<T>(file.srcFile) : null;
+            var file = resourceTable.GetResourceFile(number);
+            return file != null ? GetAllResources<T>(file.srcFile) : null;
         }
 
-        public void getAllResourcesAsync<T>(int number, BKAction<T[]> onComplete) where T : UnityEngine.Object
+        public void GetAllResourcesAsync<T>(int number, BKAction<T[]> onComplete) where T : UnityEngine.Object
         {
-            var file = resourceTable.getResourceFile(number);
+            var file = resourceTable.GetResourceFile(number);
             if (file != null)
             {
-                getAllResourcesAsync<T>(file.srcFile, onComplete);
+                GetAllResourcesAsync<T>(file.srcFile, onComplete);
             } else
             {
                 onComplete(null);
@@ -463,24 +464,24 @@ namespace bookrpg.resource
         /// <summary>
         /// add external loaded resource
         /// </summary>
-        public void addResource(Loader loader, bool cache = false)
+        public void AddResource(Loader loader, bool cache = false)
         {
             if (!loader.hasError)
             {
-                addResource(loader.url, loader.getOrgAssetBundle(), cache);
+                AddResource(loader.url, loader.GetOrgAssetBundle(), cache);
             }
         }
 
         /// <summary>
         /// when resource's refcount is 0, then dispose it.
         /// </summary>
-        public void releaseResource(string path)
+        public void ReleaseResource(string path)
         {
             if (assetList.ContainsKey(path))
             {
                 var item = assetList[path];
-                item.deRefTarget();
-                if (item.canDisposed())
+                item.DeRefTarget();
+                if (item.CanDisposed())
                 {
                     Resources.UnloadAsset(item.target as UnityEngine.Object);
                     assetList.Remove(path);
@@ -490,7 +491,7 @@ namespace bookrpg.resource
 
             string key = null;
 
-            var file = resourceTable.getResourceFile(path);
+            var file = resourceTable.GetResourceFile(path);
             if (file != null && assetBundleList.ContainsKey(file.targetFile))
             {
                 key = file.targetFile;
@@ -502,8 +503,8 @@ namespace bookrpg.resource
             if (key != null)
             {
                 var item = assetBundleList[key];
-                item.deRefTarget();
-                if (item.canDisposed())
+                item.DeRefTarget();
+                if (item.CanDisposed())
                 {
                     var ab = item.target as AssetBundle;
                     if (ab != null)
@@ -518,13 +519,13 @@ namespace bookrpg.resource
         /// <summary>
         /// remove resource except in using, be carebuf when using
         /// </summary>
-        public void removeResource(string path)
+        public void RemoveResource(string path)
         {
             if (assetList.ContainsKey(path))
             {
                 var item = assetList[path];
-                item.deRefTarget();
-                if (item.canDisposed())
+                item.DeRefTarget();
+                if (item.CanDisposed())
                 {
                     Resources.UnloadAsset(item.target as UnityEngine.Object);
                 }
@@ -534,7 +535,7 @@ namespace bookrpg.resource
 
             string key = null;
 
-            var file = resourceTable.getResourceFile(path);
+            var file = resourceTable.GetResourceFile(path);
             if (file != null && assetBundleList.ContainsKey(file.targetFile))
             {
                 key = file.targetFile;
@@ -558,7 +559,7 @@ namespace bookrpg.resource
         /// <summary>
         /// remove all resources except in using, be carebuf when using
         /// </summary>
-        public void removeAllResources()
+        public void RemoveAllResources()
         {
             foreach (var item in assetList.Values)
             {
@@ -582,7 +583,7 @@ namespace bookrpg.resource
         #endregion
 
 
-        private void getResourceFiles(IResourceFile resFile, List<IResourceFile> results)
+        private void GetResourceFiles(IResourceFile resFile, List<IResourceFile> results)
         {
             if (resFile == null ||
                 assetList.ContainsKey(resFile.srcFile) ||
@@ -598,26 +599,26 @@ namespace bookrpg.resource
             {
                 foreach (var file in dependencies)
                 {
-                    getResourceFiles(resourceTable.getResourceFile(file), results);
+                    GetResourceFiles(resourceTable.GetResourceFile(file), results);
                 }
             }
         }
 
-        private bool hasResource(IResourceFile resFile)
+        private bool HasResource(IResourceFile resFile)
         {
             return assetList.ContainsKey(resFile.srcFile) ||
             (assetBundleList.ContainsKey(resFile.targetFile) &&
             assetBundleList[resFile.targetFile].target != null);
         }
 
-        private void updateCache(string path, bool cache)
+        private void UpdateCache(string path, bool cache)
         {
             if (assetList.ContainsKey(path) && !assetList[path].cache)
             {
                 assetList[path].cache = cache;
             } else
             {
-                var file = resourceTable.getResourceFile(path);
+                var file = resourceTable.GetResourceFile(path);
                 if (file != null && assetBundleList.ContainsKey(file.targetFile) &&
                     !assetBundleList[file.targetFile].cache)
                 {
@@ -626,28 +627,28 @@ namespace bookrpg.resource
             }
         }
 
-        IEnumerator doGetResourceAsync(IResourceFile file, AssetBundle ab, BKAction<UnityEngine.Object> onComplete)
+        IEnumerator DoGetResourceAsync(IResourceFile file, AssetBundle ab, BKAction<UnityEngine.Object> onComplete)
         {
-            var req = ab.LoadAssetAsync(file.idInPack, getResourceType(file.type));
+            var req = ab.LoadAssetAsync(file.idInPack, GetResourceType(file.type));
             yield return req;
 
             var obj = req.asset;
-            bundleToAsset(file.srcFile, file, ab, obj);
+            BundleToAsset(file.srcFile, file, ab, obj);
             onComplete(obj);
         }
 
-        IEnumerator doGetResourceAsync<T>(IResourceFile file, AssetBundle ab, BKAction<T> onComplete) 
+        IEnumerator DoGetResourceAsync<T>(IResourceFile file, AssetBundle ab, BKAction<T> onComplete) 
             where T : UnityEngine.Object
         {
             var req = ab.LoadAssetAsync<T>(file.idInPack);
             yield return req;
 
             var obj = (T)req.asset;
-            bundleToAsset(file.srcFile, file, ab, obj);
+            BundleToAsset(file.srcFile, file, ab, obj);
             onComplete(obj);
         }
 
-        IEnumerator doGetAllResourcesAsync<T>(AssetBundle ab, BKAction<T[]> onComplete) 
+        IEnumerator DoGetAllResourcesAsync<T>(AssetBundle ab, BKAction<T[]> onComplete) 
             where T : UnityEngine.Object
         {
             var req = ab.LoadAllAssetsAsync<T>();
@@ -656,7 +657,7 @@ namespace bookrpg.resource
             onComplete((T[])req.allAssets);
         }
 
-        private Type getResourceType(string type)
+        private Type GetResourceType(string type)
         {
             Type obj;
 
@@ -701,7 +702,7 @@ namespace bookrpg.resource
             return obj;
         }
 
-        private string getIdInPack(string path)
+        private string GetIdInPack(string path)
         {
             var idInPack = path;
             var pos = path.LastIndexOf('/') + 1;
@@ -719,9 +720,9 @@ namespace bookrpg.resource
             return idInPack;
         }
 
-        private AssetBundle getAssetBundle(string path)
+        private AssetBundle GetAssetBundle(string path)
         {
-            var file = resourceTable.getResourceFile(path);
+            var file = resourceTable.GetResourceFile(path);
             if (file != null && assetBundleList.ContainsKey(file.targetFile))
             {
                 return assetBundleList[file.targetFile].target as AssetBundle;
@@ -730,14 +731,14 @@ namespace bookrpg.resource
             return assetBundleList.ContainsKey(path) ? assetBundleList[path].target as AssetBundle : null;
         }
 
-        private void bundleToAsset(string path, IResourceFile file, AssetBundle ab, UnityEngine.Object asset)
+        private void BundleToAsset(string path, IResourceFile file, AssetBundle ab, UnityEngine.Object asset)
         {
             if (file != null && file.singleDirectResource && !file.beDependent && asset != null &&
                 (!assetBundleList.ContainsKey(file.targetFile) ||
                 !assetBundleList[file.targetFile].cache))
             {
                 var cref = new CountableRef(asset);
-                cref.refTarget();
+                cref.RefTarget();
                 assetList.Add(file.srcFile, cref);
                 ab.Unload(false);
                 assetBundleList.Remove(file.targetFile);
@@ -745,12 +746,12 @@ namespace bookrpg.resource
             {
                 if (assetBundleList.ContainsKey(path) && asset != null)
                 {
-                    assetBundleList[path].refTarget();
+                    assetBundleList[path].RefTarget();
                 }
             }
         }
 
-        private void addResource(string url, AssetBundle ab, bool cache)
+        private void AddResource(string url, AssetBundle ab, bool cache)
         {
             if (!assetBundleList.ContainsKey(url))
             {
@@ -759,19 +760,6 @@ namespace bookrpg.resource
             {
                 assetBundleList[url] = new CountableRef(ab, cache);
             }
-        }
-    }
-
-    internal class EmptyResourceTable : IResourceTable
-    {
-        public IResourceFile getResourceFile(string resourcePath)
-        {
-            return null;
-        }
-
-        public IResourceFile getResourceFile(int resourceNumber)
-        {
-            return null;
         }
     }
 }

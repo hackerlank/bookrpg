@@ -17,7 +17,7 @@ namespace bookrpg
     {
         public VersionCfgMgrCE()
         {
-            this.setParser(new TxtParser());
+            this.SetParser(new TxtParser());
             this.resourceName = "version.txt";
         }
 
@@ -35,22 +35,22 @@ namespace bookrpg
         public bool closed { get; protected set; }
         public string closedReason { get; protected set; }
 
-        public override bool init(string text, string format=null)
+        public override bool Init(string text, string format=null)
         {
-            if (base.init(text, format)) {
-                this.baseVersion = (string)getItem("baseVersion").value;
-                this.lastVersion = (string)getItem("lastVersion").value;
-                this.releaseTime = (string)getItem("releaseTime").value;
-                this.releaseNote = (string)getItem("releaseNote").value;
-                this.versionAddr = (string)getItem("versionAddr").value;
-                this.resourceTableAddr = (string)getItem("resourceTableAddr").value;
-                this.installAddr = (string)getItem("installAddr").value;
-                this.installAddr2 = (string)getItem("installAddr2").value;
-                this.installMethod = (string)getItem("installMethod").value;
-                this.updateAddr = (string)getItem("updateAddr").value;
-                this.updateAddr2 = (string)getItem("updateAddr2").value;
-                this.closed = (bool)getItem("closed").value;
-                this.closedReason = (string)getItem("closedReason").value;
+            if (base.Init(text, format)) {
+                this.baseVersion = (string)GetItem("baseVersion").value;
+                this.lastVersion = (string)GetItem("lastVersion").value;
+                this.releaseTime = (string)GetItem("releaseTime").value;
+                this.releaseNote = (string)GetItem("releaseNote").value;
+                this.versionAddr = (string)GetItem("versionAddr").value;
+                this.resourceTableAddr = (string)GetItem("resourceTableAddr").value;
+                this.installAddr = (string)GetItem("installAddr").value;
+                this.installAddr2 = (string)GetItem("installAddr2").value;
+                this.installMethod = (string)GetItem("installMethod").value;
+                this.updateAddr = (string)GetItem("updateAddr").value;
+                this.updateAddr2 = (string)GetItem("updateAddr2").value;
+                this.closed = (bool)GetItem("closed").value;
+                this.closedReason = (string)GetItem("closedReason").value;
                 return true;
             }
             return false;
@@ -63,113 +63,113 @@ namespace bookrpg
         public object value;
 
         ///parse form txt 
-        public override bool parseFrom(IConfigParser parser)
+        public override bool ParseFrom(IConfigParser parser)
         {
             try{
                 switch (parser.currentRow) 
                 {
                     case 0:
                         this.key = "baseVersion";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 1:
                         this.key = "lastVersion";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 2:
                         this.key = "releaseTime";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 3:
                         this.key = "releaseNote";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 4:
                         this.key = "versionAddr";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 5:
                         this.key = "resourceTableAddr";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 6:
                         this.key = "installAddr";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 7:
                         this.key = "installAddr2";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 8:
                         this.key = "installMethod";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 9:
                         this.key = "updateAddr";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 10:
                         this.key = "updateAddr2";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                     case 11:
                         this.key = "closed";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<bool>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<bool>(this.key);
                         } else {
-                            this.value = parser.getValue<bool>("itemValue");
+                            this.value = parser.GetValue<bool>("itemValue");
                         }
                         break;
                     case 12:
                         this.key = "closedReason";
-                        if (parser.has(this.key)) {
-                            this.value = parser.getValue<string>(this.key);
+                        if (parser.Has(this.key)) {
+                            this.value = parser.GetValue<string>(this.key);
                         } else {
-                            this.value = parser.getValue<string>("itemValue");
+                            this.value = parser.GetValue<string>("itemValue");
                         }
                         break;
                 }

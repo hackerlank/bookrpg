@@ -69,11 +69,11 @@ namespace bookrpg.resource
 
             foreach (var url in urls)
             {
-                addLoader(url, 0, 0, 0, maxRetryCount);
+                AddLoader(url, 0, 0, 0, maxRetryCount);
             }
         }
 
-        public Loader addLoader(string url, int version = 0, int size = 0, int priority = 0, int maxRetryCount = 3)
+        public Loader AddLoader(string url, int version = 0, int size = 0, int priority = 0, int maxRetryCount = 3)
         {
             string key = url + '_' + version.ToString();
             Loader loader;
@@ -84,7 +84,7 @@ namespace bookrpg.resource
                 Debug.LogFormat("{0} has already in load queue", url);
             } else
             {
-                loader = LoaderMgr.newOrGetLoad(url, version, size, priority, maxRetryCount);
+                loader = LoaderMgr.NewOrGetLoad(url, version, size, priority, maxRetryCount);
                 loaders.Add(key, loader);
             }
 
@@ -119,7 +119,7 @@ namespace bookrpg.resource
         /// <summary>
         /// Use by LoaderMgr, usually user need't use it
         /// </summary>
-        public virtual void disposeImmediate()
+        public virtual void DisposeImmediate()
         {
             if (hasDisposed)
             {
@@ -131,14 +131,14 @@ namespace bookrpg.resource
             onOneComplete = null;
             foreach (var loader in loaders.Values)
             {
-                loader.disposeImmediate();
+                loader.DisposeImmediate();
             }
             loaders.Clear();
             completedLoaders.Clear();
             customData = null;
         }
 
-        protected void init()
+        protected void Init()
         {
             foreach (var loader in loaders.Values)
             {
@@ -165,17 +165,17 @@ namespace bookrpg.resource
             set{ _backupBaseUrl = WWW.UnEscapeURL(value); }
         }
 
-        public IDictionary<string, Loader> getLoaders()
+        public IDictionary<string, Loader> GetLoaders()
         {
             return loaders;
         }
 
-        public Loader getLoader(string url)
+        public Loader GetLoader(string url)
         {
             return loaders.ContainsKey(url) ? loaders[url] : null;
         }
 
-        public virtual void update()
+        public virtual void Update()
         {
             if (isComplete)
             {
@@ -184,7 +184,7 @@ namespace bookrpg.resource
 
             if (!hasInit)
             {
-                init();
+                Init();
             }
 
             bool isCpt = true;
@@ -214,7 +214,7 @@ namespace bookrpg.resource
 
                 if (maxErrorCount > 0 && errorCount > maxErrorCount)
                 {
-                    LoaderMgr.stopLoad(loader.url, loader.version);
+                    LoaderMgr.StopLoad(loader.url, loader.version);
                     isCpt = true;
                 }
             }
@@ -229,11 +229,11 @@ namespace bookrpg.resource
 
             if (isCpt)
             {
-                doCompleted();
+                DoCompleted();
             }
         }
 
-        protected void doCompleted()
+        protected void DoCompleted()
         {
             timeElapsed = Time.time - startTime;
 
@@ -256,7 +256,7 @@ namespace bookrpg.resource
                 int bytesLoaded;
                 int bytesTotal;
                 float progress;
-                getLoadingProgress(out bytesLoaded, out bytesTotal, out progress);
+                GetLoadingProgress(out bytesLoaded, out bytesTotal, out progress);
                 return progress;
             }
         }
@@ -268,7 +268,7 @@ namespace bookrpg.resource
                 int bytesLoaded;
                 int bytesTotal;
                 float progress;
-                getLoadingProgress(out bytesLoaded, out bytesTotal, out progress);
+                GetLoadingProgress(out bytesLoaded, out bytesTotal, out progress);
                 return bytesLoaded;
             }
         }
@@ -280,12 +280,12 @@ namespace bookrpg.resource
                 int bytesLoaded;
                 int bytesTotal;
                 float progress;
-                getLoadingProgress(out bytesLoaded, out bytesTotal, out progress);
+                GetLoadingProgress(out bytesLoaded, out bytesTotal, out progress);
                 return bytesTotal;
             }
         }
 
-        public void getLoadingProgress(
+        public void GetLoadingProgress(
             out int bytesLoaded, 
             out int bytesTotal, 
             out float progress)

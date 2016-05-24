@@ -111,13 +111,13 @@ namespace bookrpg.resource
             }
             customData = null;
             hasDisposed = true;
-            LoaderMgr.tryUnload(actualUrl, version);
+            LoaderMgr.TryUnload(actualUrl, version);
         }
 
         /// <summary>
         /// Use by LoaderMgr, usually user need't use it
         /// </summary>
-        public virtual void disposeImmediate()
+        public virtual void DisposeImmediate()
         {
             if (www != null)
             {
@@ -132,7 +132,7 @@ namespace bookrpg.resource
                 www = null;
             }
             customData = null;
-            CoroutineMgr.stopCoroutine("doLoad");
+            CoroutineMgr.StopCoroutine("doLoad");
             hasDisposed = true;
             GC.SuppressFinalize(this);
         }
@@ -148,7 +148,7 @@ namespace bookrpg.resource
             get { return !string.IsNullOrEmpty(error); }
         }
 
-        public virtual void load(bool useCache = true, bool useBackupUrl = false)
+        public virtual void Load(bool useCache = true, bool useBackupUrl = false)
         {
             #if RES_EDITOR
             gameObject = AssetDatabase.LoadMainAssetAtPath("Assets/" + url) as GameObject;
@@ -170,7 +170,7 @@ namespace bookrpg.resource
 
             if (useBackupUrl)
             {
-                strUrl = getActualUrl(url, backupBaseUrl);
+                strUrl = GetActualUrl(url, backupBaseUrl);
                 if (!string.IsNullOrEmpty(baseUrl) &&
                     !string.IsNullOrEmpty(backupBaseUrl) &&
                     strUrl.Contains(baseUrl))
@@ -179,37 +179,37 @@ namespace bookrpg.resource
                 }
             } else
             {
-                strUrl = getActualUrl(url, baseUrl);
+                strUrl = GetActualUrl(url, baseUrl);
             }
 
             actualUrl = strUrl;
 
-            Log.addTagLog(logTag, "{4} load from {0}: {1}, version: {2}, useCache: {3}", 
+            Log.AddTagLog(logTag, "{4} load from {0}: {1}, version: {2}, useCache: {3}", 
                 useBackupUrl ? "backup url" : "url", strUrl, version, useCache, 
                 retryCount > 0 ? retryCount.ToString() + "st retry" : "Start");
 
-            CoroutineMgr.startCoroutine(doLoad(strUrl));
+            CoroutineMgr.StartCoroutine(DoLoad(strUrl));
             #endif
         }
 
-        IEnumerator doLoad(string strUrl)
+        IEnumerator DoLoad(string strUrl)
         {
             www = useCache ? WWW.LoadFromCacheOrDownload(strUrl, version) : new WWW(strUrl);
             www.threadPriority = _threadPriority;
 //            isCacheHit = www.isDone && www.assetBundle != null;
 //            if (isCacheHit)
 //            {
-//                Log.addTagLog(logTag, "Cache hit, url: {0}, version: {1}", strUrl, version);
+//                Log.AddTagLog(logTag, "Cache hit, url: {0}, version: {1}", strUrl, version);
 //            }
             yield return www;
 
-            update();
+            Update();
         }
 
         /// <summary>
         /// check the load is completed, include load success or failure
         /// </summary>
-        public virtual void update()
+        public virtual void Update()
         {
             //not started
             if (www == null || isComplete)
@@ -226,13 +226,13 @@ namespace bookrpg.resource
                     err = www.error;
                 } else if (isCheckRedirectError)
                 {
-                    err = checkRedirectError();
+                    err = CheckRedirectError();
                 }
 
-                if (string.IsNullOrEmpty(err) || !retry())
+                if (string.IsNullOrEmpty(err) || !Retry())
                 {
                     this.error = err;
-                    doCompleted();
+                    DoCompleted();
                 }
                 return;
             } 
@@ -246,19 +246,19 @@ namespace bookrpg.resource
             }
            
             //always waiting || waiting for timeout || timeout and retry
-            if (timeout <= 0 || Time.time - lastProgressTime <= timeout || retry())
+            if (timeout <= 0 || Time.time - lastProgressTime <= timeout || Retry())
             {
                 return;
             }
 
             //timeout
             error = string.Format("Timeout, start: {0}, now: {1}", startTime, Time.time);
-            doCompleted();
+            DoCompleted();
         }
 
         ///your resource is not html page, but
         ///ISP redirect or fail DNS was hijacked ...
-        protected string checkRedirectError()
+        protected string CheckRedirectError()
         {
             if (www != null && (!useCache || www.assetBundle == null) &&
                 !string.IsNullOrEmpty(www.text))
@@ -281,7 +281,7 @@ namespace bookrpg.resource
             return string.Empty;
         }
 
-        protected string getActualUrl(string url, string baseUrl)
+        protected string GetActualUrl(string url, string baseUrl)
         {
             string actualUrl = url;
             //http:// https:// ftp:// file://
@@ -299,26 +299,26 @@ namespace bookrpg.resource
             return actualUrl;
         }
 
-        public void dispatchComplete()
+        public void DispatchComplete()
         {
-            onComplete.invokeAndRemove(this);
+            onComplete.InvokeAndRemove(this);
         }
 
-        protected virtual void doCompleted()
+        protected virtual void DoCompleted()
         {
             isComplete = true;
 
-            CoroutineMgr.stopCoroutine("doLoad");
+            CoroutineMgr.StopCoroutine("doLoad");
 
             timeElapsed = Time.time - startTime;
 
             isCacheHit = www != null && www.size == 0 && www.assetBundle != null;
             if (isCacheHit)
             {
-                Log.addTagLog(logTag, "Cache hit, url: {0}, version: {1}", actualUrl, version);
+                Log.AddTagLog(logTag, "Cache hit, url: {0}, version: {1}", actualUrl, version);
             } else
             {
-                Log.addTagLog(logTag, 
+                Log.AddTagLog(logTag, 
                     "Load complete, url: {3}, version: {2}, time: {0}s, bytesLoaded: {1}, retryCount: {5}, error: {4}", 
                     timeElapsed, bytesLoaded, version, url, !hasError ? "no" : error, retryCount);
             }
@@ -344,12 +344,12 @@ namespace bookrpg.resource
                 _bytesLoaded = 0;
             }
 
-//            onComplete.invokeAndRemove(this);
+//            onComplete.InvokeAndRemove(this);
         }
 
-        protected virtual bool retry()
+        protected virtual bool Retry()
         {
-            CoroutineMgr.stopCoroutine("doLoad");
+            CoroutineMgr.StopCoroutine("doLoad");
 
             if (www != null)
             {
@@ -364,12 +364,12 @@ namespace bookrpg.resource
 
             retryCount++;
 //            Debug.LogWarningFormat("Retry load, retryCount: {0}, url: {1}", retryCount, url);
-            load(useCache, maxRetryCount - retryCount < 2);
+            Load(useCache, maxRetryCount - retryCount < 2);
             return true;
         }
 
 
-        public AssetBundle getOrgAssetBundle()
+        public AssetBundle GetOrgAssetBundle()
         {
             return orgAssetBundle;
         }
@@ -512,7 +512,7 @@ namespace bookrpg.resource
             }
         }
 
-        public AudioClip getAudioClip(bool threeD)
+        public AudioClip GetAudioClip(bool threeD)
         {
             if (!isComplete || isCacheHit)
             {
@@ -521,7 +521,7 @@ namespace bookrpg.resource
             return www == null ? null : www.GetAudioClip(threeD);
         }
 
-        public AudioClip getAudioClip(bool threeD, bool stream)
+        public AudioClip GetAudioClip(bool threeD, bool stream)
         {
             if (!isComplete || isCacheHit)
             {
@@ -530,7 +530,7 @@ namespace bookrpg.resource
             return www == null ? null : www.GetAudioClip(threeD, stream);
         }
 
-        public AudioClip getAudioClip(bool threeD, bool stream, AudioType audioType)
+        public AudioClip GetAudioClip(bool threeD, bool stream, AudioType audioType)
         {
             if (isCacheHit)
             {
@@ -539,7 +539,7 @@ namespace bookrpg.resource
             return www == null ? null : www.GetAudioClip(threeD, stream, audioType);
         }
 
-        public AudioClip getAudioClipCompressed()
+        public AudioClip GetAudioClipCompressed()
         {
             if (!isComplete || isCacheHit)
             {
@@ -548,7 +548,7 @@ namespace bookrpg.resource
             return www == null ? null : www.GetAudioClipCompressed();
         }
 
-        public AudioClip getAudioClipCompressed(bool threeD)
+        public AudioClip GetAudioClipCompressed(bool threeD)
         {
             if (!isComplete || isCacheHit)
             {
@@ -557,7 +557,7 @@ namespace bookrpg.resource
             return www == null ? null : www.GetAudioClipCompressed(threeD);
         }
 
-        public AudioClip getAudioClipCompressed(bool threeD, AudioType audioType)
+        public AudioClip GetAudioClipCompressed(bool threeD, AudioType audioType)
         {
             if (!isComplete || isCacheHit)
             {

@@ -60,7 +60,7 @@ namespace bookrpg.Editor
             tmpPackPath = appDir + "ResourcePack/";
         }
 
-        public void pack(
+        public void Pack(
             string projectFile,
             string outputPath, 
             BuildAssetBundleOptions options = BuildAssetBundleOptions.None, 
@@ -73,30 +73,30 @@ namespace bookrpg.Editor
             }
 
             var str = File.ReadAllText(projectFile);
-            pack(PackProject.fromJson(str), outputPath);
+            Pack(PackProject.FromJson(str), outputPath);
         }
 
-        public void pack(
+        public void Pack(
             PackProject project, 
             string outputPath, 
             BuildAssetBundleOptions options = BuildAssetBundleOptions.None, 
             BuildTarget target = BuildTarget.WebPlayer)
         {
             this.project = project;
-            this.outputPath = Util.getAbsolutePath(outputPath, appDir);
+            this.outputPath = Util.GetAbsolutePath(outputPath, appDir);
             this.tmpPackPath += target.ToString() + "/" + mainManifestName + "/";
             
-            createPack();
+            CreatePack();
 
-            doPack(options, target);
+            DoPack(options, target);
         }
 
-        public void generateResourceTable(string outputFile)
+        public void GenerateResourceTable(string outputFile)
         {
-            resourceTableCreator.generateResourceTable(outputFile);
+            resourceTableCreator.GenerateResourceTable(outputFile);
         }
 
-        private void createPack()
+        private void CreatePack()
         {
             var files = new List<string>();
             editorPackedAssets.Clear();
@@ -110,15 +110,15 @@ namespace bookrpg.Editor
                 {
                     files.AddRange(tmp);
                     editorPackedAssets.AddRange(tmp);
-                    createResourcePack(item, tmp);
+                    CreateResourcePack(item, tmp);
                 }
             }
 
             foreach (var item in project.pack)
             {
-                var tmp = filterFiles(scanFiles(item));
+                var tmp = FilterFiles(ScanFiles(item));
                 files.AddRange(tmp);
-                createResourcePack(tmp);
+                CreateResourcePack(tmp);
             }
 
             foreach (var item in project.bulk)
@@ -126,11 +126,11 @@ namespace bookrpg.Editor
                 var tmp = new List<string>(); 
                 foreach (var item2 in item.Value)
                 {
-                    tmp.AddRange(filterFiles(scanFiles(item2)));
+                    tmp.AddRange(FilterFiles(ScanFiles(item2)));
                 }
 
                 files.AddRange(tmp);
-                createResourcePack(item.Key, tmp.ToArray());
+                CreateResourcePack(item.Key, tmp.ToArray());
             }
 
             var depsCount = new Dictionary<string, int>();
@@ -155,12 +155,12 @@ namespace bookrpg.Editor
                 //非直接使用的资源，多次间接使用，拆分打包
                 if (item.Value > 1 && !files.Contains(item.Key))
                 {
-                    createResourcePack(item.Key);
+                    CreateResourcePack(item.Key);
                 }
             }
         }
 
-        private void doPack(BuildAssetBundleOptions options, BuildTarget target)
+        private void DoPack(BuildAssetBundleOptions options, BuildTarget target)
         {
             if (!Directory.Exists(tmpPackPath))
             {
@@ -171,7 +171,7 @@ namespace bookrpg.Editor
             var builds = new AssetBundleBuild[packList.Count];
             for (int i = 0; i < packList.Count; i++)
             {
-                builds[i] = packList[i].createBuild();
+                builds[i] = packList[i].CreateBuild();
             }
 
             options &= ~BuildAssetBundleOptions.AppendHashToAssetBundleName;
@@ -179,15 +179,15 @@ namespace bookrpg.Editor
             //去掉上面一部产生的AssetBundleName
             AssetDatabase.RemoveUnusedAssetBundleNames();
 
-            createResourcePack(mainManifestName);
+            CreateResourcePack(mainManifestName);
 
             resourceTableCreator = new ResourceTableCreator(tmpPackPath, manifest, resourcePacks);
-            resourceTableCreator.updateInfo();
+            resourceTableCreator.UpdateInfo();
 
-            copyPacks(!deleteManifest);
+            CopyPacks(!deleteManifest);
         }
 
-        private void copyPacks(bool copyManifest = true)
+        private void CopyPacks(bool copyManifest = true)
         {
             if (Directory.Exists(outputPath))
             {
@@ -198,7 +198,7 @@ namespace bookrpg.Editor
 
             foreach (var item in resourcePacks.Values)
             {
-                item.createTargetFile(namePattern);
+                item.CreateTargetFile(namePattern);
                 File.Copy(tmpPackPath + item.srcFile, outputPath + item.targetFile);
                 if (copyManifest)
                 {
@@ -208,29 +208,29 @@ namespace bookrpg.Editor
             }
         }
 
-        private string[] scanFiles(string path)
+        private string[] ScanFiles(string path)
         {
             path = appDir + AssetsDir + "/" + path;
-            return Util.scanFiles(path);
+            return Util.ScanFiles(path);
         }
 
         //one in one pack
-        private void createResourcePack(string path)
+        private void CreateResourcePack(string path)
         {
-            createResourcePack(createResourcePackName(path), new string[]{ path });
+            CreateResourcePack(CreateResourcePackName(path), new string[]{ path });
         }
 
         //all in each pack
-        private void createResourcePack(string[] pathes)
+        private void CreateResourcePack(string[] pathes)
         {
             foreach (var item in pathes)
             {
-                createResourcePack(createResourcePackName(item), new string[]{ item });
+                CreateResourcePack(CreateResourcePackName(item), new string[]{ item });
             }
         }
 
         //all in one pack
-        private void createResourcePack(string bundleName, string[] pathes)
+        private void CreateResourcePack(string bundleName, string[] pathes)
         {
             var pack = new ResourcePack();
             pack.srcFile = bundleName;
@@ -250,18 +250,18 @@ namespace bookrpg.Editor
             resourcePacks.Add(pack.srcFile, pack);
         }
 
-        private string createResourcePackName(string path)
+        private string CreateResourcePackName(string path)
         {
             return Regex.Replace(path, "^" + AssetsDir + "[\\|/]", "", RegexOptions.IgnoreCase).
                 Replace('/', '-').Replace('.', '_');
         }
 
-        private string[] filterFiles(string[] files)
+        private string[] FilterFiles(string[] files)
         {
             var list = new List<string>();
             foreach (var file in files)
             {
-                if (!ignoreFile(file))
+                if (!IgnoreFile(file))
                 {
                     list.Add(file.Replace(appDir, ""));
                 }
@@ -270,7 +270,7 @@ namespace bookrpg.Editor
             return list.ToArray();
         }
 
-        private bool ignoreFile(string path)
+        private bool IgnoreFile(string path)
         {
             string name = path.Substring(path.LastIndexOf('/') + 1);
             if (name.StartsWith(comment))
@@ -282,7 +282,7 @@ namespace bookrpg.Editor
 
             foreach (var pattern in project.exclude)
             {
-                if (Util.wildcardMatch(path.Replace(dir, ""), pattern))
+                if (Util.WildcardMatch(path.Replace(dir, ""), pattern))
                 {
                     return true;
                 }
@@ -297,14 +297,14 @@ namespace bookrpg.Editor
             return false;
         }
 
-        public void test()
+        public void Test()
         {
             var target = AssetDatabase.GetAssetPath(Selection.activeInstanceID);
             var deps = AssetDatabase.GetDependencies(target, true);
             Debug.Log(string.Join("\n", deps));
 
             byte[] a = File.ReadAllBytes(target);
-            var str = CRC32.getHash(a);
+            var str = CRC32.GetHash(a);
 
             uint crc;
 

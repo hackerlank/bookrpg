@@ -27,42 +27,42 @@ public class Test : MonoBehaviour
     ResourceMgrImpl mgr;
 
 
-    public void  loadAssetBundle()
+    public void  LoadAssetBundle()
     {
 
         string uncompress = baseUrlFile + "ResourcePack_00000000000000000000000000000000";
         string compress = baseUrlFile + "scenec";
 
-//        StartCoroutine(load(uncompress));
+//        StartCoroutine(Load(uncompress));
 
         WWW www = new WWW(uncompress);
         ab2 = www.assetBundle;
         ab2 = www.assetBundle;
 
-//        StartCoroutine(doLoadAssetBundle(uncompress));
-//        StartCoroutine(doLoadAssetBundle(compress));
+//        StartCoroutine(DoLoadAssetBundle(uncompress));
+//        StartCoroutine(DoLoadAssetBundle(compress));
 
 //        mgr = new LocalResMgr();
-//        mgr.init(new rest());
+//        mgr.Init(new Rest());
 //
-//        ResourceMgr.init(mgr);
+//        ResourceMgr.Init(mgr);
 //
 //
-//        ResourceMgr.load(uncompress, url => {
-//            var ab = ResourceMgr.getResource(url);
-//            Debug.Log(ResourceMgr.hasResource(uncompress));
+//        ResourceMgr.Load(uncompress, url => {
+//            var ab = ResourceMgr.GetResource(url);
+//            Debug.Log(ResourceMgr.HasResource(uncompress));
 //        });
 
 
-//        decompressZLIB();
-//        StartCoroutine(decompressUnity());
+//        DecompressZLIB();
+//        StartCoroutine(DecompressUnity());
 //        string u1 = "http://127.0.0.1/map";
 //        string u2 = "http://127.0.0.1/mapc";
-//        StartCoroutine(load(u2));
+//        StartCoroutine(Load(u2));
 
     }
 
-    private IEnumerator doLoadAssetBundle(string url)
+    private IEnumerator DoLoadAssetBundle(string url)
     {
         var t1 = Time.time;
         www = new WWW(url);
@@ -82,7 +82,7 @@ public class Test : MonoBehaviour
     }
 
 
-    IEnumerator load(string url)
+    IEnumerator Load(string url)
     {
         WWW www = new WWW(url);
         yield return www;
@@ -102,14 +102,14 @@ public class Test : MonoBehaviour
 //            main.a
         }
 
-        StartCoroutine(doLoadAssetBundle(baseUrlFile + "cube.cn"));
+        StartCoroutine(DoLoadAssetBundle(baseUrlFile + "cube.cn"));
     }
 
-    public void loadTexture()
+    public void LoadTexture()
     {
         if (ab == null)
         {
-            var bytes = decompressLZMA();
+            var bytes = DecompressLZMA();
             ab = AssetBundle.LoadFromMemory(bytes);
         }
 
@@ -142,7 +142,7 @@ public class Test : MonoBehaviour
         GC.Collect();
     }
 
-    public void disposeTexture()
+    public void DisposeTexture()
     {
         for (int i = 0; i < textureArr.Length; i++)
         {
@@ -157,7 +157,7 @@ public class Test : MonoBehaviour
 
     public Text txt;
 
-    private byte[] decompressLZMA()
+    private byte[] DecompressLZMA()
     {
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
@@ -180,7 +180,7 @@ public class Test : MonoBehaviour
 
     }
 
-    private void decompressZLIB()
+    private void DecompressZLIB()
     {
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
@@ -198,7 +198,7 @@ public class Test : MonoBehaviour
         Debug.Log(stopwatch.Elapsed.TotalSeconds); //这里是输出的总运行秒数,精确到毫秒的
     }
 
-    private IEnumerator decompressUnity()
+    private IEnumerator DecompressUnity()
     {
         System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
@@ -224,7 +224,7 @@ public class Test : MonoBehaviour
     void Start()
     {
 
-        LoaderMgr.init();
+        LoaderMgr.Init();
 
 //        LoaderMgr.behaviour = this;
 //        LoaderMgr.timeout = 3f;
@@ -237,7 +237,7 @@ public class Test : MonoBehaviour
     void Update()
     {
 
-//        LoaderMgr.update();
+//        LoaderMgr.Update();
 
         if (www != null)
         {

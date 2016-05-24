@@ -51,13 +51,13 @@ namespace bookrpg.utils
 
         }
 
-        public static uint getHash(string msg)
+        public static uint GetHash(string msg)
         {
             byte[] bytes = Encoding.Default.GetBytes(msg);//解决中文的问题
-            return getHash(bytes);
+            return GetHash(bytes);
         }
 
-        public static uint getHash(byte[] bytes)
+        public static uint GetHash(byte[] bytes)
         {
             int iCount = bytes.Length;
             uint crc = 0xFFFFFFFF;

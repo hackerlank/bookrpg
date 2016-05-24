@@ -10,7 +10,7 @@ namespace bookrpg.utils
 
     public class Util
     {
-        public static void insertionSort<T>(IList<T> list, Comparison<T> comparison)
+        public static void InsertionSort<T>(IList<T> list, Comparison<T> comparison)
         {
             int count = list.Count;
             for (int i = 1; i < count; i++)
@@ -26,7 +26,7 @@ namespace bookrpg.utils
             }
         }
 
-        public static string getAbsolutePath(string path, string relativePath)
+        public static string GetAbsolutePath(string path, string relativePath)
         {
             path = path.Replace('\\', '/');
             path = path.TrimEnd(new char[]{'/'}) + "/";
@@ -41,7 +41,7 @@ namespace bookrpg.utils
         }
 
 
-        public static bool wildcardMatch(string path, string wildcard)
+        public static bool WildcardMatch(string path, string wildcard)
         {
             string format = wildcard.Replace("*", ".*").Replace("?", ".?");
             Regex regex = new Regex(format, RegexOptions.IgnoreCase);
@@ -51,7 +51,7 @@ namespace bookrpg.utils
         /// <summary>
         /// path may: /abc/*d?.txt
         /// </summary>
-        public static string[] scanFiles(string path)
+        public static string[] ScanFiles(string path)
         {
             path = path.Replace('\\', '/');
 
@@ -81,9 +81,9 @@ namespace bookrpg.utils
             }
         }
 
-        public static void deleteFiles(string path)
+        public static void DeleteFiles(string path)
         {
-            foreach (var file in scanFiles(path))
+            foreach (var file in ScanFiles(path))
             {
                 try
                 {

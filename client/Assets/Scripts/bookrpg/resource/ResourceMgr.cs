@@ -9,146 +9,146 @@ namespace bookrpg.resource
     {
         private static IResourceMgr impl = new ResourceMgrImpl();
 
-        public static void init(IResourceMgr instance)
+        public static void Init(IResourceMgr instance)
         {
             impl = instance;
         }
 
-        public static Loader load(string path, BKAction<string> onComplete = null, bool cache = false)
+        public static Loader Load(string path, BKAction<string> onComplete = null, bool cache = false)
         {
-            return impl.load(path, onComplete, cache);
+            return impl.Load(path, onComplete, cache);
         }
 
-        public static BatchLoader loadWithDependencies(string path, BKAction<string> onComplete = null, bool cache = false)
+        public static BatchLoader LoadWithDependencies(string path, BKAction<string> onComplete = null, bool cache = false)
         {
-            return impl.loadWithDependencies(path, onComplete, cache);
+            return impl.LoadWithDependencies(path, onComplete, cache);
         }
 
-        public static BatchLoader loadBatch(ICollection<string> pathes, BKAction<ICollection<string>> onComplete = null, bool cache = false)
+        public static BatchLoader LoadBatch(ICollection<string> pathes, BKAction<ICollection<string>> onComplete = null, bool cache = false)
         {
-            return impl.loadBatch(pathes, onComplete, cache);
+            return impl.LoadBatch(pathes, onComplete, cache);
         }
 
-        public static bool hasResource(string path)
+        public static bool HasResource(string path)
         {
-            return impl.hasResource(path);
+            return impl.HasResource(path);
         }
 
-        public static bool hasResource(int number)
+        public static bool HasResource(int number)
         {
-            return impl.hasResource(number);
+            return impl.HasResource(number);
         }
 
-        public static UnityEngine.Object getResource(string path)
+        public static UnityEngine.Object GetResource(string path)
         {
-            return impl.getResource(path);
+            return impl.GetResource(path);
         }
 
-        public static void getResourceAsync(string path, BKAction<UnityEngine.Object> onComplete)
+        public static void GetResourceAsync(string path, BKAction<UnityEngine.Object> onComplete)
         {
-            impl.getResourceAsync(path, onComplete);
+            impl.GetResourceAsync(path, onComplete);
         }
 
-        public static T getResource<T>(string path) where T : UnityEngine.Object
+        public static T GetResource<T>(string path) where T : UnityEngine.Object
         {
-            return impl.getResource<T>(path);
+            return impl.GetResource<T>(path);
         }
 
-        public static void getResourceAsync<T>(string path, BKAction<T> onComplete) where T : UnityEngine.Object
+        public static void GetResourceAsync<T>(string path, BKAction<T> onComplete) where T : UnityEngine.Object
         {
-            impl.getResourceAsync<T>(path, onComplete);
+            impl.GetResourceAsync<T>(path, onComplete);
         }
 
-        public static UnityEngine.Object[] getAllResources(string path)
+        public static UnityEngine.Object[] GetAllResources(string path)
         {
-            return impl.getAllResources(path);
+            return impl.GetAllResources(path);
         }
 
-        public static void getAllResourcesAsync(string path, BKAction<UnityEngine.Object[]> onComplete)
+        public static void GetAllResourcesAsync(string path, BKAction<UnityEngine.Object[]> onComplete)
         {
-            impl.getAllResourcesAsync(path, onComplete);
+            impl.GetAllResourcesAsync(path, onComplete);
         }
 
-        public static T[] getAllResources<T>(string path) where T : UnityEngine.Object
+        public static T[] GetAllResources<T>(string path) where T : UnityEngine.Object
         {
-            return impl.getAllResources<T>(path);
+            return impl.GetAllResources<T>(path);
         }
 
-        public static void getAllResourcesAsync<T>(string path, BKAction<T[]> onComplete) where T : UnityEngine.Object
+        public static void GetAllResourcesAsync<T>(string path, BKAction<T[]> onComplete) where T : UnityEngine.Object
         {
-            impl.getAllResourcesAsync<T>(path, onComplete);
+            impl.GetAllResourcesAsync<T>(path, onComplete);
         }
 
-        public static UnityEngine.Object getResource(int number)
+        public static UnityEngine.Object GetResource(int number)
         {
-            return impl.getResource(number);
+            return impl.GetResource(number);
         }
 
-        public static void getResourceAsync(int number, BKAction<UnityEngine.Object> onComplete)
+        public static void GetResourceAsync(int number, BKAction<UnityEngine.Object> onComplete)
         {
-            impl.getResourceAsync(number, onComplete);
+            impl.GetResourceAsync(number, onComplete);
         }
 
-        public static T getResource<T>(int number) where T : UnityEngine.Object
+        public static T GetResource<T>(int number) where T : UnityEngine.Object
         {
-            return impl.getResource<T>(number);
+            return impl.GetResource<T>(number);
         }
 
-        public static void getResourceAsync<T>(int number, BKAction<T> onComplete) where T : UnityEngine.Object
+        public static void GetResourceAsync<T>(int number, BKAction<T> onComplete) where T : UnityEngine.Object
         {
-            impl.getResourceAsync<T>(number, onComplete);
+            impl.GetResourceAsync<T>(number, onComplete);
         }
 
-        public static UnityEngine.Object[] getAllResources(int number)
+        public static UnityEngine.Object[] GetAllResources(int number)
         {
-            return impl.getAllResources(number);
+            return impl.GetAllResources(number);
         }
 
-        public static void getAllResourcesAsync(int number, BKAction<UnityEngine.Object[]> onComplete)
+        public static void GetAllResourcesAsync(int number, BKAction<UnityEngine.Object[]> onComplete)
         {
-            impl.getAllResourcesAsync(number, onComplete);
+            impl.GetAllResourcesAsync(number, onComplete);
         }
 
-        public static T[] getAllResources<T>(int number) where T : UnityEngine.Object
+        public static T[] GetAllResources<T>(int number) where T : UnityEngine.Object
         {
-            return impl.getAllResources<T>(number);
+            return impl.GetAllResources<T>(number);
         }
 
-        public static void getAllResourcesAsync<T>(int number, BKAction<T[]> onComplete) where T : UnityEngine.Object
+        public static void GetAllResourcesAsync<T>(int number, BKAction<T[]> onComplete) where T : UnityEngine.Object
         {
-            impl.getAllResourcesAsync<T>(number, onComplete);
+            impl.GetAllResourcesAsync<T>(number, onComplete);
         }
 
         /// <summary>
         /// add external loaded resource
         /// </summary>
-        public static void addResource(Loader loader, bool cache = false)
+        public static void AddResource(Loader loader, bool cache = false)
         {
-            impl.addResource(loader, cache);
+            impl.AddResource(loader, cache);
         }
 
         /// <summary>
         /// when resource's refcount is 0, then dispose it.
         /// </summary>
-        public static void releaseResource(string path)
+        public static void ReleaseResource(string path)
         {
-            impl.releaseResource(path);
+            impl.ReleaseResource(path);
         }
 
         /// <summary>
         /// remove resource except in using, be carebuf when using
         /// </summary>
-        public static void removeResource(string path)
+        public static void RemoveResource(string path)
         {
-            impl.removeResource(path);
+            impl.RemoveResource(path);
         }
 
         /// <summary>
         /// remove all resources except in using, be carebuf when using
         /// </summary>
-        public static void removeAllResources()
+        public static void RemoveAllResources()
         {
-            impl.removeAllResources();
+            impl.RemoveAllResources();
         }
     }
 }

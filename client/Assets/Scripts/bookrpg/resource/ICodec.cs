@@ -4,8 +4,8 @@
     {
         string name{ get; }
 
-        byte[] encode(byte[] bytes);
+        byte[] Encode(byte[] bytes);
 
-        byte[] decode(byte[] bytes);
+        byte[] Decode(byte[] bytes);
     }
 }

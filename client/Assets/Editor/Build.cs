@@ -21,12 +21,12 @@ public class Build : ScriptableObject
         var ap = new ResourcePacker();
         ap.namePattern = PackNamePattern.Hash;
 
-        ap.pack(pp, "../release/android/update", 
+        ap.Pack(pp, "../release/android/update", 
             BuildAssetBundleOptions.UncompressedAssetBundle,
             BuildTarget.StandaloneOSXUniversal
         );
 
-        ap.generateResourceTable("../release/android/update/resourceTable.json");
+        ap.GenerateResourceTable("../release/android/update/resourceTable.json");
 
     }
 

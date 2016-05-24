@@ -95,18 +95,18 @@ namespace bookrpg.Editor
             set;
         }
 
-        public void createTargetFile(PackNamePattern namePattern)
+        public void CreateTargetFile(PackNamePattern namePattern)
         {
             switch (namePattern)
             {
                 case PackNamePattern.FileName:
-                    targetFile = getFileName();
+                    targetFile = GetFileName();
                     break;
                 case PackNamePattern.FileNameWithHash:
-                    targetFile = getFileName() + "_" + hash;
+                    targetFile = GetFileName() + "_" + hash;
                     break;
                 case PackNamePattern.FileNameWithVersion:
-                    targetFile = getFileName() + "_" + version.ToString();
+                    targetFile = GetFileName() + "_" + version.ToString();
                     break;
                 case PackNamePattern.Hash:
                     targetFile = hash;
@@ -123,7 +123,7 @@ namespace bookrpg.Editor
             }
         }
 
-        private string getFileName()
+        private string GetFileName()
         {
             if (resources == null || resources.Length == 0)
             {
@@ -135,7 +135,7 @@ namespace bookrpg.Editor
             return pos > -1 ? path.Substring(pos + 1) : path;
         }
 
-        public AssetBundleBuild createBuild()
+        public AssetBundleBuild CreateBuild()
         {
             var ab = new AssetBundleBuild();
             var pos = srcFile.LastIndexOf('.');
@@ -153,14 +153,14 @@ namespace bookrpg.Editor
             return ab;
         }
 
-        public void fromJson(JsonData data)
+        public void FromJson(JsonData data)
         {
             srcFile = (string)data["srcFile"];
             version = (int)data["version"];
             hash = (string)data["hash"];
         }
 
-        public string toReleaseJson()
+        public string ToReleaseJson()
         {
             var jw = new JsonWriter();
             jw.WriteObjectStart();

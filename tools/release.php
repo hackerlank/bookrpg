@@ -53,6 +53,17 @@ function releaseGame($platform)
     $bk = new Bookexcel();
     $bk->convertExcels($params);
 
+    $params['inputPath'] = '/Users/llj/Downloads/arpg/bookexcel/test';
+    $params['outputPath'] = '/Users/llj/Downloads/arpg/bookexcel/test';
+    $params['exportFormat'] = 'txt';
+    $params['codeType'] = 'C#';
+    $params['codeSavePath'] = $root . 'client/Assets/Scripts/config';
+    $params['package'] = 'bookrpg';
+    $params['codeSuffix'] = 'Cfg';
+    $params['genPackageDir'] = false;
+
+    $bk->convertExcels($params);
+
     recurse_copy($plat, '/Applications/XAMPP/xamppfiles/htdocs/bookrpg/' . $platform);
 }
 

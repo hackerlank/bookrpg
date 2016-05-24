@@ -12,7 +12,7 @@ namespace bookrpg.core
         /// <summary>
         /// Add event Listener, or BKEvent += action
         /// </summary>
-        public void addListener(BKAction action)
+        public void AddListener(BKAction action)
         {
             this.action += action;
         }
@@ -20,12 +20,12 @@ namespace bookrpg.core
         /// <summary>
         /// action will be removed after calling once
         /// </summary>
-        public void addOnceListener(BKAction action)
+        public void AddOnceListener(BKAction action)
         {
             this.action += action;
         }
 
-        public void invoke()
+        public void Invoke()
         {
             if (this.action != null)
             {
@@ -39,7 +39,7 @@ namespace bookrpg.core
             }
         }
 
-        public void invokeAndRemove()
+        public void InvokeAndRemove()
         {
             if (this.action != null)
             {
@@ -57,7 +57,7 @@ namespace bookrpg.core
         /// <summary>
         /// remove event Listener, or BKEvent -= action
         /// </summary>
-        public void removeListener(BKAction action)
+        public void RemoveListener(BKAction action)
         {
             this.action -= action;
             this.onceAction -= action;
@@ -90,7 +90,7 @@ namespace bookrpg.core
         /// <summary>
         /// Add event Listener, or BKEvent += action
         /// </summary>
-        public void addListener(BKAction<T> action)
+        public void AddListener(BKAction<T> action)
         {
             this.action += action;
         }
@@ -98,12 +98,12 @@ namespace bookrpg.core
         /// <summary>
         /// action will be removed after calling once
         /// </summary>
-        public void addOnceListener(BKAction<T> action)
+        public void AddOnceListener(BKAction<T> action)
         {
             this.action += action;
         }
 
-        public void invoke(T arg)
+        public void Invoke(T arg)
         {
             if (this.action != null)
             {
@@ -117,7 +117,7 @@ namespace bookrpg.core
             }
         }
 
-        public void invokeAndRemove(T arg)
+        public void InvokeAndRemove(T arg)
         {
             if (this.action != null)
             {
@@ -135,7 +135,7 @@ namespace bookrpg.core
         /// <summary>
         /// remove event Listener, or BKEvent -= action
         /// </summary>
-        public void removeListener(BKAction<T> action)
+        public void RemoveListener(BKAction<T> action)
         {
             this.action -= action;
             this.onceAction -= action;
@@ -168,7 +168,7 @@ namespace bookrpg.core
         /// <summary>
         /// Add event Listener, or BKEvent += action
         /// </summary>
-        public void addListener(BKAction<T1, T2> action)
+        public void AddListener(BKAction<T1, T2> action)
         {
             this.action += action;
         }
@@ -176,7 +176,7 @@ namespace bookrpg.core
         /// <summary>
         /// action will be removed after calling once
         /// </summary>
-        public void addOnceListener(BKAction<T1, T2> action)
+        public void AddOnceListener(BKAction<T1, T2> action)
         {
             this.action += action;
             this.onceAction -= action;
@@ -188,7 +188,7 @@ namespace bookrpg.core
             this.onceAction = null;
         }
 
-        public void invoke(T1 arg1, T2 arg2)
+        public void Invoke(T1 arg1, T2 arg2)
         {
             if (this.action != null)
             {
@@ -202,7 +202,7 @@ namespace bookrpg.core
             }
         }
 
-        public void invokeAndRemove(T1 arg1, T2 arg2)
+        public void InvokeAndRemove(T1 arg1, T2 arg2)
         {
             if (this.action != null)
             {
@@ -220,7 +220,7 @@ namespace bookrpg.core
         /// <summary>
         /// remove event Listener, or BKEvent -= action
         /// </summary>
-        public void removeListener(BKAction<T1, T2> action)
+        public void RemoveListener(BKAction<T1, T2> action)
         {
             this.action -= action;
         }
@@ -247,7 +247,7 @@ namespace bookrpg.core
         /// <summary>
         /// Add event Listener, or BKEvent += action
         /// </summary>
-        public void addListener(BKAction<T1, T2, T3> action)
+        public void AddListener(BKAction<T1, T2, T3> action)
         {
             this.action += action;
         }
@@ -255,12 +255,12 @@ namespace bookrpg.core
         /// <summary>
         /// action will be removed after calling once
         /// </summary>
-        public void addOnceListener(BKAction<T1,T2,T3> action)
+        public void AddOnceListener(BKAction<T1,T2,T3> action)
         {
             this.action += action;
         }
 
-        public void invoke(T1 arg1, T2 arg2, T3 arg3)
+        public void Invoke(T1 arg1, T2 arg2, T3 arg3)
         {
             if (this.action != null)
             {
@@ -274,7 +274,7 @@ namespace bookrpg.core
             }
         }
 
-        public void invokeAndRemove(T1 arg1, T2 arg2, T3 arg3)
+        public void InvokeAndRemove(T1 arg1, T2 arg2, T3 arg3)
         {
             if (this.action != null)
             {
@@ -292,7 +292,7 @@ namespace bookrpg.core
         /// <summary>
         /// remove event Listener, or BKEvent -= action
         /// </summary>
-        public void removeListener(BKAction<T1, T2, T3> action)
+        public void RemoveListener(BKAction<T1, T2, T3> action)
         {
             this.action -= action;
             this.onceAction -= action;
@@ -325,7 +325,7 @@ namespace bookrpg.core
         /// <summary>
         /// Add event Listener, or BKEvent += action
         /// </summary>
-        public void addListener(BKAction<T1, T2, T3, T4> action)
+        public void AddListener(BKAction<T1, T2, T3, T4> action)
         {
             this.action += action;
         }
@@ -333,12 +333,12 @@ namespace bookrpg.core
         /// <summary>
         /// action will be removed after calling once
         /// </summary>
-        public void addOnceListener(BKAction<T1,T2,T3,T4> action)
+        public void AddOnceListener(BKAction<T1,T2,T3,T4> action)
         {
             this.action += action;
         }
 
-        public void invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        public void Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
             if (this.action != null)
             {
@@ -352,7 +352,7 @@ namespace bookrpg.core
             }
         }
 
-        public void invokeAndRemove(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+        public void InvokeAndRemove(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
         {
             if (this.action != null)
             {
@@ -370,7 +370,7 @@ namespace bookrpg.core
         /// <summary>
         /// remove event Listener, or BKEvent -= action
         /// </summary>
-        public void removeListener(BKAction<T1, T2, T3, T4> action)
+        public void RemoveListener(BKAction<T1, T2, T3, T4> action)
         {
             this.action -= action;
             this.onceAction -= action;
@@ -403,7 +403,7 @@ namespace bookrpg.core
         /// <summary>
         /// Add event Listener, or BKEvent += action
         /// </summary>
-        public void addListener(BKAction<T1, T2, T3, T4, T5> action)
+        public void AddListener(BKAction<T1, T2, T3, T4, T5> action)
         {
             this.action += action;
         }
@@ -411,12 +411,12 @@ namespace bookrpg.core
         /// <summary>
         /// action will be removed after calling once
         /// </summary>
-        public void addOnceListener(BKAction<T1,T2,T3,T4,T5> action)
+        public void AddOnceListener(BKAction<T1,T2,T3,T4,T5> action)
         {
             this.action += action;
         }
 
-        public void invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        public void Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
             if (this.action != null)
             {
@@ -430,7 +430,7 @@ namespace bookrpg.core
             }
         }
 
-        public void invokeAndRemove(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+        public void InvokeAndRemove(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
         {
             if (this.action != null)
             {
@@ -448,7 +448,7 @@ namespace bookrpg.core
         /// <summary>
         /// remove event Listener, or BKEvent -= action
         /// </summary>
-        public void removeListener(BKAction<T1, T2, T3, T4, T5> action)
+        public void RemoveListener(BKAction<T1, T2, T3, T4, T5> action)
         {
             this.action -= action;
             this.onceAction -= action;

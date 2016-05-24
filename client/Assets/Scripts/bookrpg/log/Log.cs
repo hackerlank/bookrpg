@@ -15,6 +15,7 @@ namespace bookrpg.log
 
     public enum LogLevel
     {
+        ALL,
         ERROR,
         WARNING,
         INFO,
@@ -28,36 +29,53 @@ namespace bookrpg.log
         public static bool showTagLogInConsole = true;
         public static int maxTagLogCount = 4096;
 
-        public static bool isDebug = true;
+        public static bool isErrorEnabled = true;
+        public static bool isWarningEnabled = true;
+        public static bool isInfoEnabled = true;
+        public static bool isDebugEnabled = true;
 
-        public static void error(string format, params object[] args)
+        public static void Init()
         {
-            doLog(LogLevel.ERROR, String.Format(format, args));
+            Application.logMessageReceived += (condition, stackTrace, type) =>
+            {
+//                Console.WriteLine(condition);
+            };
         }
 
-        public static void warning(string format, params object[] args)
+        public static void Error(string format, params object[] args)
         {
-            doLog(LogLevel.WARNING, String.Format(format, args));
+            DoLog(LogLevel.ERROR, String.Format(format, args));
         }
 
-        public static void info(string format, params object[] args)
+        public static void ErrorFormat(string format, params object[] args)
         {
-            doLog(LogLevel.INFO, String.Format(format, args));
+            DoLog(LogLevel.ERROR, String.Format(format, args));
         }
 
-        public static void debug(string format, params object[] args)
+        public static void Warning(string format, params object[] args)
         {
-            if (isDebug){
-                doLog(LogLevel.DEBUG, String.Format(format, args));
+            DoLog(LogLevel.WARNING, String.Format(format, args));
+        }
+
+        public static void Info(string format, params object[] args)
+        {
+            DoLog(LogLevel.INFO, String.Format(format, args));
+        }
+
+        public static void Debug(string format, params object[] args)
+        {
+            if (isDebugEnabled)
+            {
+                DoLog(LogLevel.DEBUG, String.Format(format, args));
             }
         }
 
         /// <summary>
         /// collect similar infomation and debug it, e.g. net msg, config init
         /// </summary>
-        public static void addTagLog(string tag, string format, params object[] args)
+        public static void AddTagLog(string tag, string format, params object[] args)
         {
-            if (!isDebug)
+            if (!isDebugEnabled)
             {
                 return;
             }
@@ -66,7 +84,7 @@ namespace bookrpg.log
             str = DateTime.Now.ToLongTimeString() + " " + str;
             if (showTagLogInConsole)
             {
-                Debug.Log(str);
+               UnityEngine.Debug.Log(str);
             }
             lock (tagLogs)
             {
@@ -87,9 +105,9 @@ namespace bookrpg.log
             }
         }
 
-        public static void clearTagLog(string tag)
+        public static void ClearTagLog(string tag)
         {
-            if (!isDebug)
+            if (!isDebugEnabled)
             {
                 return;
             }
@@ -104,69 +122,55 @@ namespace bookrpg.log
             }
         }
 
-        public static string getTagLog(string tag)
+        public static string GetLogs(string tag, LogLevel level = LogLevel.ALL)
         {
-            if (!isDebug)
-            {
-                return string.Empty;
-            }
-
             string[] strArr = null;
 
-            lock (tagLogs)
+            if (tagLogs.ContainsKey(tag))
             {
-                if (tagLogs.ContainsKey(tag))
-                {
-                    strArr = tagLogs[tag].ToArray();
-                }
+                strArr = tagLogs[tag].ToArray();
             }
 
             return strArr != null ? string.Join("\r\n", strArr) : string.Empty;
         }
 
-        //    [Conditional("ENABLE_TRACE")]
-        //    public static void TraceEnter(string name)
-        //    {
-        //        object obj2 = _trace_lock;
-        //        lock (obj2)
-        //        {
-        //            Console.WriteLine("{0} =>{1}", DateTime.Now.ToLongTimeString(), name);
-        //        }
-        //    }
-        //
-        //    [Conditional("ENABLE_TRACE")]
-        //    public static void TraceLeave(string name)
-        //    {
-        //        object obj2 = _trace_lock;
-        //        lock (obj2)
-        //        {
-        //            Console.WriteLine("{0} <={1}", DateTime.Now.ToLongTimeString(), name);
-        //        }
-        //    }
-
-        public static void log(LogLevel level, string format, params object[] args)
+        public static void DoLog(LogLevel level, object message)
         {
-            doLog(level, string.Format(format, args));
+            doLog(level, message);
         }
 
-        private static void doLog(LogLevel level, object message)
+        public static void DoLog(LogLevel level, string tag, object message)
+        {
+            doLog(level, message, tag);
+        }
+
+        private static void doLog(LogLevel level, object message, string tag = null)
         {
             switch (level)
             {
                 case LogLevel.ERROR:
                 //--4>TODO: 发布后 error 也会导致游戏崩溃/退出吗? 如果是, 那取消所有 ERROR
-                    Debug.LogError(message);
+                    if (isErrorEnabled)
+                    {
+                        UnityEngine.Debug.LogError(message);
+                    }
                     break;
                 case LogLevel.WARNING:
-                    Debug.LogWarning(message);
+                    if (isWarningEnabled)
+                    {
+                        UnityEngine.Debug.LogWarning(message);
+                    }
                     break;
                 case LogLevel.INFO:
-                    Debug.Log(message);
+                    if (isInfoEnabled)
+                    {
+                        UnityEngine.Debug.Log(message);
+                    }
                     break;
                 case LogLevel.DEBUG:
-                    if (isDebug)
+                    if (isDebugEnabled)
                     {
-                        Debug.Log(message);
+                        UnityEngine.Debug.Log(message);
                     }
                     break;
                 default:

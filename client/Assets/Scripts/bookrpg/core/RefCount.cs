@@ -15,18 +15,18 @@ namespace bookrpg.core
             this.cache = cache;
         }
 
-        public object refTarget()
+        public object RefTarget()
         {
             count++;
             return target;
         }
 
-        public void deRefTarget()
+        public void DeRefTarget()
         {
             count--;
         }
 
-        public bool canDisposed()
+        public bool CanDisposed()
         {
             return !cache && count <= 0;
         }

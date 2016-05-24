@@ -47,29 +47,29 @@ namespace bookrpg.resource
         private static Dictionary<string, int> refList = new Dictionary<string, int>();
 
 
-        public static Loader load(
+        public static Loader Load(
             string url, 
             int version = 0, 
             int size = 0,
             int priority = 0, 
             int maxRetryCount = 3)
         {
-            return newOrGetLoad(url, version, size, priority, maxRetryCount);
+            return NewOrGetLoad(url, version, size, priority, maxRetryCount);
         }
 
-        private static int compareLoader(Loader left, Loader right)
+        private static int CompareLoader(Loader left, Loader right)
         {
             return right.priority - left.priority;
         }
 
-        public static BatchLoader loadBatch()
+        public static BatchLoader LoadBatch()
         {
             var bl = new BatchLoader();
             batchLoaders.Add(bl);
             return bl;
         }
 
-        public static BatchLoader loadBatch(ICollection<string> urls, int maxRetryCount = 3)
+        public static BatchLoader LoadBatch(ICollection<string> urls, int maxRetryCount = 3)
         {
             var bl = new BatchLoader(urls, maxRetryCount);
             batchLoaders.Add(bl);
@@ -91,86 +91,86 @@ namespace bookrpg.resource
             set{ _backupBaseUrl = WWW.UnEscapeURL(value); }
         }
 
-        public static bool hasLoaded(string url, int version = 0)
+        public static bool HasLoaded(string url, int version = 0)
         {
-            string key = getKey(url, version);
-            var item = getCache(key);
+            string key = GetKey(url, version);
+            var item = GetCache(key);
             return item.isComplete;
         }
 
-        public static Loader getLoaded(string url, int version = 0)
+        public static Loader GetLoaded(string url, int version = 0)
         {
-            string key = getKey(url, version);
-            var item = getCache(key);
+            string key = GetKey(url, version);
+            var item = GetCache(key);
             return item.isComplete ? item : null;
         }
 
-        public static void stopLoad(string url, int version = 0)
+        public static void StopLoad(string url, int version = 0)
         {
-            string key = getKey(url, version);
+            string key = GetKey(url, version);
             Loader item = null;
 
             if (!refList.ContainsKey(key) || refList[key] <= 1)
             {
-                item = findLoader(key, loading);
+                item = FindLoader(key, loading);
                 if (item != null)
                 {
                     loading.Remove(item);
-                    item.disposeImmediate();
+                    item.DisposeImmediate();
                 }
 
-                item = findLoader(key, waiting);
+                item = FindLoader(key, waiting);
                 if (item != null)
                 {
                     waiting.Remove(item);
-                    item.disposeImmediate();
+                    item.DisposeImmediate();
                 }
             }
         }
 
-        public static bool tryUnload(string url, int version = 0)
+        public static bool TryUnload(string url, int version = 0)
         {
-            string key = getKey(url, version);
-            Loader item = getCache(key);
-            releaseRef(key);
+            string key = GetKey(url, version);
+            Loader item = GetCache(key);
+            ReleaseRef(key);
 
             if (item == null || !refList.ContainsKey(key) || refList[key] <= 0)
             {
-                unload(key);
+                Unload(key);
                 return true;
             }
 
             return false;
         }
 
-        //        public static void unload(string url, int version = 0)
+        //        public static void Unload(string url, int version = 0)
         //        {
-        //            unload(getKey(url, version));
+        //            Unload(GetKey(url, version));
         //        }
 
-        private static void unload(string key)
+        private static void Unload(string key)
         {
             Loader item;
 
-            item = findLoader(key, loading);
+            item = FindLoader(key, loading);
             if (item != null)
             {
                 loading.Remove(item);
-                item.disposeImmediate();
+                item.DisposeImmediate();
             }
 
-            item = findLoader(key, waiting);
+            item = FindLoader(key, waiting);
             if (item != null)
             {
                 waiting.Remove(item);
-                item.disposeImmediate();
+                item.DisposeImmediate();
             }
 
-            item = getCache(key);
+            item = GetCache(key);
             if (item != null)
             {
                 cache.Remove(key);
-                item.disposeImmediate();
+                item.DisposeImmediate();
             }
 
             if (refList.ContainsKey(key))
@@ -179,16 +179,16 @@ namespace bookrpg.resource
             }
         }
 
-        public static void unloadAll()
+        public static void UnloadAll()
         {
             foreach (var item in loading)
             {
-                item.disposeImmediate();
+                item.DisposeImmediate();
             }
 
             foreach (var item in waiting)
             {
-                item.disposeImmediate();
+                item.DisposeImmediate();
             }
 
             foreach (var weak in cache.Values)
@@ -196,7 +196,7 @@ namespace bookrpg.resource
                 if (weak.Target != null)
                 {
                     Loader item = weak.Target as Loader;
-                    item.disposeImmediate();
+                    item.DisposeImmediate();
                 }
             }
 
@@ -206,7 +206,7 @@ namespace bookrpg.resource
             refList.Clear();
         }
 
-        public static bool cachingAuthorize(string name, string domain, long size, int expiration, string singature)
+        public static bool CachingAuthorize(string name, string domain, long size, int expiration, string singature)
         {
             var isCacheAuthorized = Caching.Authorize(name, domain, size, expiration, singature);
             if (!isCacheAuthorized)
@@ -219,15 +219,15 @@ namespace bookrpg.resource
             return isCacheAuthorized;
         }
 
-        internal static Loader newOrGetLoad(
+        internal static Loader NewOrGetLoad(
             string url, 
             int version = 0, 
             int size = 0, 
             int priority = 0, 
             int maxRetryCount = 3)
         {
-            string key = getKey(url, version);
-            Loader target = getCache(key);
+            string key = GetKey(url, version);
+            Loader target = GetCache(key);
             if (target != null)
             {
                 if ((!target.isComplete && !loading.Contains(target)) && !waiting.Contains(target))
@@ -254,11 +254,11 @@ namespace bookrpg.resource
                 needSort = true;
             }
 
-            addRef(key);
+            AddRef(key);
             return target;
         }
 
-        private static Loader getCache(string key)
+        private static Loader GetCache(string key)
         {
             if (cache.ContainsKey(key))
             {
@@ -271,7 +271,7 @@ namespace bookrpg.resource
             return null;
         }
 
-        private static void addRef(string key)
+        private static void AddRef(string key)
         {
             if (refList.ContainsKey(key))
             {
@@ -282,7 +282,7 @@ namespace bookrpg.resource
             }
         }
 
-        private static void releaseRef(string key)
+        private static void ReleaseRef(string key)
         {
             if (refList.ContainsKey(key))
             {
@@ -290,11 +290,11 @@ namespace bookrpg.resource
             }
         }
 
-        private static Loader findLoader(string key, IList<Loader> list)
+        private static Loader FindLoader(string key, IList<Loader> list)
         {
             foreach (var item in list)
             {
-                var ikey = getKey(item.actualUrl != null ? item.actualUrl : item.url, item.version);
+                var ikey = GetKey(item.actualUrl != null ? item.actualUrl : item.url, item.version);
                 if (ikey == key)
                 {
                     return item;
@@ -304,7 +304,7 @@ namespace bookrpg.resource
             return null;
         }
 
-        public static List<Loader> debugGetAllDownloads()
+        public static List<Loader> DebugGetAllDownloads()
         {
             List<Loader> list = new List<Loader>();
             foreach (KeyValuePair<string, WeakReference> pair in cache)
@@ -318,7 +318,7 @@ namespace bookrpg.resource
             return list;
         }
 
-        public static void debugGetDownloadInfo(out int numItems, out int numLoading, out int numWaiting)
+        public static void DebugGetDownloadInfo(out int numItems, out int numLoading, out int numWaiting)
         {
             int num = 0;
             foreach (KeyValuePair<string, WeakReference> pair in cache)
@@ -333,7 +333,7 @@ namespace bookrpg.resource
             numWaiting = waiting.Count;
         }
 
-        public static string getLoadErrorDetail()
+        public static string GetLoadErrorDetail()
         {
             if (string.IsNullOrEmpty(lastError))
             {
@@ -342,11 +342,11 @@ namespace bookrpg.resource
             return string.Format("Load Error, url:{0}\r\nerror:{1}", lastErrorUrl, lastError);
         }
 
-        public static void init(bool autoUpdate = true)
+        public static void Init(bool autoUpdate = true)
         {   
             if (autoUpdate)
             {
-                CoroutineMgr.startCoroutine(Loop());
+                CoroutineMgr.StartCoroutine(Loop());
             }
         }
 
@@ -354,30 +354,30 @@ namespace bookrpg.resource
         {
             while (true)
             {
-                update();
+                Update();
                 yield return 0;
             }
         }
 
-        public static void onPriorityChanged()
+        public static void OnPriorityChanged()
         {
             needSort = true;
         }
 
-        public static void update()
+        public static void Update()
         {
             Loader loader;
 
             foreach(var item in dispatchComplete)
             {
-                item.dispatchComplete();
+                item.DispatchComplete();
             }
             dispatchComplete.Clear();
 
             for (int i = 0; i < loading.Count; i++)
             {
                 loader = loading[i];
-                loader.update();
+                loader.Update();
                 if (!loader.isComplete)
                 {
                     continue;
@@ -399,7 +399,7 @@ namespace bookrpg.resource
                         loader.error, loader.url, loader.version, loader.actualUrl);
                 }
 
-                loader.dispatchComplete();
+                loader.DispatchComplete();
                 #endif
             }
 
@@ -409,8 +409,8 @@ namespace bookrpg.resource
                 if (needSort)
                 {
                     needSort = false;
-                    waiting.Sort(compareLoader);
-//                    Util.insertionSort<Loader>(waiting, compareLoader);
+                    waiting.Sort(CompareLoader);
+//                    Util.InsertionSort<Loader>(waiting, CompareLoader);
                 }
                 if (count > waiting.Count)
                 {
@@ -422,14 +422,14 @@ namespace bookrpg.resource
                     waiting.Remove(loader);
                     loading.Add(loader);
                     bool useCache = decideUseCache != null ? decideUseCache(loader.url) : false;
-                    loader.load(useCache);
+                    loader.Load(useCache);
                 }
             }
 
             for (int i = 0; i < batchLoaders.Count; i++)
             {
                 var bl = batchLoaders[i];
-                bl.update();
+                bl.Update();
                 if (bl.isComplete || bl.hasDisposed)
                 {
                     batchLoaders.RemoveAt(i--);
@@ -437,7 +437,7 @@ namespace bookrpg.resource
             }
         }
 
-        private static string getKey(string url, int version)
+        private static string GetKey(string url, int version)
         {
             if (string.IsNullOrEmpty(url))
             {

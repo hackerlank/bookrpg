@@ -32,10 +32,10 @@ namespace bookrpg.Editor
             this.resourcePacks = resourcePacks;
 
             historyPath = packOutputPath + "resourceTable.json";
-            loadHistory();
+            LoadHistory();
         }
 
-        public void updateInfo()
+        public void UpdateInfo()
         {
             if (manifest == null)
             {
@@ -90,23 +90,23 @@ namespace bookrpg.Editor
             }
 
             lastResourcePacks = resourcePacks;
-            saveHistory();
+            SaveHistory();
         }
 
-        public void generateResourceTable(string outputFile)
+        public void GenerateResourceTable(string outputFile)
         {
             var resourcePacksJson = new List<string>();
             resourcePacksJson.Add("[");
             foreach (var item in resourcePacks.Values)
             {
-                resourcePacksJson.Add(item.toReleaseJson() + ",");
+                resourcePacksJson.Add(item.ToReleaseJson() + ",");
             }
             resourcePacksJson.Add("]");
 
             File.WriteAllText(outputFile, string.Join("\n", resourcePacksJson.ToArray()));
         }
 
-        private void loadHistory()
+        private void LoadHistory()
         {
             lastResourcePacks = new SortedList<string, ResourcePack>();
 
@@ -119,14 +119,14 @@ namespace bookrpg.Editor
                     {
                         var data = obj[i];
                         var file = new ResourcePack();
-                        file.fromJson(data);
+                        file.FromJson(data);
                         lastResourcePacks.Add(file.srcFile, file);
                     }
                 }
             }
         }
 
-        private void saveHistory()
+        private void SaveHistory()
         {
             var jw = new JsonWriter();
             jw.PrettyPrint = true;

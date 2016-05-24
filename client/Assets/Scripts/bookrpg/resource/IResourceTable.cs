@@ -1,12 +1,15 @@
 ﻿using System.Collections;
+using bookrpg.core;
 
 namespace bookrpg.resource
 {
 
-    public interface IResourceTable
+    public interface IResourceTable : ISerialize
     {
-        IResourceFile getResourceFile(string resourcePath);
+        IResourceFile GetResourceFile(string resourcePath);
 
-        IResourceFile getResourceFile(int resourceNumber);
+        IResourceFile GetResourceFile(int resourceNumber);
+
+        void Save(string path = null);
     }
 }

@@ -68,12 +68,12 @@ public static class CoroutineMgr
         }
     }
 
-    public static Coroutine startCoroutine(IEnumerator routine)
+    public static Coroutine StartCoroutine(IEnumerator routine)
     {
-        return startCoroutine(routine, false);
+        return StartCoroutine(routine, false);
     }
 
-    public static Coroutine startCoroutine(IEnumerator routine, bool bDestroyWhenLoadLevel)
+    public static Coroutine StartCoroutine(IEnumerator routine, bool bDestroyWhenLoadLevel)
     {
         //use main MonoBehaviour exe coroutine
         if (!bDestroyWhenLoadLevel && mMain != null)
@@ -89,7 +89,7 @@ public static class CoroutineMgr
     }
 
 
-    public static void stopCoroutine(string routine)
+    public static void StopCoroutine(string routine)
     {
         if (mMain != null)
         {
@@ -101,7 +101,7 @@ public static class CoroutineMgr
         }
     }
 
-    public static void stopCoroutine(IEnumerator routine)
+    public static void StopCoroutine(IEnumerator routine)
     {
         if (mMain != null)
         {

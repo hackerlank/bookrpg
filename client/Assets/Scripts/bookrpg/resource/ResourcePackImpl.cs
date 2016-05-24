@@ -87,7 +87,7 @@ namespace bookrpg.resource
             set;
         }
 
-        public void fromJson(JsonData data)
+        public void FromJson(JsonData data)
         {
             var keys = data.Keys;
 
@@ -142,7 +142,7 @@ namespace bookrpg.resource
             }
         }
 
-        public string toJson()
+        public string ToJson()
         {
             var jw = new JsonWriter();
             jw.WriteObjectStart();

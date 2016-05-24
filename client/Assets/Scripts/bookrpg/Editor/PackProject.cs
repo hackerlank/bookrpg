@@ -22,12 +22,12 @@ namespace bookrpg.Editor
             bulk = new Dictionary<string, List<string>>();
         }
 
-        public string toJson()
+        public string ToJson()
         {
             return JsonMapper.ToJson(this);
         }
 
-        public static PackProject fromJson(string value)
+        public static PackProject FromJson(string value)
         {
             return JsonMapper.ToObject<PackProject>(value);
         }
