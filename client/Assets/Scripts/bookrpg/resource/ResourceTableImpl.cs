@@ -14,14 +14,19 @@ namespace bookrpg.resource
 {
     public class ResourceTableImpl : IResourceTable
     {
-        private List<ResourcePackImpl> resourcePacks = new List<ResourcePackImpl>();
+        private Dictionary<string, ResourcePackImpl> resourcePacks = new Dictionary<string, ResourcePackImpl>();
         private Dictionary<string, ResourceFileImpl> resources = new Dictionary<string, ResourceFileImpl>();
+
+        public IDictionary<string, IResourcePack> resourcePackList
+        { 
+            get{ return (IDictionary<string, IResourcePack>)resourcePacks; }
+        }
 
         public string Serialize()
         {
             var list = new List<string>();
             list.Add("[");
-            foreach (var item in resourcePacks)
+            foreach (var item in resourcePacks.Values)
             {
                 list.Add(item.ToJson() + ",");
             }
@@ -48,7 +53,7 @@ namespace bookrpg.resource
                 {
                     var pack = new ResourcePackImpl();
                     pack.FromJson(data[i]);
-                    resourcePacks.Add(pack);
+                    resourcePacks.Add(pack.srcFile, pack);
 
                     foreach (var item in pack.resources)
                     {

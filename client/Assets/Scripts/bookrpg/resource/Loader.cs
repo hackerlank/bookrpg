@@ -184,9 +184,9 @@ namespace bookrpg.resource
 
             actualUrl = strUrl;
 
-            Log.AddTagLog(logTag, "{4} load from {0}: {1}, version: {2}, useCache: {3}", 
+            Log.Debug(logTag, string.Format("{4} load from {0}: {1}, version: {2}, useCache: {3}", 
                 useBackupUrl ? "backup url" : "url", strUrl, version, useCache, 
-                retryCount > 0 ? retryCount.ToString() + "st retry" : "Start");
+                retryCount > 0 ? retryCount.ToString() + "st retry" : "Start"));
 
             CoroutineMgr.StartCoroutine(DoLoad(strUrl));
             #endif
@@ -315,12 +315,12 @@ namespace bookrpg.resource
             isCacheHit = www != null && www.size == 0 && www.assetBundle != null;
             if (isCacheHit)
             {
-                Log.AddTagLog(logTag, "Cache hit, url: {0}, version: {1}", actualUrl, version);
+                Log.Debug(logTag, string.Format("Cache hit, url: {0}, version: {1}", actualUrl, version));
             } else
             {
-                Log.AddTagLog(logTag, 
+                Log.Debug(logTag, string.Format(
                     "Load complete, url: {3}, version: {2}, time: {0}s, bytesLoaded: {1}, retryCount: {5}, error: {4}", 
-                    timeElapsed, bytesLoaded, version, url, !hasError ? "no" : error, retryCount);
+                    timeElapsed, bytesLoaded, version, url, !hasError ? "no" : error, retryCount));
             }
 
             if (!hasError && www != null)

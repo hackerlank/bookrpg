@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using bookrpg.resource;
 
 namespace bookrpg
@@ -28,7 +29,7 @@ namespace bookrpg
             loader.onComplete += ld =>
             {
                 localVersion = new VersionCfgMgr();
-                if(localVersion.Init(ld.text))
+                if (localVersion.Init(ld.text))
                 {
                     LoadVersion(localVersion.versionAddr);
                 }
@@ -43,7 +44,7 @@ namespace bookrpg
             loader.onComplete += ld =>
             {
                 version = VersionCfgMgr.IT;
-                if(version.Init(ld.text))
+                if (version.Init(ld.text))
                 {
                     DoUpdate();
                 }
@@ -65,6 +66,11 @@ namespace bookrpg
                 return;
             }
 
+
+            LoaderMgr.baseUrl = version.updateAddr;
+            LoaderMgr.backupBaseUrl = version.updateAddr2;
+                
+
             //TODO 更新资源
             if (!localVersion.lastVersion.Equals(version.lastVersion))
             {
@@ -79,7 +85,8 @@ namespace bookrpg
                     var txt = bl.GetLoader(version.resourceTableAddr).text;
                     localResourceTable = new ResourceTableImpl();
                     resourceTable = new ResourceTableImpl();
-                    if(localResourceTable.Deserialize(localTxt) && 
+
+                    if (localResourceTable.Deserialize(localTxt) &&
                         resourceTable.Deserialize(txt))
                     {
                         UpdateResource();
@@ -108,7 +115,50 @@ namespace bookrpg
 
         private void UpdateResource()
         {
+            var curTable = localResourceTable.resourcePackList;
+            var newTable = resourceTable.resourcePackList;
 
+            var bl = LoaderMgr.LoadBatch();
+            bl.isCheckRedirectError = true;
+
+            foreach (var item in newTable)
+            {
+                if (!curTable.ContainsKey(item.Key) ||
+                    curTable[item.Key].version != item.Value.version)
+                {
+                    var loader = bl.AddLoader(item.Value.targetFile, 
+                                     item.Value.version, 
+                                     item.Value.size);
+                    loader.customData = item;
+                }
+            }
+
+            bl.onOneComplete += (obj) =>
+            {
+                var item = (KeyValuePair<string, IResourcePack>)obj.customData;
+                if (!obj.hasError)
+                {
+                    //TODO  更新失败
+                    bl.Dispose();
+                    Debug.LogError(obj.error);
+                    return;
+                }
+
+                if (curTable.ContainsKey(item.Key))
+                {
+                    curTable[item.Key] = item.Value;
+                } else
+                {
+                    curTable.Add(item);
+                }
+            };
+
+            bl.onComplete += (obj) => {
+                if(bl.errorCount <= 0)
+                {
+                    //TODO 继续游戏
+                }
+            };
         }
     }
 }

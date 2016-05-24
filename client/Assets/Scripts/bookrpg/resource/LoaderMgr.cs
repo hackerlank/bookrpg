@@ -81,14 +81,34 @@ namespace bookrpg.resource
         public static string baseUrl
         {
             get{ return _baseUrl; } 
-            set{ _baseUrl = WWW.UnEscapeURL(value); }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    _baseUrl = value;
+                } else
+                {
+                    _baseUrl = WWW.UnEscapeURL(value).Replace('\\', '/').
+                        TrimEnd(new char[]{ '/' }) + "/";
+                }
+            }
         }
 
         ///when baseUrl load error, try this, e.g. cdn source server
         public static string backupBaseUrl
         {
             get{ return _backupBaseUrl; } 
-            set{ _backupBaseUrl = WWW.UnEscapeURL(value); }
+            set
+            { 
+                if (string.IsNullOrEmpty(value))
+                {
+                    _backupBaseUrl = value;
+                } else
+                {
+                    _backupBaseUrl = WWW.UnEscapeURL(value).Replace('\\', '/').
+                        TrimEnd(new char[]{ '/' }) + "/";
+                }
+            }
         }
 
         public static bool HasLoaded(string url, int version = 0)
@@ -445,6 +465,7 @@ namespace bookrpg.resource
             }
 
             string key = WWW.UnEscapeURL(url);
+            key = key.Replace('\\', '/');
 
             if (!string.IsNullOrEmpty(_baseUrl) && key.Contains(_baseUrl))
             {
@@ -455,7 +476,6 @@ namespace bookrpg.resource
                 key = key.Replace(_backupBaseUrl, "");
             }
 
-            key = key.Replace('\\', '/');
             key = key.TrimStart(new char[]{ '/' });
 
             return WWW.UnEscapeURL(key) + '_' + version.ToString();
