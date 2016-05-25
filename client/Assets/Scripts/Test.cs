@@ -36,8 +36,6 @@ public class Test : MonoBehaviour
 //        StartCoroutine(Load(uncompress));
 
         WWW www = new WWW(uncompress);
-        ab2 = www.assetBundle;
-        ab2 = www.assetBundle;
 
 //        StartCoroutine(DoLoadAssetBundle(uncompress));
 //        StartCoroutine(DoLoadAssetBundle(compress));
@@ -224,27 +222,11 @@ public class Test : MonoBehaviour
     void Start()
     {
 
-        LoaderMgr.Init();
-
-//        LoaderMgr.behaviour = this;
-//        LoaderMgr.timeout = 3f;
-//        LoaderMgr.baseUrl = "http://127.0.0.1/";
-//        LoaderMgr.backupBaseUrl = "http://localhost/";
-
     }
 
 
     void Update()
     {
-
-//        LoaderMgr.Update();
-
-        if (www != null)
-        {
-
-
-        }
-
 
     }
 

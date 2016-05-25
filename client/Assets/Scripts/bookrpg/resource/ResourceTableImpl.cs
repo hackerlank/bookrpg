@@ -4,12 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using LitJson;
 
-#if UNITY_WEBPLAYER
-#elif UNITY_WEBGL
-#else
-using System.IO;
-#endif
-
 namespace bookrpg.resource
 {
     public class ResourceTableImpl : IResourceTable
@@ -68,20 +62,6 @@ namespace bookrpg.resource
                 Debug.LogError("ResourceTableImpl.deserialize, " + e.Message);
                 return false;
             }
-        }
-
-        public void Save(string path = null)
-        {
-            if (path == null)
-            {
-                return;
-            }
-
-#if UNITY_WEBPLAYER
-#elif UNITY_WEBGL
-#else
-            File.WriteAllText(path, Serialize());
-#endif
         }
 
         public IResourceFile GetResourceFile(string resourcePath)

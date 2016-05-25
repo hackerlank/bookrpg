@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using bookrpg.core;
 using bookrpg.log;
+using bookrpg.mgr;
 
 #if  RES_EDITOR
 using UnityEditor;

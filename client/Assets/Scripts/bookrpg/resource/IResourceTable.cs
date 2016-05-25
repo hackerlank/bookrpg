@@ -12,7 +12,5 @@ namespace bookrpg.resource
         IResourceFile GetResourceFile(int resourceNumber);
 
         IDictionary<string, IResourcePack> resourcePackList { get;}
-
-        void Save(string path = null);
     }
 }

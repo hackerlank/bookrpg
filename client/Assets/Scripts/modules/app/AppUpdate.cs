@@ -1,33 +1,52 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using bookrpg.core;
 using bookrpg.resource;
+using bookrpg.utils;
 
 namespace bookrpg
 {
     public class AppUpdate
     {
-        private string localVersionUrl;
-        private string localResourceTableUrl;
+        private string persistentDataPath;
+        private string localVersionPath;
+        private string localResourceTablePath;
 
+        private string resourceTableText;
         private IResourceTable resourceTable;
         private IResourceTable localResourceTable;
 
-        private VersionCfgMgr version;
+        private string versionText;
+        public VersionCfgMgr version;
         private VersionCfgMgr localVersion;
+
+        public bool forceUpdateResource;
+
+        private BKAction onComplete;
 
         public AppUpdate()
         {
-            this.localVersionUrl = AppConfig.localVersionUrl;
-            this.localResourceTableUrl = AppConfig.localResourceTableUrl;
+            this.persistentDataPath = AppConfig.persistentDataPath;
+            this.localVersionPath = AppConfig.localVersionPath;
+            this.localResourceTablePath = AppConfig.localResourceTablePath;
         }
 
-        public void Update()
+        public void Update(BKAction onComplete = null)
         {
-            var loader = LoaderMgr.Load(localVersionUrl);
+            this.onComplete = onComplete;
+
+            var loader = LoaderMgr.Load(localVersionPath);
+            loader.isCheckRedirectError = true;
 
             loader.onComplete += ld =>
             {
+                if(ld.hasError)
+                {
+                    //TODO 
+                    return;
+                }
+
                 localVersion = new VersionCfgMgr();
                 if (localVersion.Init(ld.text))
                 {
@@ -36,19 +55,15 @@ namespace bookrpg
             };
         }
 
-        private void LoadVersion(string url)
+        private void LoadVersion(string path)
         {
-            var loader = LoaderMgr.Load(url);
-            loader.isCheckRedirectError = true;
+            versionText = Util.Load(path);
+            version = VersionCfgMgr.IT;
 
-            loader.onComplete += ld =>
+            if (versionText != null && version.Init(versionText))
             {
-                version = VersionCfgMgr.IT;
-                if (version.Init(ld.text))
-                {
-                    DoUpdate();
-                }
-            };
+                DoUpdate();
+            }
         }
 
         private void DoUpdate()
@@ -66,28 +81,26 @@ namespace bookrpg
                 return;
             }
 
-
             LoaderMgr.baseUrl = version.updateAddr;
             LoaderMgr.backupBaseUrl = version.updateAddr2;
                 
-
             //TODO 更新资源
-            if (!localVersion.lastVersion.Equals(version.lastVersion))
+            if (forceUpdateResource || !localVersion.lastVersion.Equals(version.lastVersion))
             {
                 var bl = LoaderMgr.LoadBatch();
-                bl.AddLoader(localResourceTableUrl);
+                bl.AddLoader(localResourceTablePath);
                 bl.AddLoader(version.resourceTableAddr);
                 bl.isCheckRedirectError = true;
 
                 bl.onComplete += ld =>
                 {
-                    var localTxt = bl.GetLoader(localResourceTableUrl).text;
-                    var txt = bl.GetLoader(version.resourceTableAddr).text;
+                    var localTxt = bl.GetLoader(localResourceTablePath).text;
+                    resourceTableText = bl.GetLoader(version.resourceTableAddr).text;
                     localResourceTable = new ResourceTableImpl();
                     resourceTable = new ResourceTableImpl();
 
                     if (localResourceTable.Deserialize(localTxt) &&
-                        resourceTable.Deserialize(txt))
+                        resourceTable.Deserialize(resourceTableText))
                     {
                         UpdateResource();
                     }
@@ -97,10 +110,6 @@ namespace bookrpg
 
         private void Reinstall()
         {
-            if (version == null)
-            {
-                return;
-            }
             //TODO 需要安装升级
             switch (version.installMethod)
             {
@@ -136,11 +145,10 @@ namespace bookrpg
             bl.onOneComplete += (obj) =>
             {
                 var item = (KeyValuePair<string, IResourcePack>)obj.customData;
-                if (!obj.hasError)
+                if (obj.hasError)
                 {
                     //TODO  更新失败
                     bl.Dispose();
-                    Debug.LogError(obj.error);
                     return;
                 }
 
@@ -151,12 +159,34 @@ namespace bookrpg
                 {
                     curTable.Add(item);
                 }
+
+                if(!Util.Save(persistentDataPath + "/" + item.Value.targetFile, obj.bytes) ||
+                    !Util.Save(localResourceTablePath, localResourceTable.Serialize()))
+                {
+                    //TODO  更新失败
+                    bl.Dispose();
+                }
+
+                obj.Dispose();
             };
 
             bl.onComplete += (obj) => {
-                if(bl.errorCount <= 0)
+                bl.Dispose();
+                if(bl.errorCount > 0)
                 {
-                    //TODO 继续游戏
+                    return;
+                }
+
+                if(Util.Save(localResourceTablePath, resourceTableText) &&
+                    Util.Save(localVersionPath, versionText))
+                {
+                    if(onComplete != null)
+                    {
+                        onComplete.Invoke();
+                    }
+                }
+                else{
+                    //TODO tip
                 }
             };
         }

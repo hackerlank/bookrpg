@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using System.Net;
+using bookrpg.mgr;
 using bookrpg.log;
 using bookrpg.core;
 using bookrpg.utils;
@@ -75,7 +76,6 @@ namespace bookrpg.resource
             batchLoaders.Add(bl);
             return bl;
         }
-
 
         ///like html's baseUrl, e.g. cdn server
         public static string baseUrl
@@ -226,12 +226,14 @@ namespace bookrpg.resource
             refList.Clear();
         }
 
-        public static bool CachingAuthorize(string name, string domain, long size, int expiration, string singature)
+        public static bool CachingAuthorize(string name, string domain, 
+                                            long size, int expiration, string singature)
         {
             var isCacheAuthorized = Caching.Authorize(name, domain, size, expiration, singature);
             if (!isCacheAuthorized)
             {
-                Debug.LogWarningFormat("Caching.Authorize Failed. name:{0}, domain:{1}, absoluteURL:{2}", name, domain, Application.absoluteURL);
+                Debug.LogWarningFormat("Caching.Authorize Failed. name:{0}, domain:{1}, absoluteURL:{2}", 
+                    name, domain, Application.absoluteURL);
             } else
             {
                 Debug.LogFormat("Caching.Authorize Succeeded. name:{0}, domain:{1}", name, domain);
@@ -362,24 +364,7 @@ namespace bookrpg.resource
             return string.Format("Load Error, url:{0}\r\nerror:{1}", lastErrorUrl, lastError);
         }
 
-        public static void Init(bool autoUpdate = true)
-        {   
-            if (autoUpdate)
-            {
-                CoroutineMgr.StartCoroutine(Loop());
-            }
-        }
-
-        public static IEnumerator Loop()
-        {
-            while (true)
-            {
-                Update();
-                yield return 0;
-            }
-        }
-
-        public static void OnPriorityChanged()
+        public static void UpdatePriority()
         {
             needSort = true;
         }
@@ -388,7 +373,7 @@ namespace bookrpg.resource
         {
             Loader loader;
 
-            foreach(var item in dispatchComplete)
+            foreach (var item in dispatchComplete)
             {
                 item.DispatchComplete();
             }

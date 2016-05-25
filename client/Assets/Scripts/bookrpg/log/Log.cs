@@ -23,61 +23,61 @@ namespace bookrpg.log
         DEBUG = 5,
     }
 
-    class LogItem
-    {
-        public DateTime time { get; private set; }
-
-        public string tag { get; private set; }
-
-        public LogLevel level { get; private set; }
-
-        public string message { get; private set; }
-
-        private string targetMessage = null;
-
-        public LogItem(DateTime time, LogLevel level, string tag, string message)
-        {
-            this.time = time;
-            this.level = level;
-            this.tag = tag;
-            this.message = message;
-        }
-
-        public override string ToString()
-        {
-            if (targetMessage == null)
-            {
-                targetMessage = string.Format("[{0}] [{1}] {2}", 
-                    time.ToString("yyyy-MM-dd HH:mm:ss"),
-                    tag == null ? string.Empty : tag,
-                    levelToString(level)
-                );
-            }
-            return targetMessage;
-        }
-
-        private string levelToString(LogLevel lv)
-        {
-            switch (lv)
-            {
-                case LogLevel.FATAL:
-                    return "fatal";
-                case LogLevel.ERROR:
-                    return "error";
-                case LogLevel.WARNING:
-                    return "warning";
-                case LogLevel.INFO:
-                    return "info";
-                case LogLevel.DEBUG:
-                    return "debug";
-                default:
-                    return string.Empty;
-            }
-        }
-    }
-
     public static class Log
     {
+        class LogItem
+        {
+            public DateTime time { get; private set; }
+
+            public string tag { get; private set; }
+
+            public LogLevel level { get; private set; }
+
+            public string message { get; private set; }
+
+            private string targetMessage = null;
+
+            public LogItem(DateTime time, LogLevel level, string tag, string message)
+            {
+                this.time = time;
+                this.level = level;
+                this.tag = tag;
+                this.message = message;
+            }
+
+            public override string ToString()
+            {
+                if (targetMessage == null)
+                {
+                    targetMessage = string.Format("[{0}] [{1}] {2}", 
+                        time.ToString("yyyy-MM-dd HH:mm:ss"),
+                        tag == null ? string.Empty : tag,
+                        levelToString(level)
+                    );
+                }
+                return targetMessage;
+            }
+
+            private string levelToString(LogLevel lv)
+            {
+                switch (lv)
+                {
+                    case LogLevel.FATAL:
+                        return "fatal";
+                    case LogLevel.ERROR:
+                        return "error";
+                    case LogLevel.WARNING:
+                        return "warning";
+                    case LogLevel.INFO:
+                        return "info";
+                    case LogLevel.DEBUG:
+                        return "debug";
+                    default:
+                        return string.Empty;
+                }
+            }
+        }
+
         private static Dictionary<string, List<LogItem>> logItems = new Dictionary<string, List<LogItem>>();
 
         private static bool ignore;
@@ -94,7 +94,7 @@ namespace bookrpg.log
         {
             Application.logMessageReceived += (condition, stackTrace, type) =>
             {
-                if(!ignore)
+                if (!ignore)
                 {
 
                     //                Console.WriteLine(condition);

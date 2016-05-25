@@ -2,7 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections;
+
+#if UNITY_WEBPLAYER
+#elif UNITY_WEBGL
+#else
 using System.IO;
+#endif
 using System.Text.RegularExpressions;
 
 namespace bookrpg.utils
@@ -29,9 +34,9 @@ namespace bookrpg.utils
         public static string GetAbsolutePath(string path, string relativePath)
         {
             path = path.Replace('\\', '/');
-            path = path.TrimEnd(new char[]{'/'}) + "/";
+            path = path.TrimEnd(new char[]{ '/' }) + "/";
             relativePath = relativePath.Replace('\\', '/');
-            relativePath = relativePath.TrimEnd(new char[]{'/'}) + "/";
+            relativePath = relativePath.TrimEnd(new char[]{ '/' }) + "/";
             if (!Regex.IsMatch(path, "^(/|[a-zA-Z]:/)"))
             {
                 path = relativePath + path;
@@ -93,6 +98,102 @@ namespace bookrpg.utils
                     Debug.LogError(e.Message);
                 }
             }
+        }
+
+        public static string Load(string path)
+        {
+            if (path == null)
+            {
+                Debug.LogWarning("Util.Load failed, path is null");
+                return null;
+            }
+
+            path = path.Replace("file://", "");
+
+            #if UNITY_WEBPLAYER
+            #elif UNITY_WEBGL
+            #else
+            try
+            {
+                return File.ReadAllText(path);
+            } catch (Exception e)
+            {
+                Debug.LogError("Util.Load failed: " + e.Message);
+                return null;
+            }
+            #endif
+        }
+
+        public static byte[] LoadBytes(string path)
+        {
+            if (path == null)
+            {
+                Debug.LogWarning("Util.Load failed, path is null");
+                return null;
+            }
+
+            path = path.Replace("file://", "");
+
+            #if UNITY_WEBPLAYER
+            #elif UNITY_WEBGL
+            #else
+            try
+            {
+                return File.ReadAllBytes(path);
+            } catch (Exception e)
+            {
+                Debug.LogError("Util.Load failed: " + e.Message);
+                return null;
+            }
+            #endif
+        }
+
+        public static bool Save(string path, string text)
+        {
+            if (path == null || text == null)
+            {
+                Debug.LogWarning("Util.Save failed, path or text is null");
+                return false;
+            }
+
+            #if UNITY_WEBPLAYER
+            #elif UNITY_WEBGL
+            #else
+            try
+            {
+                path = path.Replace("file://", "");
+                File.WriteAllText(path, text);
+                return true;
+            } catch (Exception e)
+            {
+                Debug.LogError("Util.Save failed: " + e.Message);
+                return false;
+            }
+            #endif
+        }
+
+        public static bool Save(string path, byte[] bytes)
+        {
+            if (path == null || bytes == null)
+            {
+                Debug.LogWarning("Util.Save failed, path or bytes is null");
+                return false;
+            }
+
+            #if UNITY_WEBPLAYER
+            #elif UNITY_WEBGL
+            #else
+            try
+            {
+                path = path.Replace("file://", "");
+                File.WriteAllBytes(path, bytes);
+                return true;
+            } catch (Exception e)
+            {
+                Debug.LogError("Util.Save failed: " + e.Message);
+                return false;
+            }
+            #endif
         }
     }
 }

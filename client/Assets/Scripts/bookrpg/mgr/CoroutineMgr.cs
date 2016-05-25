@@ -5,111 +5,90 @@ using System.Text;
 using System.Diagnostics;
 using UnityEngine;
 
-public class CoroutineBehaviour : MonoBehaviour
+namespace bookrpg.mgr
 {
-}
-
-public static class CoroutineMgr
-{
-
-    private class CoroutineInfo
+    public class CoroutineBehaviour : MonoBehaviour
     {
-        public string desc;
-        public WeakReference obj;
     }
 
-    private static MonoBehaviour mMain;
-    private static CoroutineBehaviour   mPrivate;   
-    private static List<CoroutineInfo>  routines = new List<CoroutineInfo>();
-
-    public static int DebugGetCoroutineCount()
+    public static class CoroutineMgr
     {
-        return routines.Count;
-    }
+        private static MonoBehaviour globalBehaviour;
+        private static CoroutineBehaviour sceneBehaviour;
 
-    public static string DumpCoroutines()
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.AppendFormat("DumpCoroutines\n", new object[0]);
-        int num = 0;
-        foreach (CoroutineInfo info in routines)
+        public static void Init(MonoBehaviour behaviour)
         {
-            if (info.obj.IsAlive)
+            globalBehaviour = behaviour;
+        }
+
+        public static Coroutine StartCoroutine(IEnumerator routine)
+        {
+            return StartCoroutine(routine, false);
+        }
+
+        public static Coroutine StartCoroutine(IEnumerator routine, bool destroyWhenChangeLevel)
+        {
+            //use global MonoBehaviour exe coroutine
+            if (!destroyWhenChangeLevel && globalBehaviour != null)
             {
-                object target = info.obj.Target;
-                num++;
-                builder.AppendFormat(" {0}: {1}\n", target, info.desc);
+                return globalBehaviour.StartCoroutine(routine);
+            }
+            //用当前场景内的MonoBehavior执行协成
+            if (sceneBehaviour == null)
+            {
+                sceneBehaviour = new GameObject("CoroutineManager").AddComponent<CoroutineBehaviour>();
+            }
+            return sceneBehaviour.StartCoroutine(routine);
+        }
+
+        public static Coroutine StartCoroutine(string methodName, object value = null)
+        {
+            return StartCoroutine(methodName, false, value);
+        }
+
+        public static Coroutine StartCoroutine(string methodName, bool destroyWhenChangeLevel, object value = null)
+        {
+            if (!destroyWhenChangeLevel && globalBehaviour != null)
+            {
+                return globalBehaviour.StartCoroutine(methodName, value);
+            }
+            if (sceneBehaviour == null)
+            {
+                sceneBehaviour = new GameObject("CoroutineManager").AddComponent<CoroutineBehaviour>();
+            }
+            return sceneBehaviour.StartCoroutine(methodName, value);
+        }
+
+        public static void StopCoroutine(string routine)
+        {
+            if (globalBehaviour != null)
+            {
+                globalBehaviour.StopCoroutine(routine);
+            }
+            if (sceneBehaviour != null)
+            {
+                sceneBehaviour.StopCoroutine(routine);
             }
         }
-        builder.AppendFormat("  count: {0}\n", num);
-        return builder.ToString();
-    }
 
-    public static void Init(MonoBehaviour main)
-    {
-        mMain = main;
-    }
-
-    [Conditional("ENABLE_TRACE")]
-    private static void MiniszieRoutineList()
-    {
-        int num = 0;
-        while (num < routines.Count)
+        public static void StopCoroutine(IEnumerator routine)
         {
-            CoroutineInfo item = routines[num];
-            if (!item.obj.IsAlive)
+            if (globalBehaviour != null)
             {
-                routines.Remove(item);
+                globalBehaviour.StopCoroutine(routine);
             }
-            else
+            if (sceneBehaviour != null)
             {
-                num++;
+                sceneBehaviour.StopCoroutine(routine);
             }
         }
-    }
 
-    public static Coroutine StartCoroutine(IEnumerator routine)
-    {
-        return StartCoroutine(routine, false);
-    }
-
-    public static Coroutine StartCoroutine(IEnumerator routine, bool bDestroyWhenLoadLevel)
-    {
-        //use main MonoBehaviour exe coroutine
-        if (!bDestroyWhenLoadLevel && mMain != null)
+        public static void StopAllCoroutinesInScene(IEnumerator routine)
         {
-            return mMain.StartCoroutine(routine);
-        }
-        //用当前场景内的MonoBehavior执行协成
-        if (mPrivate == null)
-        {
-            mPrivate = new GameObject("CoroutineManager").AddComponent<CoroutineBehaviour>();
-        }
-        return mPrivate.StartCoroutine(routine);
-    }
-
-
-    public static void StopCoroutine(string routine)
-    {
-        if (mMain != null)
-        {
-            mMain.StopCoroutine(routine);
-        }
-        if (mPrivate != null)
-        {
-            mPrivate.StopCoroutine(routine);
-        }
-    }
-
-    public static void StopCoroutine(IEnumerator routine)
-    {
-        if (mMain != null)
-        {
-            mMain.StopCoroutine(routine);
-        }
-        if (mPrivate != null)
-        {
-            mPrivate.StopCoroutine(routine);
+            if (sceneBehaviour != null)
+            {
+                sceneBehaviour.StopAllCoroutines();
+            }
         }
     }
 }

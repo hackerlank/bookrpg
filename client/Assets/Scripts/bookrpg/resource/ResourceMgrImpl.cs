@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using bookrpg.core;
+using bookrpg.mgr;
 
 namespace bookrpg.resource
 {
