@@ -6,7 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using LitJson;
-using bookrpg.config;
+using bookrpg.data;
 using UnityEngine;
 
 namespace bookrpg 

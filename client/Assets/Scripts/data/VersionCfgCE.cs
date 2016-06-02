@@ -7,13 +7,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using LitJson;
-using bookrpg.config;
+using bookrpg.data;
 using UnityEngine;
 
 namespace bookrpg 
 {
     public partial class VersionCfgMgrCE : 
-        bookrpg.config.ConfigMgrSingleKey<string, VersionCfg>
+        bookrpg.data.DataMgrSingleKey<string, VersionCfg>
     {
         public VersionCfgMgrCE()
         {
@@ -57,13 +57,13 @@ namespace bookrpg
         }
     }
 
-    public class VersionCfgCE : bookrpg.config.ConfigItemBase 
+    public class VersionCfgCE : bookrpg.data.DataItemBase 
     {
         public string key;
         public object value;
 
         ///parse form txt 
-        public override bool ParseFrom(IConfigParser parser)
+        public override bool ParseFrom(IDataParser parser)
         {
             try{
                 switch (parser.currentRow) 
