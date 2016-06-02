@@ -7,10 +7,12 @@ using bookrpg.log;
 public class AppMain : MonoBehaviour
 {
 
+    public string txt;
+
     // Use this for initialization
-    void Start()
+    void Awake()
     {
-        Debug.Log("Init AppMain");
+        Debug.Log("Init AppMain:" + txt);
     }
 
     // Update is called once per frame

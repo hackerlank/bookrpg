@@ -73,7 +73,7 @@ namespace bookrpg.Editor
             }
 
             var str = File.ReadAllText(projectFile);
-            Pack(PackProject.FromJson(str), outputPath);
+            Pack(PackProject.ParseFrom(str), outputPath);
         }
 
         public void Pack(

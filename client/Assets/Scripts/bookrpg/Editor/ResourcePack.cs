@@ -153,14 +153,14 @@ namespace bookrpg.Editor
             return ab;
         }
 
-        public void FromJson(JsonData data)
+        public void ParseFrom(JsonData data)
         {
             srcFile = (string)data["srcFile"];
             version = (int)data["version"];
             hash = (string)data["hash"];
         }
 
-        public string ToReleaseJson()
+        public string Serialize()
         {
             var jw = new JsonWriter();
             jw.WriteObjectStart();

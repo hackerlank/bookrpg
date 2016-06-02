@@ -99,7 +99,7 @@ namespace bookrpg.Editor
             resourcePacksJson.Add("[");
             foreach (var item in resourcePacks.Values)
             {
-                resourcePacksJson.Add(item.ToReleaseJson() + ",");
+                resourcePacksJson.Add(item.Serialize() + ",");
             }
             resourcePacksJson.Add("]");
 
@@ -119,7 +119,7 @@ namespace bookrpg.Editor
                     {
                         var data = obj[i];
                         var file = new ResourcePack();
-                        file.FromJson(data);
+                        file.ParseFrom(data);
                         lastResourcePacks.Add(file.srcFile, file);
                     }
                 }

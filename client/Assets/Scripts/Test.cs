@@ -2,11 +2,15 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic;
 using System;
+using System.Net;
 using System.IO;
 using bookrpg.log;
+using bookrpg.mgr;
 using bookrpg.core;
 using bookrpg.resource;
+using bookrpg.net;
 using ICSharpCode.SharpZipLib.Zip;
 
 public class Test : MonoBehaviour
@@ -35,28 +39,24 @@ public class Test : MonoBehaviour
 
 //        StartCoroutine(Load(uncompress));
 
-        WWW www = new WWW(uncompress);
 
 //        StartCoroutine(DoLoadAssetBundle(uncompress));
-//        StartCoroutine(DoLoadAssetBundle(compress));
 
-//        mgr = new LocalResMgr();
-//        mgr.Init(new Rest());
-//
-//        ResourceMgr.Init(mgr);
-//
-//
-//        ResourceMgr.Load(uncompress, url => {
-//            var ab = ResourceMgr.GetResource(url);
-//            Debug.Log(ResourceMgr.HasResource(uncompress));
-//        });
+        LoadTest();
 
+    }
 
-//        DecompressZLIB();
-//        StartCoroutine(DecompressUnity());
-//        string u1 = "http://127.0.0.1/map";
-//        string u2 = "http://127.0.0.1/mapc";
-//        StartCoroutine(Load(u2));
+    TcpClient tcp;
+
+    private void LoadTest()
+    {
+        tcp = new TcpClient();
+        tcp.onReceive += (tp, bytes) =>
+        {
+            Debug.Log("rec:" + bytes.Length.ToString());
+        };
+            
+        tcp.Connect("127.0.0.1", 2000);
 
     }
 

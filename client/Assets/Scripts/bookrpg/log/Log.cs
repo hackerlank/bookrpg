@@ -25,7 +25,7 @@ namespace bookrpg.log
 
     public static class Log
     {
-        class LogItem
+        private class LogItem
         {
             public DateTime time { get; private set; }
 
