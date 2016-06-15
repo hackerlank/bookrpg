@@ -1,5 +1,14 @@
 {
+    "name": "bookrpg/bookrpg",
+    "description": "A generator-based cooperative multitasking kernel for React.",
     "require": {
-        "recoil/recoil": "^0.4.0"
-    }
+        "php": "^7",
+        "icecave/repr": "^1",
+        "react/event-loop": "^0.4",
+        "react/promise": "^2"
+    },
+    "autoload": { "psr-4": { 
+    	"Recoil\\": "vendor/recoil/recoil/src" ,
+    	"bookrpg\\": "bookrpg"
+    	} }
 }

@@ -1,4 +1,4 @@
-﻿﻿///
+﻿///
 /// You can modify this file for your purpose 
 ///
 
@@ -47,7 +47,7 @@ namespace bookrpg
     public class VersionCfg : VersionCfgCE 
     {
         ///parse form txt 
-        public override bool ParseFrom(IConfigParser parser)
+        public override bool ParseFrom(IDataParser parser)
         {
             if (base.ParseFrom(parser))
             {
