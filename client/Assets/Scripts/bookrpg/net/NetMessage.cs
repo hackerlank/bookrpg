@@ -12,9 +12,9 @@ namespace bookrpg.net
 
         public int opcode  { get; set; }
 
-        public int route1;
+        public ushort route1;
 
-        public int route2;
+        public ushort route2;
 
         public int flag;
 
@@ -38,12 +38,12 @@ namespace bookrpg.net
 
         public void Deserialize(ByteArray stream)
         {
-            uint headSize = ReadUtils.Read_TYPE_UINT32(stream);
+            uint headSize = stream.ReadUInt16();
             var pos = stream.position;
-            opcode = ReadUtils.Read_TYPE_SINT32(stream);
-            route1 = ReadUtils.Read_TYPE_SINT32(stream);
-            route2 = ReadUtils.Read_TYPE_SINT32(stream);
-            flag = ReadUtils.Read_TYPE_SINT32(stream);
+            opcode = stream.ReadInt32();
+            route1 = stream.ReadUInt16();
+            route2 = stream.ReadUInt16();
+            flag = stream.ReadInt32();
             var headEnd = stream.position;
             stream.position = pos + headSize;
             ParseFrom(stream);
@@ -56,11 +56,13 @@ namespace bookrpg.net
         {
             using (ByteArray stream = new ByteArray(), head = new ByteArray())
             {
-                WriteUtils.Write_TYPE_SINT32(head, opcode);
-                WriteUtils.Write_TYPE_SINT32(head, route1);
-                WriteUtils.Write_TYPE_SINT32(head, route2);
-                WriteUtils.Write_TYPE_SINT32(head, flag);
-                WriteUtils.Write_TYPE_BYTES(stream, head.ToArray());
+                head.Write(opcode);
+                head.Write(route1);
+                head.Write(route2);
+                head.Write(flag);
+                var bytes = head.ToArray();
+                stream.Write((ushort)bytes.Length);
+                stream.Write(bytes);
                 WriteTo(stream);
                 return stream.ToArray();
             }

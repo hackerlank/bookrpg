@@ -5,6 +5,8 @@
  * @license The MIT License
  */
 
+namespace bookrpg\data;
+
 interface IDataParser extends \Iterator
 {
     public function getCurrentRow();

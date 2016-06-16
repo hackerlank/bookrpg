@@ -2,11 +2,9 @@
 
 namespace bookrpg\coroutine;
 
-use Generator;
-
 interface ICoroutine
 {
-    public function start(Generator $routine);
+    public function start($routine);
 
-    public function stop(Generator $routine);
+    public function stop($routine);
 }

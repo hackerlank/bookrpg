@@ -5,6 +5,10 @@
  * @license The MIT License
  */
 
+namespace bookrpg\data\impl;
+
+use bookrpg\data\IDataParser;
+
 /**
  * Parse tab delimited string, much like csv
  */

@@ -94,7 +94,7 @@ namespace bookrpg.net
             using (var byteArray = new ByteArray(bytes))
             {
                 byteArray.endian = useBigEndian ? Endian.BIG_ENDIAN : Endian.LITTLE_ENDIAN;
-                var message = NetMessageMgr.BuilderMessage(byteArray);
+                var message = NetMessageMgr.BuildMessage(byteArray);
 
                 if (message != null)
                 {
@@ -115,7 +115,7 @@ namespace bookrpg.net
 
         private void SendHeartbeat()
         {
-            var message = NetMessageMgr.BuilderMessage(hearbeatOpcode);
+            var message = NetMessageMgr.BuildMessage(hearbeatOpcode);
             if (message != null)
             {
                 SendMessage(message);

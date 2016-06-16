@@ -1,7 +1,6 @@
 <?php
 namespace bookrpg\coroutine;
 
-use Generator;
 use bookrpg\coroutine\impl\CoroutineImpl;
 
 class Coroutine
@@ -18,12 +17,12 @@ class Coroutine
         self::$impl = $impl;
     }
 
-    public static function start(Generator $routine)
+    public static function start($routine)
     {
         self::getImpl()->start($routine);
     }
 
-    public static function stop(Generator $routine)
+    public static function stop($routine)
     {
         self::getImpl()->stop($routine);
     }

@@ -1,14 +1,10 @@
 <?php
-/**
- * User: shenzhe
- * Date: 13-6-17
- */
+namespace bookrpg\cache\impl;
+
+use  bookrpg\cache\ICache;
 
 
-namespace ZPHP\Cache\Adapter;
-use ZPHP\Cache\ICache;
-
-class Yac implements ICache
+class YacCache implements ICache
 {
     private $yac = null;
 

@@ -5,6 +5,8 @@
  * @license The MIT License
  */
 
+namespace bookrpg\data;
+
 abstract class DataMgrDoubleKey extends DataMgrBase
 {
 

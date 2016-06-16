@@ -1,7 +1,6 @@
 <?php
 namespace bookrpg\coroutine\impl;
 
-use Generator;
 use bookrpg\coroutine\ICoroutine;
 
 class CoroutineImpl implements ICoroutine
@@ -18,14 +17,18 @@ class CoroutineImpl implements ICoroutine
         $this->routineList = [];
     }
 
-    public function start(Generator $routine)
+    public function start($routine)
     {
+        if(!($routine instanceof \Generator)) {
+            $routine = call_user_func($routine);
+        }
+
         $task = new Task($routine);
         $this->routineList[] = $task;
         $this->startTick();
     }
 
-    public function stop(Generator $routine)
+    public function stop($routine)
     {
     	foreach ($this->routineList as $k => $task) {
             if($task->getRoutine() == $routine){

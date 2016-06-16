@@ -5,8 +5,8 @@ namespace bookrpg.net
 {
     public interface INetMessageBuilder
     {
-        INetMessage BuilderMessage(int opcode);
+        INetMessage BuildMessage(int opcode);
 
-        INetMessage BuilderMessage(ByteArray stream);
+        INetMessage BuildMessage(ByteArray stream);
     }
 }

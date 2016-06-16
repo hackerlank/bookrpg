@@ -1,5 +1,5 @@
 <?php
-namespace bookrpg;
+namespace bookrpg\cache;
 
 interface ICache
 {

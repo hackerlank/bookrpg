@@ -51,21 +51,21 @@ namespace bookrpg.net
             }
         }
 
-        public static INetMessage BuilderMessage(int opcode)
+        public static INetMessage BuildMessage(int opcode)
         {
             if (messageBuilder != null)
             {
-                return messageBuilder.BuilderMessage(opcode);
+                return messageBuilder.BuildMessage(opcode);
             }
 
             return null;
         }
 
-        public static INetMessage BuilderMessage(ByteArray steam)
+        public static INetMessage BuildMessage(ByteArray steam)
         {
             if (messageBuilder != null)
             {
-                return messageBuilder.BuilderMessage(steam);
+                return messageBuilder.BuildMessage(steam);
             }
 
             return null;

@@ -5,6 +5,8 @@
  * @license The MIT License
  */
 
+namespace bookrpg\data;
+
 include_once  __DIR__ . '/IDataParser.php';
 
 class DataItemBase

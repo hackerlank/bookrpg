@@ -1,15 +1,10 @@
 <?php
-/**
- * User: shenzhe
- * Date: 13-6-17
- */
+namespace bookrpg\cache\impl;
+
+use  bookrpg\cache\ICache;
 
 
-namespace ZPHP\Cache\Adapter;
-use ZPHP\Cache\ICache,
-    ZPHP\Manager;
-
-class Redis implements ICache
+class RedisCache implements ICache
 {
     private $redis;
 
