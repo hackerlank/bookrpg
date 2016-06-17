@@ -8,9 +8,51 @@ use bookrpg\coroutine\Coroutine;
 use bookrpg\log\LogFactory;
 
 
+class ClassName  
+{
+    
+    public $opcode = 1;
 
+    public $route1 =2;
 
+    public $route2 =3;
 
+    public $flag =4;
+
+    public function getOpcode()
+    {
+        return $this->opcode;
+    }
+
+    public function parseHead($data)
+    {
+        $arr = unpack('vk1/Vk2/vk3/vk4/Vk5', $data);
+
+        $headSize = $arr['k1'];
+        $this->opcode = $arr['k2'];
+        $this->route1 = $arr['k3'];
+        $this->route2 = $arr['k4'];
+        $this->flag = $arr['k5'];
+
+        if(strlen($data) > $headSize + 2){
+            $this->parseBody(substr($data, $headSize));
+        }
+    }
+    
+    public function serializeHead()
+    {
+        return pack('vVvvV', 12, $this->opcode, 
+            $this->route1, $this->route2, $this->flag);
+    }
+}
+
+$c = new ClassName();
+
+$head = $c->serializeHead();
+
+$c->parseHead($head);
+
+ print_r($c);
 
 
 return;

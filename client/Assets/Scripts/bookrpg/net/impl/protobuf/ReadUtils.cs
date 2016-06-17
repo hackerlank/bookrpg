@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using bookrpg.net;
+using bookrpg.utils;
 
 namespace bookrpg.net.protobuf
 {
@@ -185,7 +186,7 @@ namespace bookrpg.net.protobuf
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
-        public static IMessage Read_TYPE_MESSAGE(ByteArray stream, IMessage message)
+        public static IProtobufMessage Read_TYPE_MESSAGE(ByteArray stream, IProtobufMessage message)
         {
             var bytes = Read_TYPE_BYTES(stream);
             using (var ms = new ByteArray(bytes))

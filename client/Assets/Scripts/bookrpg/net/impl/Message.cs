@@ -3,24 +3,27 @@ using System;
 using System.Collections;
 using System.IO;
 using bookrpg.net.protobuf;
+using bookrpg.utils;
 
 namespace bookrpg.net
 {
-    public class NetMessage : INetMessage, IMessage
+    public class Message : IMessage, IProtobufMessage
     {
         #region head
 
-        public int opcode  { get; set; }
+        private const ushort HEAD_LENGTH = 12;
+
+        public uint opcode  { get; set; }
 
         public ushort route1;
 
         public ushort route2;
 
-        public int flag;
+        public uint flag;
 
         #endregion
 
-        public NetMessage()
+        public Message()
         {
            
         }
@@ -38,14 +41,14 @@ namespace bookrpg.net
 
         public void Deserialize(ByteArray stream)
         {
-            uint headSize = stream.ReadUInt16();
+            ushort headLength = stream.ReadUInt16();
             var pos = stream.position;
-            opcode = stream.ReadInt32();
+            opcode = stream.ReadUInt32();
             route1 = stream.ReadUInt16();
             route2 = stream.ReadUInt16();
-            flag = stream.ReadInt32();
+            flag = stream.ReadUInt32();
             var headEnd = stream.position;
-            stream.position = pos + headSize;
+            stream.position = pos + headLength;
             ParseFrom(stream);
         }
 
@@ -54,15 +57,13 @@ namespace bookrpg.net
         /// </summary>
         public byte[] Serialize()
         {
-            using (ByteArray stream = new ByteArray(), head = new ByteArray())
+            using (ByteArray stream = new ByteArray())
             {
-                head.Write(opcode);
-                head.Write(route1);
-                head.Write(route2);
-                head.Write(flag);
-                var bytes = head.ToArray();
-                stream.Write((ushort)bytes.Length);
-                stream.Write(bytes);
+                stream.Write(HEAD_LENGTH);
+                stream.Write(opcode);
+                stream.Write(route1);
+                stream.Write(route2);
+                stream.Write(flag);
                 WriteTo(stream);
                 return stream.ToArray();
             }

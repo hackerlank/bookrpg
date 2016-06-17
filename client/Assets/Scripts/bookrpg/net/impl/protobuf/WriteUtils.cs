@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using bookrpg.net;
+using bookrpg.utils;
 
 namespace bookrpg.net.protobuf
 {
@@ -133,7 +134,7 @@ namespace bookrpg.net.protobuf
             Write_TYPE_BYTES(stream, Encoding.UTF8.GetBytes(value));
         }
 
-        public static void Write_TYPE_MESSAGE(ByteArray stream, IMessage value)
+        public static void Write_TYPE_MESSAGE(ByteArray stream, IProtobufMessage value)
         {
             if (value == null)
             {

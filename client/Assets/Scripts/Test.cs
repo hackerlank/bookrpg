@@ -10,6 +10,7 @@ using bookrpg.log;
 using bookrpg.mgr;
 using bookrpg.core;
 using bookrpg.resource;
+using bookrpg.utils;
 using bookrpg.net;
 using ICSharpCode.SharpZipLib.Zip;
 
@@ -42,7 +43,38 @@ public class Test : MonoBehaviour
 
 //        StartCoroutine(DoLoadAssetBundle(uncompress));
 
-        LoadTest();
+//        LoadTest();
+
+        txt.text = "little:\n";
+
+        short f = short.MaxValue;
+        Debug.Log(f);
+
+        ByteArray bytes = new ByteArray();
+        bytes.endian = Endian.LITTLE_ENDIAN;
+        bytes.Write(f);
+        bytes.position = 0;
+        while (bytes.bytesAvailable > 0)
+        {
+            txt.text += bytes.ReadSByte() + " ";
+        }
+        bytes.position = 0;
+
+        txt.text += "\n" + bytes.ReadInt16();
+
+        txt.text += "\nbig:\n";
+
+        bytes = new ByteArray();
+        bytes.endian = Endian.BIG_ENDIAN;
+        bytes.Write(f);
+        bytes.position = 0;
+        while (bytes.bytesAvailable > 0)
+        {
+            txt.text += bytes.ReadSByte() + " ";
+        }
+        bytes.position = 0;
+
+        txt.text += "\n" + bytes.ReadInt16();
 
     }
 

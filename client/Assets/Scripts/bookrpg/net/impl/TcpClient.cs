@@ -7,6 +7,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using bookrpg.core;
+using bookrpg.utils;
 
 namespace bookrpg.net
 {

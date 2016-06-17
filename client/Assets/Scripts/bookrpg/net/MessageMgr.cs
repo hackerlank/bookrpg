@@ -2,56 +2,57 @@
 using System.Collections;
 using System.Collections.Generic;
 using bookrpg.core;
+using bookrpg.utils;
 
 namespace bookrpg.net
 {
-    public static class NetMessageMgr
+    public static class MessageMgr
     {
-        private static Dictionary<int, BKEvent<INetMessage>> messages;
+        private static Dictionary<uint, BKEvent<IMessage>> messages;
 
         /// <summary>
-        /// BKFunc<opcode, INetMessage>
+        /// BKFunc<opcode, IMessage>
         /// </summary>
-        public static INetMessageBuilder messageBuilder;
+        public static IMessageBuilder messageBuilder;
 
-        public static void AddMessageListener(int opcode, BKAction<INetMessage> messageHanlder)
+        public static void AddMessageListener(uint opcode, BKAction<IMessage> messageHanlder)
         {
-            BKEvent<INetMessage> item;
+            BKEvent<IMessage> item;
             if (!messages.TryGetValue(opcode, out item))
             {
-                item = new BKEvent<INetMessage>();
+                item = new BKEvent<IMessage>();
             }
             item.AddListener(messageHanlder);
         }
 
-        public static void RemoveMessageListener(int opcode, BKAction<INetMessage> messageHanlder)
+        public static void RemoveMessageListener(uint opcode, BKAction<IMessage> messageHanlder)
         {
-            BKEvent<INetMessage> item;
+            BKEvent<IMessage> item;
             if (messages.TryGetValue(opcode, out item))
             {
                 item.RemoveListener(messageHanlder);
             }
         }
 
-        public static void DispatchMessage(INetMessage message)
+        public static void DispatchMessage(IMessage message)
         {
-            BKEvent<INetMessage> item;
+            BKEvent<IMessage> item;
             if (messages.TryGetValue(message.opcode, out item))
             {
                 item.Invoke(message);
             }
         }
 
-        public static void DispatchMessage(int opcode, INetMessage message)
+        public static void DispatchMessage(uint opcode, IMessage message)
         {
-            BKEvent<INetMessage> item;
+            BKEvent<IMessage> item;
             if (messages.TryGetValue(opcode, out item))
             {
                 item.Invoke(message);
             }
         }
 
-        public static INetMessage BuildMessage(int opcode)
+        public static IMessage BuildMessage(uint opcode)
         {
             if (messageBuilder != null)
             {
@@ -61,7 +62,7 @@ namespace bookrpg.net
             return null;
         }
 
-        public static INetMessage BuildMessage(ByteArray steam)
+        public static IMessage BuildMessage(ByteArray steam)
         {
             if (messageBuilder != null)
             {

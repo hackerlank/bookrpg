@@ -31,7 +31,7 @@ namespace bookrpg.net
             protected set;
         }
 
-        public virtual bool SendMessage(INetMessage message)
+        public virtual bool SendMessage(IMessage message)
         {
             throw new NotImplementedException();
         }

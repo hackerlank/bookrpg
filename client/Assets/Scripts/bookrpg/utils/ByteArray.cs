@@ -3,12 +3,12 @@ using System;
 using System.Collections;
 using System.IO;
 
-namespace bookrpg.net
+namespace bookrpg.utils
 {
 
     public enum Endian
     {
-        LITTLE_ENDIAN  = 0,
+        LITTLE_ENDIAN = 0,
         BIG_ENDIAN = 1,
     }
 
@@ -16,6 +16,8 @@ namespace bookrpg.net
     {
         private BinaryReader reader;
         private BinaryWriter writer;
+        private bool needConvertEndian;
+        private Endian _endian;
 
         public MemoryStream stream { get; private set; }
 
@@ -50,7 +52,19 @@ namespace bookrpg.net
             endian = BitConverter.IsLittleEndian ? Endian.LITTLE_ENDIAN : Endian.BIG_ENDIAN;
         }
 
-        public Endian endian;
+        public Endian endian
+        {
+            get
+            {
+                return _endian;
+            }
+            set
+            {
+                _endian = value;
+                needConvertEndian = value !=
+                (BitConverter.IsLittleEndian ? Endian.LITTLE_ENDIAN : Endian.BIG_ENDIAN);
+            }
+        }
 
         public long length
         {
@@ -108,7 +122,7 @@ namespace bookrpg.net
 
         public int Read()
         {
-            return reader.Read();
+            return needConvertEndian ? EndianSwap.SwapInt32(reader.Read()) : reader.Read();
         }
 
         public int Read(char[] buffer, int index, int count)
@@ -133,12 +147,12 @@ namespace bookrpg.net
 
         public short ReadInt16()
         {
-            return reader.ReadInt16();
+            return needConvertEndian ? EndianSwap.SwapInt16(reader.ReadInt16()) : reader.ReadInt16();
         }
 
         public ushort ReadUInt16()
         {
-            return reader.ReadUInt16();
+            return needConvertEndian ? EndianSwap.SwapUInt16(reader.ReadUInt16()) : reader.ReadUInt16();
         }
 
         public char ReadChar()
@@ -148,27 +162,22 @@ namespace bookrpg.net
 
         public uint ReadUInt32()
         {
-            return reader.ReadUInt32();
+            return needConvertEndian ? EndianSwap.SwapUInt32(reader.ReadUInt32()) : reader.ReadUInt32();
         }
 
         public int ReadInt32()
         {
-            return reader.ReadInt32();
+            return needConvertEndian ? EndianSwap.SwapInt32(reader.ReadInt32()) : reader.ReadInt32();
         }
 
         public long ReadInt64()
-        {
-            return reader.ReadInt64();
+        {            
+            return needConvertEndian ? EndianSwap.SwapInt64(reader.ReadInt64()) : reader.ReadInt64();
         }
 
         public ulong ReadUInt64()
         {
-            return reader.ReadUInt64();
-        }
-
-        public double ReadDouble()
-        {
-            return reader.ReadDouble();
+            return needConvertEndian ? EndianSwap.SwapUInt64(reader.ReadUInt64()) : reader.ReadUInt64();
         }
 
         public decimal ReadDecimal()
@@ -176,9 +185,26 @@ namespace bookrpg.net
             return reader.ReadDecimal();
         }
 
+        public double ReadDouble()
+        {
+            if (needConvertEndian)
+            {
+                return EndianSwap.Int64BitsToDouble(EndianSwap.SwapInt64(reader.ReadInt64()));
+            } else
+            {
+                return reader.ReadDouble();
+            }
+        }
+
         public float ReadSingle()
         {
-            return reader.ReadSingle();
+            if (needConvertEndian)
+            {
+                return EndianSwap.Int32BitsToFloat(EndianSwap.SwapInt32(reader.ReadInt32()));
+            } else
+            {
+                return reader.ReadSingle();
+            }
         }
 
         public sbyte ReadSByte()
@@ -218,22 +244,22 @@ namespace bookrpg.net
 
         public void Write(short value)
         {
-            writer.Write(value);
+            writer.Write(needConvertEndian ? EndianSwap.SwapInt16(value) : value);
         }
 
         public void Write(ushort value)
         {
-            writer.Write(value);
+            writer.Write(needConvertEndian ? EndianSwap.SwapUInt16(value) : value);
         }
 
         public void Write(int value)
         {
-            writer.Write(value);
+            writer.Write(needConvertEndian ? EndianSwap.SwapInt32(value) : value);
         }
 
         public void Write(uint value)
         {
-            writer.Write(value);
+            writer.Write(needConvertEndian ? EndianSwap.SwapUInt32(value) : value);
         }
 
         public void Write(byte[] value)
@@ -248,22 +274,34 @@ namespace bookrpg.net
 
         public void Write(long value)
         {
-            writer.Write(value);
+            writer.Write(needConvertEndian ? EndianSwap.SwapInt64(value) : value);
         }
 
         public void Write(ulong value)
         {
-            writer.Write(value);
+            writer.Write(needConvertEndian ? EndianSwap.SwapUInt64(value) : value);
         }
 
         public void Write(float value)
         {
-            writer.Write(value);
+            if (needConvertEndian)
+            {
+                writer.Write(EndianSwap.SwapInt32(EndianSwap.FloatToInt32Bits(value)));
+            } else
+            {
+                writer.Write(value);
+            }
         }
 
         public void Write(double value)
         {
-            writer.Write(value);
+            if (needConvertEndian)
+            {
+                writer.Write(EndianSwap.SwapInt64(EndianSwap.DoubleToInt64Bits(value)));
+            } else
+            {
+                writer.Write(value);
+            }
         }
 
         public void Write(string value)

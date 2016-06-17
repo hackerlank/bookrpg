@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using bookrpg.core;
 using bookrpg.mgr;
+using bookrpg.utils;
 
 namespace bookrpg.net
 {
@@ -17,7 +18,7 @@ namespace bookrpg.net
 
         private float heartbeatTime;
 
-        public int hearbeatOpcode = 0;
+        public uint hearbeatOpcode = 0;
 
         public bool autoReconnect;
 
@@ -60,7 +61,7 @@ namespace bookrpg.net
             heartbeatTime = Time.time;
         }
 
-        public override bool SendMessage(INetMessage message)
+        public override bool SendMessage(IMessage message)
         {
             if (client.isConnected)
             {
@@ -94,11 +95,11 @@ namespace bookrpg.net
             using (var byteArray = new ByteArray(bytes))
             {
                 byteArray.endian = useBigEndian ? Endian.BIG_ENDIAN : Endian.LITTLE_ENDIAN;
-                var message = NetMessageMgr.BuildMessage(byteArray);
+                var message = MessageMgr.BuildMessage(byteArray);
 
                 if (message != null)
                 {
-                    NetMessageMgr.DispatchMessage(message);
+                    MessageMgr.DispatchMessage(message);
                 }
             }
         }
@@ -115,7 +116,7 @@ namespace bookrpg.net
 
         private void SendHeartbeat()
         {
-            var message = NetMessageMgr.BuildMessage(hearbeatOpcode);
+            var message = MessageMgr.BuildMessage(hearbeatOpcode);
             if (message != null)
             {
                 SendMessage(message);

@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.IO;
 using System.Collections;
+using bookrpg.utils;
 
 namespace bookrpg.net
 {
-    public interface INetMessage
+    public interface IMessage
     {
-        int opcode{ get; set; }
+        uint opcode{ get; set; }
 
         void Deserialize(byte[] value);
 
