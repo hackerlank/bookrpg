@@ -6,53 +6,60 @@ include __DIR__ . '/vendor/autoload.php';
 use Recoil\React\ReactKernel;
 use bookrpg\coroutine\Coroutine;
 use bookrpg\log\LogFactory;
+use bookrpg\util\ByteArray;
+use bookrpg\util\Endian;
 
 
-class ClassName  
-{
-    
-    public $opcode = 1;
+// $data = file_get_contents('/Users/llj/Downloads/1.txt');
+// 
+$byte = new ByteArray();
+$byte->setEndian(Endian::BIG_ENDIAN);
 
-    public $route1 =2;
+$byte->writeUByte(111);
+$byte->writeBoolean(true);
+$byte->writeUInt16(21);
+$byte->writeUInt32(21);
+$byte->writeUInt64(21);
+$byte->writeFloat(-1.1);
+$byte->writeDouble(-1.1);
+$byte->writeString('a你好');
+$byte->writeBytes('aaa');
 
-    public $route2 =3;
+$byte->setPosition(0);
+echo $byte->readUByte() . PHP_EOL;
+echo $byte->readBoolean() . PHP_EOL;
+echo $byte->readUInt16() . PHP_EOL;
+echo $byte->readUInt32() . PHP_EOL;
+echo $byte->readUInt64() . PHP_EOL;
+echo $byte->readFloat() . PHP_EOL;
+echo $byte->readDouble() . PHP_EOL;
+echo $byte->readString() . PHP_EOL;
+echo $byte->readBytes(3) . PHP_EOL;
 
-    public $flag =4;
+return;
 
-    public function getOpcode()
-    {
-        return $this->opcode;
+function float_max($mul = 2, $affine = 1) {
+    $max = 1; $omax = 0;
+    while((string)$max != 'INF') { $omax = $max; $max *= $mul; }
+
+    for($i = 0; $i < $affine; $i++) {
+      $pmax = 1; $max = $omax;
+      while((string)$max != 'INF') {
+        $omax = $max;
+        $max += $pmax;
+        $pmax *= $mul;
+      }
     }
+    return $omax;
+  }
 
-    public function parseHead($data)
-    {
-        $arr = unpack('vk1/Vk2/vk3/vk4/Vk5', $data);
+$data = pack('ccc', 0x61, 0x62, 0x63);
 
-        $headSize = $arr['k1'];
-        $this->opcode = $arr['k2'];
-        $this->route1 = $arr['k3'];
-        $this->route2 = $arr['k4'];
-        $this->flag = $arr['k5'];
-
-        if(strlen($data) > $headSize + 2){
-            $this->parseBody(substr($data, $headSize));
-        }
-    }
-    
-    public function serializeHead()
-    {
-        return pack('vVvvV', 12, $this->opcode, 
-            $this->route1, $this->route2, $this->flag);
-    }
-}
-
-$c = new ClassName();
-
-$head = $c->serializeHead();
-
-$c->parseHead($head);
-
- print_r($c);
+$byte  = new ByteArray($data);
+echo $byte->readByte() . PHP_EOL;
+echo $byte->readByte() . PHP_EOL;
+echo $byte->readByte() . PHP_EOL;
+echo $byte->readByte() . PHP_EOL;
 
 
 return;

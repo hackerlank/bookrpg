@@ -5,7 +5,6 @@ using System.IO;
 
 namespace bookrpg.utils
 {
-
     public enum Endian
     {
         LITTLE_ENDIAN = 0,

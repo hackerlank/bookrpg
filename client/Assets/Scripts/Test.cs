@@ -45,9 +45,30 @@ public class Test : MonoBehaviour
 
 //        LoadTest();
 
+
+        var b = new ByteArray();
+        b.endian = Endian.BIG_ENDIAN;
+        b.Write((short)-1);
+        b.Write((int)-1);
+        b.Write((long)-1);
+        b.Write((float)-1.1);
+        b.Write(-1.1);
+
+        b.position = 0;
+        Debug.Log(b.ReadInt16());
+        Debug.Log(b.ReadInt32());
+        Debug.Log(b.ReadInt64());
+        Debug.Log(b.ReadSingle());
+        Debug.Log(b.ReadDouble());
+       
+        File.WriteAllBytes("/Users/llj/Downloads/1.txt", b.ToArray());
+
+        return;
+
+
         txt.text = "little:\n";
 
-        short f = short.MaxValue;
+        var f = "llj";
         Debug.Log(f);
 
         ByteArray bytes = new ByteArray();
@@ -60,7 +81,7 @@ public class Test : MonoBehaviour
         }
         bytes.position = 0;
 
-        txt.text += "\n" + bytes.ReadInt16();
+        txt.text += "\n" + bytes.ReadString();
 
         txt.text += "\nbig:\n";
 
@@ -74,7 +95,7 @@ public class Test : MonoBehaviour
         }
         bytes.position = 0;
 
-        txt.text += "\n" + bytes.ReadInt16();
+        txt.text += "\n" + bytes.ReadString();
 
     }
 
