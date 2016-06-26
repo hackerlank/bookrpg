@@ -34,83 +34,32 @@ public class Test : MonoBehaviour
 
     public void  LoadAssetBundle()
     {
+        MessageMgr.addMessagePaser<Login_c2s>(1);
+        MessageMgr.addMessagePaser<Login_s2c>(2);
 
-        string uncompress = baseUrlFile + "ResourcePack_00000000000000000000000000000000";
-        string compress = baseUrlFile + "scenec";
-
-//        StartCoroutine(Load(uncompress));
-
-
-//        StartCoroutine(DoLoadAssetBundle(uncompress));
-
-//        LoadTest();
-
-
-        var b = new ByteArray();
-        b.endian = Endian.BIG_ENDIAN;
-        b.Write((short)-1);
-        b.Write((int)-1);
-        b.Write((long)-1);
-        b.Write((float)-1.1);
-        b.Write(-1.1);
-
-        b.position = 0;
-        Debug.Log(b.ReadInt16());
-        Debug.Log(b.ReadInt32());
-        Debug.Log(b.ReadInt64());
-        Debug.Log(b.ReadSingle());
-        Debug.Log(b.ReadDouble());
-       
-        File.WriteAllBytes("/Users/llj/Downloads/1.txt", b.ToArray());
-
-        return;
-
-
-        txt.text = "little:\n";
-
-        var f = "llj";
-        Debug.Log(f);
-
-        ByteArray bytes = new ByteArray();
-        bytes.endian = Endian.LITTLE_ENDIAN;
-        bytes.Write(f);
-        bytes.position = 0;
-        while (bytes.bytesAvailable > 0)
+        MessageMgr.AddMessageListener(2, (m) =>
         {
-            txt.text += bytes.ReadSByte() + " ";
-        }
-        bytes.position = 0;
+            var msg = (Login_s2c)m;
+            Debug.Log("log ret:" + msg.retCode);
+        });
 
-        txt.text += "\n" + bytes.ReadString();
-
-        txt.text += "\nbig:\n";
-
-        bytes = new ByteArray();
-        bytes.endian = Endian.BIG_ENDIAN;
-        bytes.Write(f);
-        bytes.position = 0;
-        while (bytes.bytesAvailable > 0)
-        {
-            txt.text += bytes.ReadSByte() + " ";
-        }
-        bytes.position = 0;
-
-        txt.text += "\n" + bytes.ReadString();
-
+        StartCoroutine(LoadTest());
     }
 
     TcpClient tcp;
 
-    private void LoadTest()
+    private IEnumerator LoadTest()
     {
-        tcp = new TcpClient();
-        tcp.onReceive += (tp, bytes) =>
-        {
-            Debug.Log("rec:" + bytes.Length.ToString());
-        };
-            
-        tcp.Connect("127.0.0.1", 2000);
+        TcpRemoteServer s = new TcpRemoteServer();
+        RemoteServer.Init(s);
+        s.autoReconnect = false;
+        yield return StartCoroutine(s.Connect("127.0.0.1", 7749));
 
+        Login_c2s msg = new Login_c2s();
+        msg.opcode = 1;
+        msg.username = "a";
+        msg.password = "a";
+        s.SendMessage(msg);
     }
 
     private IEnumerator DoLoadAssetBundle(string url)

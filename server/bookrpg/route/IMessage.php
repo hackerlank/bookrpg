@@ -16,4 +16,8 @@ interface  IMessage
     public function parse($data);
 
     public function serialize();
+
+    public function getSender();
+
+    public function setSender($value);
 }

@@ -1,77 +1,66 @@
 <?php
 
-define('ROOT', __DIR__ . '/');
+const ROOT = __DIR__ . '/';
 
-$dir = [
-    'test/',
-    'test/book/rpg/',
-    'bookexcel/',
-    'bookexcel/template/PHP/libs/',
-];
+include ROOT . '../vendor/autoload.php';
 
-function autoloadClass($name)
-{
-    global $dir;
+use bookrpg\core\Facade;
+use bookrpg\log\LogFactory;
+use bookrpg\cache\CacheFactory;
+use bookrpg\route\RouteFactory;
+use bookrpg\socket\ServerFactory;
+use bookrpg\util\Util;
 
-    if($name == 'ConfigItemBase'){
-        echo $name;
+const EOL = "\r\n";
+const DS = '/';
+
+Util::include(ROOT);
+
+echo 'Init GameServer' . PHP_EOL;
+
+$config = require ROOT . 'config/config.php';
+Facade::$config = $config;
+
+echo 'Init log, type: ' . $config['log_type'] . PHP_EOL;
+Facade::$log = LogFactory::getInstance($config['log_type'], $config);
+
+echo 'Init cache, type: ' . $config['cache_type'] . PHP_EOL;
+Facade::$cache = CacheFactory::getInstance($config['cache_type'], $config);
+
+echo 'Init route, type: ' . $config['route_type'] . PHP_EOL;
+Facade::$route = RouteFactory::getInstance($config['route_type'], $config);
+
+echo 'Init server, type: ' . $config['server_type'] . PHP_EOL;
+$server = ServerFactory::getInstance($config['server_type'], $config);
+Facade::$server = $server;
+
+$server->onStart()->addListener(function(){
+    Facade::$route->addMessageParser(1, '\Login_c2s');
+    Facade::$route->addMessageParser(2, '\Login_s2c');
+    Facade::$route->addListener(1, function($msg){
+
+    	echo $msg->getUsername() . '  ' . $msg->getPassword() . PHP_EOL;
+
+        $cli = $msg->getSender();
+
+    	$msg = new \Login_s2c();
+        $msg->opcode = 2;
+    	$msg->setRetCode(0);
+
+    	$cli->send($msg);
+
+    });
+});
+
+$server->onReceive()->addListener(function($serv, $cli, $data){
+    $message = Facade::$route->buildMessage($data, $cli);
+    if($message){
+        Facade::$route->dispatch($message);
+    } else {
+        Facade::$log->warning('received unknown message, ip: ' . $cli->clientIP());
     }
-
-    if (false !== $pos = strrpos($name,'\\')){
-        $name = substr($name, $pos + 1);
-    }
-
-    foreach ($dir as $val) {
-
-        $file = ROOT . $val . $name . '.php';
-        if (file_exists($file)) {
-            require_once $file;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-// spl_autoload_register('autoloadClass', true, true);
-
-// $st = new \book\rpg\SheetConfMgr();
-// $st->init(file_get_contents('test/Sheet.json'), 'json');
-
-// $i1 = $st->getItem(1, '武器商');
-// $i3 = $st->getItemByDesc('武器商');
-
-//  $ct = new ConfigCfgMgr();
-//  $ct->init(file_get_contents('test/config.txt'));
+});
 
 
-$test = "\\test"; // outputs \test;
-
-// WON'T WORK: pattern in double-quotes double-escaped backslash
-//其实变成了匹配单字符\t
-echo preg_replace("~\\\t~", '', $test),PHP_EOL; #output -> \test
-
-// WORKS: pattern in double-quotes with triple-escaped backslash
-echo preg_replace("~\\\\t~", '', $test),PHP_EOL; #output -> est
-
-// WON'T WORK: pattern in single-quotes with double-escaped backslash
-//其实变成了匹配单字符\t
-echo preg_replace('~\\t~', '', $test),PHP_EOL; #output -> \test
-
-// WORKS: pattern in single-quotes with double-escaped backslash
-echo preg_replace('~\\\t~', '', $test),PHP_EOL; #output -> est
-
-// WON'T WORK: pattern in single-quotes with double-escaped backslash
-//其实变成了匹配单字符\t
-echo preg_replace('~[\\]t~', '', $test),PHP_EOL; #output -> \test
-
-// WORKS: pattern in double-quotes with double-escaped backslash inside a character class
-echo preg_replace("~[\\\]t~", '', $test),PHP_EOL; #output -> est
-
-// WORKS: pattern in single-quotes with double-escaped backslash inside a character class
-echo preg_replace('~[\\\]t~', '', $test),PHP_EOL; #output -> est
-
-
-echo PHP_EOL;
-
+$server->start();
 

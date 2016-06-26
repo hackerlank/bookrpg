@@ -10,8 +10,7 @@ class LogFactory
 	 */
     public static function getInstance($impl = 'File', $config = null)
     {
-    	$impl = ucfirst($impl);
-    	$className = __NAMESPACE__ . "\\impl\\{$impl}Log";
+    	$className = __NAMESPACE__ . "\\impl\\" . ucfirst($impl) . 'Log';
         return new $className($config);
     }
 }

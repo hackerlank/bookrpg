@@ -7,12 +7,10 @@ namespace bookrpg.net
 {
     public interface IMessage
     {
-        uint opcode{ get; set; }
+        uint opcode { get; set; }
 
-        void Deserialize(byte[] value);
+        void Deserialize(ByteArray stream);
 
-        void Deserialize(ByteArray value);
-
-        byte[] Serialize();
+        ByteArray Serialize(ByteArray stream = null, bool skipHead = false);
     }
 }

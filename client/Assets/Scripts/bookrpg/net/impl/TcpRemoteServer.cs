@@ -42,7 +42,7 @@ namespace bookrpg.net
         public IEnumerator Connect(string host, int port)
         {
             client.Connect(host, port);
-            while (!client.isConnected || client.error == null)
+            while (!client.isConnected || client.error != null)
             {
                 yield return null;
             }
@@ -65,7 +65,7 @@ namespace bookrpg.net
         {
             if (client.isConnected)
             {
-                return client.Send(message.Serialize()); 
+                return client.Send(MessageMgr.PackMessage(message, useBigEndian)); 
             }
 
             return false;
@@ -92,15 +92,11 @@ namespace bookrpg.net
 
         private void onReceive(TcpClient client, byte[] bytes)
         {
-            using (var byteArray = new ByteArray(bytes))
-            {
-                byteArray.endian = useBigEndian ? Endian.BIG_ENDIAN : Endian.LITTLE_ENDIAN;
-                var message = MessageMgr.BuildMessage(byteArray);
+            var message = MessageMgr.UnpackMessage(bytes, useBigEndian);
 
-                if (message != null)
-                {
-                    MessageMgr.DispatchMessage(message);
-                }
+            if (message != null)
+            {
+                MessageMgr.DispatchMessage(message);
             }
         }
 
@@ -116,7 +112,7 @@ namespace bookrpg.net
 
         private void SendHeartbeat()
         {
-            var message = MessageMgr.BuildMessage(hearbeatOpcode);
+            var message = MessageMgr.CreateMessage(hearbeatOpcode);
             if (message != null)
             {
                 SendMessage(message);

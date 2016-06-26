@@ -14,20 +14,13 @@ class FileLog extends LogBase
         'log_level' => Level::ALL,
         'log_dir' => '.',
         'log_suffix' => 'log',
-        'log_separator' => ' | ',
-        'log_slice_time' => 0, //day week 
+        'log_separator' => ' ',
         'log_slice_size' => 0, //单位mb
     ];
 
-    public function __construct($config)
+    public function __construct($config=null)
     {
-        $cfg = self::CONFIG;
-
-        if (!empty($config)) {
-            array_merge($cfg, $config);
-        }
-
-        $this->config = (object)$cfg;
+        $this->config = (object)($config ? array_merge(self::CONFIG, $config) : self::CONFIG);
     }
 
     /**
@@ -45,12 +38,14 @@ class FileLog extends LogBase
 
             $separator = $this->config->log_separator;
             $str = date("Y-m-d H:i:s") . $separator . $level . $separator . $message . 
-            $separator . implode($separator, array_map('\bookrpg\util\Util::toJson', $context));
+            $separator . implode($separator, array_map('\bookrpg\util\Util::toJson', $context)) . EOL;
 
             $logFile = $this->config->log_dir . DS . $this->config->log_name . '.' . 
             $this->config->log_suffix;
 
-            return file_put_contents($logFile, $str . EOL, FILE_APPEND|LOCK_EX);
+            echo $str;
+
+            return file_put_contents($logFile, $str, FILE_APPEND|LOCK_EX);
         }
 
         return false;

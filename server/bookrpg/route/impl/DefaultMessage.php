@@ -2,6 +2,7 @@
 namespace bookrpg\route\impl;
 
 use bookrpg\route\IMessage;
+use bookrpg\socket\IClient;
 
 /**
  * headLength(uint16), not include self length
@@ -12,27 +13,37 @@ use bookrpg\route\IMessage;
  * ...custom head, total size: headLength - 12
  * ...body
  */
-class DefaultMessage implements IMessage
+class DefaultMessage extends \ProtobufMessage implements IMessage
 {
-    private const HEAD_LENGTH = 12;
+    const HEAD_LENGTH = 12;
 
     private $headLength;
 
-	public $opcode;
+	public $opcode = 0;
 
-    public $route1;
+    public $route1 = 0;
 
-    public $route2;
+    public $route2 = 0;
 
-    public $flag;
+    public $flag = 0;
+
+    private $client;
 
     public function getOpcode()
     {
     	return $this->opcode;
     }
 
+    /**
+     * @return bool is success
+     */
     public function parseHead($data)
     {
+        if(strlen($data) < self::HEAD_LENGTH + 2) {
+            $this->opcode = 0;
+            return false;
+        }
+
         $arr = unpack('vk1/Vk2/vk3/vk4/Vk5', $data);
 
         $this->headLength = $arr['k1'];
@@ -40,6 +51,8 @@ class DefaultMessage implements IMessage
         $this->route1 = $arr['k3'];
         $this->route2 = $arr['k4'];
         $this->flag = $arr['k5'];
+
+        return true;
     }
     
     public function serializeHead()
@@ -60,19 +73,32 @@ class DefaultMessage implements IMessage
 
     public function parse($data)
     {
-    	parseHead($data);
+    	$this->parseHead($data);
         if(strlen($data) > $this->headLength + 2){
-            $this->parseBody(substr($data, $this->headLength));
+            $this->parseBody(substr($data, $this->headLength + 2));
         }
     }
 
     public function serialize()
     {
-    	return serializeHead() . serializeBody();
+    	return $this->serializeHead() . $this->serializeBody();
     }
 
     public function reset()
     {
 
+    }
+
+    /**
+     * @return IClient
+     */
+    public function getSender()
+    {
+        return $this->client;
+    }
+
+    public function setSender($value)
+    {
+        $this->client = $value;
     }
 }

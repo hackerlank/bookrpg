@@ -1,5 +1,8 @@
+#!/usr/bin/php
 <?php
-require 'bookproto/Bookproto.php';
+require 'bookproto/bookproto/Bookproto.php';
+
+$prjroot = dirname(__DIR__) . '/';
 
 $params = array(
     //frequently used
@@ -16,18 +19,8 @@ $params = array(
     'genPackageDir' => true, //auto generate package directory
 );
 
-
-$params['inputPath'] = 'test/*.proto';
-$params['outputPath'] = 'protos';
+$params['inputPath'] = $prjroot . 'proto/*.proto';
+$params['outputPath'] = $prjroot . 'client/Assets/Scripts/proto/';
 $params['codeType'] = 'C#';
 parseProtos($params);
-
-
-// 
-// add more workers
-// 
-// $params['inputPath'] = 'test/*.proto';
-// $params['outputPath'] = 'protos';
-// $params['codeType'] = 'C#';
-// parseProtos($params);
 

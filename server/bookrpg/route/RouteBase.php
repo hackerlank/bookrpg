@@ -3,7 +3,7 @@ namespace bookrpg\route;
 
 use bookrpg\core\Facade;
 
-class RouteBase
+abstract class RouteBase
 {
 	private $messages = [];
 
@@ -32,11 +32,11 @@ class RouteBase
 
     public function dispatch(IMessage $message)
     {
-    	if(!isset($this->messages[$opcode])) {
+    	if(!isset($this->messages[$message->getOpcode()])) {
     		return;
     	}
 
-    	foreach ($this->messages[$opcode] as &$value) {
+    	foreach ($this->messages[$message->getOpcode()] as &$value) {
 			try {
 				call_user_func($value, $message);
 			} catch (\Exception $e){
@@ -48,5 +48,9 @@ class RouteBase
     /**
      * @return IMessage
      */
-    abstract public function buildMessage($data);
+    abstract public function buildMessage($data, $sender=null);
+
+    abstract public function addMessageParser($opcode, $parser);
+
+    abstract public function addMessageParserArray($array);
 }

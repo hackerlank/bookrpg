@@ -15,6 +15,7 @@ namespace bookrpg.core
             Debug.Log("Init bookrpg Application");
             DontDestroyOnLoad(this);
             CoroutineMgr.Init(this);
+            MessageMgr.messagePacker = new MessagePacker();
         }
 
         void FixedUpdate()

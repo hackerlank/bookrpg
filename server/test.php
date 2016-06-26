@@ -1,5 +1,7 @@
-﻿<?php
+<?php
 
+
+namespace bookrpg;
 
 include __DIR__ . '/vendor/autoload.php';
 
@@ -9,6 +11,19 @@ use bookrpg\log\LogFactory;
 use bookrpg\util\ByteArray;
 use bookrpg\util\Endian;
 
+/**
+* 
+*/
+class ClassName
+{
+    
+    public $aa = '';
+}
+
+$cn = new ClassName();
+echo $cn->aa;
+
+return;
 
 // $data = file_get_contents('/Users/llj/Downloads/1.txt');
 // 

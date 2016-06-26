@@ -1,0 +1,8 @@
+message Login_c2s {
+	required string username = 1;
+	required string password = 2;
+}
+
+message Login_s2c {
+	required uint32 retCode = 1;
+}

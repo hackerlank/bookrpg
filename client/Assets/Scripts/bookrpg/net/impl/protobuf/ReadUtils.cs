@@ -186,12 +186,12 @@ namespace bookrpg.net.protobuf
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
-        public static IProtobufMessage Read_TYPE_MESSAGE(ByteArray stream, IProtobufMessage message)
+        public static IMessage Read_TYPE_MESSAGE(ByteArray stream, IMessage message)
         {
             var bytes = Read_TYPE_BYTES(stream);
             using (var ms = new ByteArray(bytes))
             {
-                message.ParseFrom(ms);
+                message.Deserialize(ms);
             }
             return message;
         }

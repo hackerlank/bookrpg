@@ -225,13 +225,18 @@ namespace bookrpg.net
 
         private bool DoSend()
         {
-            if (sendQueue.Count == 0 && curSendBytes == null)
+            if(curSendBytes == null && sendQueue.Count <= 0)
             {
                 isSending = false;
                 return false;
             }
 
             var bytes = curSendBytes != null ? curSendBytes : sendQueue.Dequeue();
+            if(bytes == null)
+            {
+                isSending = false;
+                return false;
+            }
 
             int count = bytes.Length;
 
@@ -249,14 +254,14 @@ namespace bookrpg.net
 
             if (curSendBytesIndex == 0)
             {
-                var lengthBytes = BitConverter.GetBytes(bytes.Length);
+                var lengthBytes = BitConverter.GetBytes(bytes.Length + PACKET_LENGTH_SIZE);
                 Buffer.BlockCopy(lengthBytes, 0, sendSAEA.Buffer, 0, PACKET_LENGTH_SIZE);
                 Buffer.BlockCopy(bytes, 0, sendSAEA.Buffer, PACKET_LENGTH_SIZE, count);
             } else
             {
                 Buffer.BlockCopy(bytes, curSendBytesIndex, sendSAEA.Buffer, 0, count);
             }
-            sendSAEA.SetBuffer(0, count);
+            sendSAEA.SetBuffer(0, curSendBytesIndex + count + PACKET_LENGTH_SIZE);
             socket.SendAsync(sendSAEA);
 
             isSending = true;
@@ -266,6 +271,7 @@ namespace bookrpg.net
         private void DoReceive()
         {
             receiveStream.Write(receiveSAEA.Buffer, 0, receiveSAEA.BytesTransferred);
+            receiveStream.position -= receiveSAEA.BytesTransferred;
             ReadDataPacket(receiveStream);
 
             if (receiveStream.bytesAvailable <= 0)
@@ -293,7 +299,9 @@ namespace bookrpg.net
                 {
                     if (data.bytesAvailable > PACKET_LENGTH_SIZE)
                     {
-                        packetLength = data.ReadInt32();
+                        //包长按网络字节顺序
+                        packetLength = IPAddress.HostToNetworkOrder(data.ReadInt32());
+                        packetLength -= PACKET_LENGTH_SIZE;
                     } else
                     {
                         break;
@@ -317,7 +325,8 @@ namespace bookrpg.net
         private byte[] WritePacketLength(int length)
         {
             packetLenArray.position = 0;
-            packetLenArray.Write(length);
+            //包长按网络字节顺序
+            packetLenArray.Write(IPAddress.HostToNetworkOrder(length));
             return packetLenArray.ToArray();
         }
     }

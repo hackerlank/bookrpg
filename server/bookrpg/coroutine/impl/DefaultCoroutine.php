@@ -6,14 +6,17 @@ use bookrpg\coroutine\ICoroutine;
 class CoroutineImpl implements ICoroutine
 {
     //ms
-    const TICK_INTERVAL = 10;
+    private $tickInterval = 5;
 
     private $routineList;
 
     private $tickId = -1;
 
-	public function __construct()
+	public function __construct($config = null)
     {
+        if(isset($config['coroutine_tick_interval'])) {
+            $this->tickInterval = intval($config['coroutine_tick_interval']);
+        }
         $this->routineList = [];
     }
 
@@ -39,7 +42,7 @@ class CoroutineImpl implements ICoroutine
 
     private function startTick()
     {
-        swoole_timer_tick(self::TICK_INTERVAL, function($timerId){
+        swoole_timer_tick($this->tickInterval, function($timerId){
             $this->tickId = $timerId;
             $this->run();
         });

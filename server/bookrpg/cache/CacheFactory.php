@@ -10,7 +10,7 @@ class CacheFactory
      */
     public static function getInstance($impl = 'Redis', $config = null)
     {
-        $className = __NAMESPACE__ . "\\impl\\{ucfirst($impl)}Cache";
+        $className = __NAMESPACE__ . "\\impl\\" . ucfirst($impl) . 'Cache';
         return new $className($config);
     }
 }

@@ -8,12 +8,12 @@ namespace bookrpg.net
 {
     public static class MessageMgr
     {
-        private static Dictionary<uint, BKEvent<IMessage>> messages;
+        private static Dictionary<uint, BKEvent<IMessage>> messages = new Dictionary<uint, BKEvent<IMessage>>();
 
         /// <summary>
         /// BKFunc<opcode, IMessage>
         /// </summary>
-        public static IMessageBuilder messageBuilder;
+        public static IMessagePacker messagePacker;
 
         public static void AddMessageListener(uint opcode, BKAction<IMessage> messageHanlder)
         {
@@ -21,6 +21,7 @@ namespace bookrpg.net
             if (!messages.TryGetValue(opcode, out item))
             {
                 item = new BKEvent<IMessage>();
+                messages.Add(opcode, item);
             }
             item.AddListener(messageHanlder);
         }
@@ -52,21 +53,39 @@ namespace bookrpg.net
             }
         }
 
-        public static IMessage BuildMessage(uint opcode)
+        public static void addMessagePaser<T>(uint opcode) where T : IMessage
         {
-            if (messageBuilder != null)
+            if (messagePacker != null)
             {
-                return messageBuilder.BuildMessage(opcode);
+                messagePacker.addMessageParser<T>(opcode);
+            }
+        }
+
+        public static IMessage CreateMessage(uint opcode)
+        {
+            if (messagePacker != null)
+            {
+                return messagePacker.CreateMessage(opcode);
             }
 
             return null;
         }
 
-        public static IMessage BuildMessage(ByteArray steam)
+        public static byte[] PackMessage(IMessage message, bool useBigEndian = false)
         {
-            if (messageBuilder != null)
+            if (messagePacker != null)
             {
-                return messageBuilder.BuildMessage(steam);
+                return messagePacker.PackMessage(message, useBigEndian);
+            }
+
+            return null;
+        }
+
+        public static IMessage UnpackMessage(byte[] stream, bool useBigEndian = false)
+        {
+            if (messagePacker != null)
+            {
+                return messagePacker.UnpackMessage(stream, useBigEndian);
             }
 
             return null;

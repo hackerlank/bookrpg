@@ -134,7 +134,7 @@ namespace bookrpg.net.protobuf
             Write_TYPE_BYTES(stream, Encoding.UTF8.GetBytes(value));
         }
 
-        public static void Write_TYPE_MESSAGE(ByteArray stream, IProtobufMessage value)
+        public static void Write_TYPE_MESSAGE(ByteArray stream, IMessage value)
         {
             if (value == null)
             {
@@ -142,7 +142,7 @@ namespace bookrpg.net.protobuf
             }
             using (var ms = new ByteArray())
             {
-                value.WriteTo(ms);
+                value.Serialize(ms, true);
                 Write_TYPE_BYTES(stream, ms.ToArray());
             }
         }

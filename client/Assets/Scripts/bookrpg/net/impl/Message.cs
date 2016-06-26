@@ -7,7 +7,7 @@ using bookrpg.utils;
 
 namespace bookrpg.net
 {
-    public class Message : IMessage, IProtobufMessage
+    public class Message : IMessage
     {
         #region head
 
@@ -25,21 +25,9 @@ namespace bookrpg.net
 
         public Message()
         {
-           
         }
 
-        /// <summary>
-        /// Parses message, include body and head
-        /// </summary>
-        public void Deserialize(byte[] bytes)
-        {
-            using (var stream = new ByteArray(bytes))
-            {
-                ParseFrom(stream);
-            }
-        }
-
-        public void Deserialize(ByteArray stream)
+        public virtual void Deserialize(ByteArray stream)
         {
             ushort headLength = stream.ReadUInt16();
             var pos = stream.position;
@@ -47,42 +35,24 @@ namespace bookrpg.net
             route1 = stream.ReadUInt16();
             route2 = stream.ReadUInt16();
             flag = stream.ReadUInt32();
-            var headEnd = stream.position;
             stream.position = pos + headLength;
-            ParseFrom(stream);
         }
 
-        /// <summary>
-        /// Serialize message, include body and head
-        /// </summary>
-        public byte[] Serialize()
+        public virtual ByteArray Serialize(ByteArray stream = null, bool skipHead = false)
         {
-            using (ByteArray stream = new ByteArray())
+            if (stream == null)
+            {
+                stream = new ByteArray();
+            }
+            if (!skipHead)
             {
                 stream.Write(HEAD_LENGTH);
                 stream.Write(opcode);
                 stream.Write(route1);
                 stream.Write(route2);
                 stream.Write(flag);
-                WriteTo(stream);
-                return stream.ToArray();
             }
-        }
-
-        /// <summary>
-        /// Parses message body, not include head, used by protobuf
-        /// </summary>
-        public virtual void ParseFrom(ByteArray stream)
-        {
-            
-        }
-
-        /// <summary>
-        /// Serialize message body, not include head, used by protobuf
-        /// </summary>
-        public virtual void WriteTo(ByteArray stream)
-        {
-            
+            return stream;
         }
     }
 }

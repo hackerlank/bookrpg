@@ -1,0 +1,91 @@
+[2016-06-24 19:11:59 *26089.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught TypeError: Argument 1 passed to bookrpg\socket\impl\SwooleClient::__construct() must be an instance of bookrpg\socket\impl\SwooleServer, instance of swoole_server given, called in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/socket/impl/SwooleServer.php on line 178 and defined in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/socket/impl/SwooleClient.php:20
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/socket/impl/SwooleServer
+[2016-06-26 11:06:14 *26681.0]	WARNING	swSignal_callback: signal[1] callback is null.
+[2016-06-26 11:28:43 *26893.0]	ERROR	zm_deactivate_swoole (ERROR 9003): worker process is terminated by exit()/die().
+[2016-06-26 11:30:42 *26899.0]	ERROR	zm_deactivate_swoole (ERROR 9003): worker process is terminated by exit()/die().
+[2016-06-26 11:39:21 *26976.0]	ERROR	zm_deactivate_swoole (ERROR 9003): worker process is terminated by exit()/die().
+[2016-06-26 12:23:26 *27048.0]	ERROR	zm_deactivate_swoole (ERROR 9003): worker process is terminated by exit()/die().
+[2016-06-26 12:26:33 *27135.0]	ERROR	zm_deactivate_swoole (ERROR 9003): worker process is terminated by exit()/die().
+[2016-06-26 12:33:39 *27207.0]	ERROR	zm_deactivate_swoole (ERROR 9003): worker process is terminated by exit()/die().
+[2016-06-26 12:34:02 *27212.0]	ERROR	zm_deactivate_swoole (ERROR 9003): worker process is terminated by exit()/die().
+[2016-06-26 12:34:15 *27217.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Error: Class '\Login_c2s' not found in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultRoute.php:47
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/GameServer/app.php(51): bookrpg\route\impl\DefaultRoute->buildMessage('\f\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\n...')
+#1 [internal function]: {closure}(Object(bookrpg\socket\impl\SwooleServer), Object(bookrpg\socket\impl\SwooleClient), '\f\x00\x01\x00\x00\x00\x00\
+[2016-06-26 12:34:40 *27219.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Error: Class '\Login_c2s' not found in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultRoute.php:47
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/GameServer/app.php(51): bookrpg\route\impl\DefaultRoute->buildMessage('\f\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\n...')
+#1 [internal function]: {closure}(Object(bookrpg\socket\impl\SwooleServer), Object(bookrpg\socket\impl\SwooleClient), '\f\x00\x01\x00\x00\x00\x00\
+[2016-06-26 14:19:07 *28286.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Error: Call to undefined function bookrpg\route\impl\parseHead() in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:73
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultRoute.php(48): bookrpg\route\impl\DefaultMessage->parse('\f\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\n...')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/GameServer/app.php(54): bookrpg\route\impl\DefaultRoute->bu
+[2016-06-26 14:20:18 *28312.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Error: Call to undefined method Login_c2s::parseFromString() in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\x00\x00\n\x03llj\x12')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultRoute.php(48): bookrpg\route\impl\DefaultMessage->parse('\f\x00\x01\x
+[2016-06-26 14:22:46 *28334.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'password' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\x00\x00\n\x03llj\x12')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\x00\x00\n\x03llj\x12'
+[2016-06-26 14:24:16 *28343.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'password' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\x00\x00\n\x03llj\x12')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\x00\x00\n\x03llj\x12'
+[2016-06-26 14:29:09 *28384.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'password' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x03llj\x12')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x03llj\x12')
+#2 /Users/llj/
+[2016-06-26 14:31:50 *28401.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'password' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x03llj\x12')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x03llj\x12')
+#2 /Users/llj/
+[2016-06-26 14:39:30 *28470.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'password' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x03llj\x12')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x03llj\x12')
+#2 /Users/llj/
+[2016-06-26 14:40:12 *28475.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'password' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x03llj\x12')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x03llj\x12')
+#2 /Users/llj/
+[2016-06-26 14:43:30 *28499.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'username' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x01')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x01')
+#2 /Users/llj/Downloads/arpg
+[2016-06-26 14:49:12 *28512.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'username' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x01')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x01')
+#2 /Users/llj/Downloads/arpg
+[2016-06-26 14:49:29 *28543.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'username' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x01')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x01')
+#2 /Users/llj/Downloads/arpg
+[2016-06-26 14:54:04 *28556.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'username' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x01')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x01')
+#2 /Users/llj/Downloads/arpg
+[2016-06-26 14:55:32 *28586.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'username' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x01')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x01')
+#2 /Users/llj/Downloads/arpg
+[2016-06-26 14:58:07 *28602.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Exception: : parse error - "parse 'username' field fail" in /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php:63
+Stack trace:
+#0 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(63): ProtobufMessage->parseFromString('\n\x01')
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/impl/DefaultMessage.php(75): bookrpg\route\impl\DefaultMessage->parseBody('\n\x01')
+#2 /Users/llj/Downloads/arpg
+[2016-06-26 15:39:23 *28881.0]	ERROR	zm_deactivate_swoole (ERROR 103): Fatal error: Uncaught Error: Access to undeclared static property: bookrpg\core\Facade::$cli in /Users/llj/Downloads/arpg/bookrpg/server/GameServer/app.php:50
+Stack trace:
+#0 [internal function]: {closure}(Object(Login_s2c))
+#1 /Users/llj/Downloads/arpg/bookrpg/server/bookrpg/route/RouteBase.php(41): call_user_func(Object(Closure), Object(Login_c2s))
+#2 /Users/llj/Downloads/arpg/bookrpg/server/GameServer/app.php(58): bookrpg\route\RouteBase->dispatch(Object(Login_c2s))
+#3 
